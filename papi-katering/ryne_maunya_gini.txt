@@ -1,0 +1,19 @@
+Masing-masing component & pages
+-   Components masuk /components
+-   Pages masuk /pages
+
+class/id jangan nembak (jgn umum, kalo bisa namanya describe efeknya)
+
+css jangan global (spesifik)
+cth jgn gni
+h1 {
+    blablabla
+}
+
+.container jgn
+
+Penamaan
+nama folder kebab-case, pake dash kalo spasi (ryne-maunya-gini)
+nama file PascalCase, capital no space (RyneMaunyaGini)
+
+pake .jsx jgn .js (biar enak)
