@@ -6,7 +6,7 @@ export default function Header() {
   return (
     <header className="bg-primary py-4 px-10 flex flex-row justify-between">
       <div className="flex flex-row items-center gap-4 font-semibold text-white">
-        <img src={logo} alt="" srcset="" className="w-12" />
+        <img src={logo} alt="" className="w-12" />
         PAPI KATERING
       </div>
       <div className="flex flex-row items-center bg-white px-5 rounded gap-4 w-3/6">
