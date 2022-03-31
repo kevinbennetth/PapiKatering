@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { BsFillStarFill } from "react-icons/bs";
 import MenuCard from "../components/MenuCard";
+import ReviewModal from "../components/modal/ReviewModal";
 import ReviewCard from "../components/ReviewCard";
+import ItemsCarousel from "react-items-carousel";
 
 export default function DetailPage() {
   const [orderCount, setOrderCount] = useState(0);
+  const [reviewModal, setReviewModal] = useState(true);
+  const [activeItemIndex, setActiveItemIndex] = useState(0);
 
   const packet = {
     name: "Paket A",
@@ -105,6 +109,36 @@ export default function DetailPage() {
           },
         ],
       },
+      {
+        id: 4,
+        day: "Sunday",
+        menuItem: [
+          {
+            id: 10,
+            image:
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
+            name: "Mi Pangsit",
+            description: "Deskripsi singat mi pangsit, agak singkat si",
+            time: "Breakfast",
+          },
+          {
+            id: 11,
+            image:
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
+            name: "Mi Pangsit",
+            description: "Deskripsi singat mi pangsit, agak singkat si",
+            time: "Lunch",
+          },
+          {
+            id: 12,
+            image:
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
+            name: "Mi Pangsit",
+            description: "Deskripsi singat mi pangsit, agak singkat si",
+            time: "Dinner",
+          },
+        ],
+      },
     ],
     merchant: {
       name: "Winter Catering",
@@ -131,8 +165,21 @@ export default function DetailPage() {
     ],
   };
 
+  const showModal = () => {
+    document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = "1.05rem";
+    setReviewModal(true);
+  };
+
+  const hideModal = () => {
+    document.body.style.overflow = "visible";
+    document.body.style.paddingRight = "0";
+    setReviewModal(false);
+  };
+
   return (
-    <div className="py-14 px-24 flex flex-col gap-10">
+    <div className="py-20 px-24 flex flex-col gap-10">
+      <ReviewModal show={reviewModal} hideModal={hideModal} />
       <div className="flex flex-row gap-16 items-center">
         <img
           src="https://ik.imagekit.io/tvlk/cul-asset/guys1L+Yyer9kzI3sp-pb0CG1j2bhflZGFUZOoIf1YOBAm37kEUOKR41ieUZm7ZJ/cul-assets-252301483284-b172d73b6c43cddb/culinary/asset/REST_823-720x720-FIT_AND_TRIM-546ba62036aeff0535844d034100a061.jpeg?tr=q-40,c-at_max,w-720,h-1280&amp;_src=imagekit"
@@ -166,11 +213,20 @@ export default function DetailPage() {
           </div>
         </div>
       </div>
-      <div className="flex flex-row gap-10 py-6">
+      <ItemsCarousel
+        requestToChangeActive={(e) => setActiveItemIndex(e)}
+        activeItemIndex={activeItemIndex}
+        numberOfCards={3}
+        gutter={20}
+        leftChevron={<button>{"<"}</button>}
+        rightChevron={<button>{">"}</button>}
+        outsideChevron
+        chevronWidth={40}
+      >
         {packet.menu.map((menu) => (
           <MenuCard menu={menu} key={menu.id} />
         ))}
-      </div>
+      </ItemsCarousel>
       <div className="rounded shadow-md flex flex-row items-center p-8 gap-10">
         <img
           src="https://static.zerochan.net/Ko.Elizabeth.full.2947878.jpg"
@@ -190,7 +246,12 @@ export default function DetailPage() {
       <div className="flex flex-col gap-4">
         <div className="flex flex-row justify-between">
           <h4 className="text-2xl font-bold">Reviews</h4>
-          <h4 className="text-xl font-bold text-primary cursor-pointer">+ Add Review</h4>
+          <h4
+            className="text-xl font-bold text-primary cursor-pointer"
+            onClick={showModal}
+          >
+            + Add Review
+          </h4>
         </div>
         <div className="flex flex-col gap-6">
           {packet.reviews.map((review) => (

@@ -2,7 +2,7 @@ import React from "react";
 
 export default function MenuCard(props) {
   return (
-    <div className="bg-white p-6 shadow-md rounded-lg">
+    <div className="bg-white p-6 shadow-md rounded-lg w-fit m-2">
       <h3 className="text-xl font-bold mb-6">{props.menu.day}</h3>
       <div className="flex flex-col gap-6">
         {props.menu.menuItem.map((menuItem) => (
