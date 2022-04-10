@@ -7,7 +7,7 @@ import ItemsCarousel from "react-items-carousel";
 
 export default function DetailPage() {
   const [orderCount, setOrderCount] = useState(0);
-  const [reviewModal, setReviewModal] = useState(true);
+  const [reviewModal, setReviewModal] = useState(false);
   const [activeItemIndex, setActiveItemIndex] = useState(0);
 
   const packet = {
@@ -18,6 +18,10 @@ export default function DetailPage() {
     price: "30.000",
     detail:
       "Fotonya KFC si biar agak rame yang teken, tapi di sini jualnya nasi sama pecel aja, tapi lumayan enak kok ga bohong dah, boleh bener dicoba. Kata orang si enak, cuma gatau si, kalo suka boleh direview 5 bintang biar lebih rame tokonya, kasih tau saudara juga biar toko saya lebih ramai, tengkiu ngab",
+    categories: [
+      "Halal",
+      "Non-Vegetarian"
+    ],
     menu: [
       {
         id: 1,
@@ -193,6 +197,11 @@ export default function DetailPage() {
             <BsFillStarFill className="text-yellow-300 w-6 h-6" />
             <h4>{packet.rating}</h4>
             <h4>({packet.reviewCount} Ulasan)</h4>
+          </div>
+          <div className="flex flex-row gap-4">
+            {
+              packet.categories.map(category => <span className="bg-primary text-white px-4 py-1 rounded-full font-semibold">{category}</span>)
+            }
           </div>
           <h2 className="text-4xl my-4 font-semibold">Rp {packet.price}</h2>
           <h3 className="text-xl font-semibold">Detail</h3>

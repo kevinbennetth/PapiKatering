@@ -3,9 +3,7 @@ import { FaRegTimesCircle } from "react-icons/fa";
 
 export default function BaseModal(props) {
   const modalRef = useRef();
-
-  console.log(props);
-
+  
   const updateRef = (e) => {
     if (modalRef.current === e.target) {
       props.hideModal();
