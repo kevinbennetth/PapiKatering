@@ -205,7 +205,7 @@ export default function DetailPage() {
           </div>
           <h2 className="text-4xl my-4 font-semibold">Rp {packet.price}</h2>
           <h3 className="text-xl font-semibold">Detail</h3>
-          <p>{packet.detail}</p>
+          <p>{packet.detail} test</p>
           <div className="flex flex-row w-1/2 gap-4 my-4">
             <input
               type="number"
