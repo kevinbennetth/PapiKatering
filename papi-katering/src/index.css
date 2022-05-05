@@ -36,6 +36,6 @@ code {
     background-image: url('../src/assets/CapitalDColonWide.png');
 }
 
-.profile {
-    background-image: url('../src/assets/1197554.jpg');
+li {
+    margin: 4px;
 }

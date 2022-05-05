@@ -4,23 +4,15 @@ import RegisterPage from "./pages/register";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import DetailPage from "./pages/DetailPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
     return (
-        <Router>
-            <div className="App">
-                <div className="content">
-                    <Switch>
-                        <Route exact path="/login">
-                            <LoginPage />
-                        </Route>
-                        <Route exact path="/register">
-                            <RegisterPage />
-                        </Route>
-                    </Switch>
-                </div>
-            </div>
-        </Router>
+        <div className="bg-gray-50">
+            <Header />
+            <ProfilePage />
+            <Footer />
+        </div>
     );
 }
 
