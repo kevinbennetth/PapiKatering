@@ -2,8 +2,10 @@ import { useState } from "react";
 
 import AddressMenu from "../components/profile/AddressMenu";
 import AuthenticationMenu from "../components/profile/AuthenticationMenu";
+import MerchantMenu from "../components/profile/MerchantMenu";
 import OngoingOrdersMenu from "../components/profile/OngoingOrdersMenu";
 import OrdersHistoryMenu from "../components/profile/OrdersHistoryMenu";
+import PackageMenu from "../components/profile/PackageMenu";
 import PaymentsMenu from "../components/profile/PaymentsMenu";
 import ProfileMenu from "../components/profile/ProfileMenu";
 import ReviewsMenu from "../components/profile/ReviewsMenu";
@@ -29,6 +31,11 @@ const renderMenu = (menu) => {
     }
     else if(menu === "reviews"){
         return (<ReviewsMenu />);
+    }
+    else if(menu === "merchant") {
+        return (<MerchantMenu />);
+    } else if(menu === "package") {
+        return (<PackageMenu />)
     }
 }
 
@@ -74,8 +81,8 @@ const ProfilePage = () => {
                     </div>
                     <div className="bottom">
                         <ul>
-                            <li>Merchant</li>
-                            <li>Packages</li>
+                            <li><button onClick={() => setMenu("merchant")}>{renderOption("Merchant")}</button></li>
+                            <li><button onClick={() => setMenu("package")}>{renderOption("Package")}</button></li>
                             <li>Log out</li>
                         </ul>
                     </div>

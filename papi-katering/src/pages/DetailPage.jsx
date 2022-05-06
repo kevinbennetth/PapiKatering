@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { BsFillStarFill } from "react-icons/bs";
-import MenuCard from "../components/MenuCard";
+import MenuCard from "../components/card/MenuCard";
 import ReviewModal from "../components/modal/ReviewModal";
-import ReviewCard from "../components/ReviewCard";
+import ReviewCard from "../components/card/ReviewCard";
 import ItemsCarousel from "react-items-carousel";
 
 export default function DetailPage() {
@@ -205,7 +205,7 @@ export default function DetailPage() {
           </div>
           <h2 className="text-4xl my-4 font-semibold">Rp {packet.price}</h2>
           <h3 className="text-xl font-semibold">Detail</h3>
-          <p>{packet.detail} test</p>
+          <p>{packet.detail}</p>
           <div className="flex flex-row w-1/2 gap-4 my-4">
             <input
               type="number"
