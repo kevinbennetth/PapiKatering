@@ -7,6 +7,7 @@ import DetailPage from "./pages/DetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import AddPacketPage from "./pages/AddPacketPage";
 import QuizPage from "./pages/QuizPage";
+import CheckoutPage from "./pages/CheckoutPage";
 
 function App() {
   return (
@@ -31,6 +32,9 @@ function App() {
         </Route>
         <Route path="/quiz">
           <QuizPage />
+        </Route>
+        <Route path="/checkout">
+          <CheckoutPage />
         </Route>
       </Switch>
       <Footer />
