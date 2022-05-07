@@ -5,6 +5,8 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import DetailPage from "./pages/DetailPage";
 import ProfilePage from "./pages/ProfilePage";
+import AddPacketPage from "./pages/AddPacketPage";
+import QuizPage from "./pages/QuizPage";
 
 function App() {
   return (
@@ -23,6 +25,12 @@ function App() {
         </Route>
         <Route path="/register">
           <RegisterPage />
+        </Route>
+        <Route path="/packet">
+          <AddPacketPage />
+        </Route>
+        <Route path="/quiz">
+          <QuizPage />
         </Route>
       </Switch>
       <Footer />
