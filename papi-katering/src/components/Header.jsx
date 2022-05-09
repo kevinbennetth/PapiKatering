@@ -1,6 +1,7 @@
 import React from "react";
-import logo from "../assets/LogoWhite.png";
 import { GoSearch } from "react-icons/go";
+import { Link } from "react-router-dom";
+import logo from "../assets/LogoWhite.png";
 
 export default function Header() {
   return (
@@ -29,11 +30,13 @@ export default function Header() {
         <div className="cursor-pointer">CART</div>
         <div className="cursor-pointer">HOME</div>
         <div className="cursor-pointer">BROWSE</div>
-        <img
-          src="https://static.zerochan.net/Ko.Elizabeth.full.2947878.jpg"
-          alt=""
-          className="w-12 rounded-full"
-        />
+        <Link to="/profile">
+          <img
+            src="https://static.zerochan.net/Ko.Elizabeth.full.2947878.jpg"
+            alt=""
+            className="w-12 rounded-full"
+          />
+        </Link>
       </nav>
     </header>
   );
