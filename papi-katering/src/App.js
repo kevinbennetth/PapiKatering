@@ -1,11 +1,14 @@
+
+import './App.css';
+import Landing from "./pages/landing";
+
 function App() {
-    return (
-        <div className="App">
-            <header className="App-header">
-                
-            </header>
-        </div>
-    );
+  return (
+    <div className="App">
+        <Landing />
+        
+    </div>
+  );
 }
 
 export default App;
