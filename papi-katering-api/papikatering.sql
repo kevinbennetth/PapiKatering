@@ -42,7 +42,7 @@ CREATE TABLE Payment (
 );
 
 CREATE TABLE Address (
-    AddressID INT,
+    AddressID SERIAL,
     CustomerID INT,
     AddressName VARCHAR(50),
     AddressDetails TEXT,
@@ -68,7 +68,7 @@ CREATE TABLE Preference (
 );
 
 CREATE TABLE Packet (
-    PacketID INT,
+    PacketID SERIAL,
     MerchantID INT,
     PacketName VARCHAR(50),
     PacketImage VARCHAR(100),
@@ -99,14 +99,15 @@ CREATE TABLE Menu (
 );
 
 CREATE TABLE Orders (
-    OrderID INT,
+    OrderID SERIAL,
     PacketID INT,
     MerchantID INT,
     CustomerID INT,
     AddressID INT,
+    PaymentID INT,
     OrderDate DATE NOT NULL,
     OrderDayCount INT NOT NULL,
-    OrderPrice INT NOT NULL,
+    OrderAdditionalPrice INT NOT NULL,
     OrderQuantity INT NOT NULL,
     OrderStatus INT NOT NULL, 
 
