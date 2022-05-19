@@ -82,20 +82,31 @@ CREATE TABLE Packet (
 );
 
 CREATE TABLE Menu (
-    MenuID INT,
+    MenuID SERIAL,
     PacketID INT,
     MenuDay INT,
-    MenuTime VARCHAR(10),
-    MenuName VARCHAR(50),
-    MenuImage VARCHAR(100),
-    MenuDescription VARCHAR(255),
 
     CONSTRAINT MenuID_PK PRIMARY KEY(MenuID),
     CONSTRAINT PacketID_FK FOREIGN KEY(PacketID)
         REFERENCES Packet(PacketID)
         ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT MenuTimeCheck CHECK(MenuTime IN ('Breakfast','Lunch','Dinner')),
     CONSTRAINT MenuDayCheck CHECK(MenuDay >=1 AND MenuDay <=7)
+
+);
+
+CREATE TABLE MenuItem (
+    MenuItemID SERIAL,
+    MenuID INT,
+    MenuTime VARCHAR(10),
+    MenuName VARCHAR(50),
+    MenuImage VARCHAR(100),
+    MenuDescription VARCHAR(255),
+
+    CONSTRAINT MenuItemID_PK PRIMARY KEY(MenuItemID),
+    CONSTRAINT MenuID_FK FOREIGN KEY(MenuID)
+        REFERENCES Menu(MenuID)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT MenuTimeCheck CHECK(MenuTime IN ('Breakfast','Lunch','Dinner'))
 );
 
 CREATE TABLE Orders (
