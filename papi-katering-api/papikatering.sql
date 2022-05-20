@@ -13,6 +13,18 @@ CREATE TABLE Customer (
     CONSTRAINT GenderCheck CHECK(CustomerGender IN ('Male','Female'))
 );
 
+-- INSERT INTO Customer (CustomerID, CustomerImage, CustomerName, CustomerEmail, CustomerPhone, CustomerDOB, CustomerGender, CustomerPassword) 
+-- VALUES(
+--     1,
+--     NULL,
+--     'Maklo',
+--     'maklo@maklo.com',
+--     '1234567890123',
+--     '2000-01-01',
+--     'Male',
+--     'maklos'
+-- );
+
 CREATE TABLE Merchant (
     MerchantID INT,
     CustomerID INT,
@@ -28,6 +40,16 @@ CREATE TABLE Merchant (
     CONSTRAINT PhoneCheck CHECK(MerchantPhone ~ '[0-9]{11}|[0-9]{12}|[0-9]{13}')
 );
 
+-- INSERT INTO Merchant (MerchantID, CustomerID, MerchantImage, MerchantName, MerchantAddress, MerchantPhone)
+-- VALUES (
+--     101,
+--     1,
+--     NULL,
+--     'purr',
+--     'di maklo',
+--     '0987654321098'
+-- );
+
 CREATE TABLE Payment (
     PaymentID INT,
     CustomerID INT,
@@ -40,6 +62,12 @@ CREATE TABLE Payment (
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT PaymentNumberCheck CHECK(PaymentNumber ~ '[0-9]*')
 );
+
+INSERT INTO Payment (PaymentID, CustomerID, PaymentName, PaymentNumber)
+VALUES 
+(1001, 1, 'Main Card', '1234123412341234'),
+(1002, 1, 'Credit Card', '6969696969696969'),
+(1003, 1, 'Debit Card', '1234567890123456');
 
 CREATE TABLE Address (
     AddressID INT,
