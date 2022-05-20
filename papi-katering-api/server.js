@@ -6,10 +6,17 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./db");
 
-const app = express()
+const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Routers
+const addressRouter = require("./routes/address");
+const orderRouter = require("./routes/order");
+const packetRouter = require("./routes/packet");
+const preferenceRouter = require("./routes/preference");
+
 // User OR Customer --
     // get user's data
     app.get("/user/:id", async (req, res) => {
@@ -287,10 +294,11 @@ app.use(express.json());
     });
 
 // Packet
-
+app.use("/packet", packetRouter);
 // Reviews
 
 // Order
+app.use("/order", orderRouter);
 
 // Payment --
     // get all payment
@@ -438,13 +446,15 @@ app.use(express.json());
 
 
 // Address
+app.use("/address", addressRouter);
 
 // Preference
+app.use("/preference", preferenceRouter);
 
 
 
 // Turn on server
 const port = process.env.PORT;
 app.listen(port, () => {
-    console.log(`server up, listening on port ${port}`);
-})
+  console.log(`server up, listening on port ${port}`);
+});

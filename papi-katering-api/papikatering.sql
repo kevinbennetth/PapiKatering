@@ -70,7 +70,7 @@ VALUES
 (1003, 1, 'Debit Card', '1234567890123456');
 
 CREATE TABLE Address (
-    AddressID INT,
+    AddressID SERIAL,
     CustomerID INT,
     AddressName VARCHAR(50),
     AddressDetails TEXT,
@@ -88,6 +88,7 @@ CREATE TABLE Preference (
     MinPrice INT NOT NULL,
     MaxPrice INT NOT NULL,
 
+    CONSTRAINT Preference_PK PRIMARY KEY(CustomerID),
     CONSTRAINT CustomerID_FK FOREIGN KEY(CustomerID)
         REFERENCES Customer(CustomerID)
         ON UPDATE CASCADE ON DELETE CASCADE,
@@ -96,7 +97,7 @@ CREATE TABLE Preference (
 );
 
 CREATE TABLE Packet (
-    PacketID INT,
+    PacketID SERIAL,
     MerchantID INT,
     PacketName VARCHAR(50),
     PacketImage VARCHAR(100),
@@ -110,31 +111,43 @@ CREATE TABLE Packet (
 );
 
 CREATE TABLE Menu (
-    MenuID INT,
+    MenuID SERIAL,
     PacketID INT,
     MenuDay INT,
-    MenuTime VARCHAR(10),
-    MenuName VARCHAR(50),
-    MenuImage VARCHAR(100),
-    MenuDescription VARCHAR(255),
 
     CONSTRAINT MenuID_PK PRIMARY KEY(MenuID),
     CONSTRAINT PacketID_FK FOREIGN KEY(PacketID)
         REFERENCES Packet(PacketID)
         ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT MenuTimeCheck CHECK(MenuTime IN ('Breakfast','Lunch','Dinner')),
     CONSTRAINT MenuDayCheck CHECK(MenuDay >=1 AND MenuDay <=7)
+
+);
+
+CREATE TABLE MenuItem (
+    MenuItemID SERIAL,
+    MenuID INT,
+    MenuTime VARCHAR(10),
+    MenuName VARCHAR(50),
+    MenuImage VARCHAR(100),
+    MenuDescription VARCHAR(255),
+
+    CONSTRAINT MenuItemID_PK PRIMARY KEY(MenuItemID),
+    CONSTRAINT MenuID_FK FOREIGN KEY(MenuID)
+        REFERENCES Menu(MenuID)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT MenuTimeCheck CHECK(MenuTime IN ('Breakfast','Lunch','Dinner'))
 );
 
 CREATE TABLE Orders (
-    OrderID INT,
+    OrderID SERIAL,
     PacketID INT,
     MerchantID INT,
     CustomerID INT,
     AddressID INT,
+    PaymentID INT,
     OrderDate DATE NOT NULL,
     OrderDayCount INT NOT NULL,
-    OrderPrice INT NOT NULL,
+    OrderAdditionalPrice INT NOT NULL,
     OrderQuantity INT NOT NULL,
     OrderStatus INT NOT NULL, 
 
