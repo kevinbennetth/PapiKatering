@@ -2,49 +2,60 @@ const express = require("express");
 const pool = require("../db");
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  const { customer_id } = req.body;
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
   const queryString = "SELECT * FROM preference WHERE customerid=$1;";
-  const values = [customer_id];
+  const values = [id];
 
   try {
     const preference = await pool.query(queryString, values);
-    res.status(400).json(preference.rows[0]);
+    if (preference.rowCount > 0) {
+      res.status(200).json(preference.rows[0]);
+    } else {
+      res
+        .status(400)
+        .json({ message: `There's no customer with ID ${id}` });
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
 router.post("/", async (req, res) => {
-  const { customer_id, halal, vegetarian, min_price, max_price } = req.body;
+  const { customerID, halal, vegetarian, minPrice, maxPrice } = req.body;
 
   const queryString =
     "INSERT INTO preference (customerid, halal, vegetarian, minprice, maxprice) VALUES ($1, $2, $3, $4, $5);";
-  const values = [customer_id, halal, vegetarian, min_price, max_price];
+  const values = [customerID, halal, vegetarian, minPrice, maxPrice];
 
   try {
-    _ = await pool.query(queryString, values);
-    res.status(400).json({ message: "Successfully added new preference" });
+    await pool.query(queryString, values);
+    res.status(200).json({ message: "Successfully added new preference" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
-router.patch("/", async (req, res) => {
-  const { customer_id, halal, vegetarian, min_price, max_price } = req.body;
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { halal, vegetarian, minPrice, maxPrice } = req.body;
 
   const queryString =
-    "UPDATE preference SET halal = $1, vegetarian = $2, minprice = $3, maxprice = $4 WHERE customerid=$5;";
-  const values = [halal, vegetarian, min_price, max_price, customer_id];
-
+    "UPDATE preference SET halal = $1, vegetarian = $2, minprice = $3, maxprice = $4 WHERE customerid=$5 RETURNING *;";
+  const values = [halal, vegetarian, minPrice, maxPrice, id];
 
   try {
-    _ = await pool.query(queryString, values);
-    res
-      .status(400)
-      .json({ message: `Successfully updated preference with customer id=${customer_id}` });
+    const updatedPreference = await pool.query(queryString, values);
+
+    if (updatedPreference.rowCount > 0) {
+      res.status(200).json({
+        message: `Successfully updated preference with customer ID ${id}`,
+      });
+    } else {
+      res.status(400).json({ message: `There's no customer with ID ${id}` });
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 

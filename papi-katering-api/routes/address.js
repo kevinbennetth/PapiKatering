@@ -3,28 +3,30 @@ const pool = require("../db");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const queryString = "SELECT * FROM address;";
+  const { customerID } = req.body;
+  const queryString = "SELECT * FROM address WHERE customerid=$1;";
+  const values = [customerID];
 
   try {
-    const allAddress = await pool.query(queryString);
-    res.status(400).json(allAddress.rows);
+    const allAddress = await pool.query(queryString, values);
+    res.status(200).json(allAddress.rows);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
 router.post("/", async (req, res) => {
-  const { customer_id, name, detail } = req.body;
+  const { customerID, name, detail } = req.body;
 
   const queryString =
     "INSERT INTO address (customerid, addressname, addressdetails) VALUES ($1, $2, $3);";
-  const values = [customer_id, name, detail];
+  const values = [customerID, name, detail];
 
   try {
-    const newAddress = await pool.query(queryString, values);
-    res.status(400).json({ message: "Successfully added new address" });
+    await pool.query(queryString, values);
+    res.status(200).json({ message: "Successfully added new address" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -36,43 +38,58 @@ router.get("/:id", async (req, res) => {
 
   try {
     const address = await pool.query(queryString, values);
-    res.status(400).json(address.rows[0]);
+
+    if (address.rowCount > 0) {
+      res.status(200).json(address.rows[0]);
+    } else {
+      res.status(400).json({ error: `There's no address with ID ${id}` });
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
-router.patch("/:id", async (req, res) => {
-  const { name, detail } = req.body;
+router.put("/:id", async (req, res) => {
   const { id } = req.params;
+  const { name, detail } = req.body;
 
   const queryString =
-    "UPDATE address SET addressname = $1, addressdetails = $2 WHERE addressid = $3";
+    "UPDATE address SET addressname = $1, addressdetails = $2 WHERE addressid = $3 RETURNING *";
   const values = [name, detail, id];
 
   try {
-    _ = await pool.query(queryString, values);
-    res
-      .status(400)
-      .json({ message: `Successfully updated address with id=${id}` });
+    const updatedAddress = await pool.query(queryString, values);
+
+    if (updatedAddress.rowCount > 0) {
+      res
+        .status(200)
+        .json({ message: `Successfully updated address with ID ${id}` });
+    } else {
+      res.status(400).json({ error: `There's no address with ID ${id}` });
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
-  const queryString = "DELETE FROM address WHERE addressid = $1";
+  const queryString = "DELETE FROM address WHERE addressid = $1 RETURNING *";
   const values = [id];
 
   try {
-    _ = await pool.query(queryString, values);
-    res
-      .status(400)
-      .json({ message: `Successfully deleted address with id=${id}` });
+    const deletedAddress = await pool.query(queryString, values);
+
+    if (deletedAddress.rowCount > 0) {
+      res
+        .status(200)
+        .json({ message: `Successfully deleted address with ID ${id}` });
+    } else {
+      res.status(400).json({ error: `There's no address with ID ${id}` });
+    }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 

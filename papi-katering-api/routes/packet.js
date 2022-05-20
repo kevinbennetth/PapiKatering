@@ -1,19 +1,14 @@
 const express = require("express");
-const res = require("express/lib/response");
 const pool = require("../db");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const { merchant_id, q, categories, min_price, max_price, page, limit } =
-    req.query;
+  const { merchantID, q, categories, minPrice, maxPrice, page, limit } = req.query;
   let columns =
-    "packet.packetid, packet.packetname, packet.packetimage, packet.packetprice, merchant.merchantname, AVG(reviewrating) AS rating, COUNT(reviewrating) AS reviewcount";
+    "packet.packetid, packet.packetname, packet.packetimage, packet.packetprice, merchant.merchantname";
 
   let dataSources =
-    "FROM packet JOIN review ON packet.packetid = review.packetid JOIN merchant ON packet.merchantid = merchant.merchantid";
-
-  let grouping =
-    "GROUP BY packet.packetid, packet.packetname, packet.packetimage, packet.packetprice, merchant.merchantname";
+    "FROM packet JOIN merchant ON packet.merchantid = merchant.merchantid";
 
   let conditions = "WHERE";
 
@@ -40,9 +35,9 @@ router.get("/", async (req, res) => {
     values = [...numberCategories];
   }
 
-  if (merchant_id) {
+  if (merchantID) {
     conditions += ` AND packet.merchantid=$${idx}`;
-    values.push(merchant_id);
+    values.push(merchantID);
     idx++;
   }
 
@@ -52,15 +47,15 @@ router.get("/", async (req, res) => {
     idx++;
   }
 
-  if (min_price) {
+  if (minPrice) {
     conditions += ` AND packetprice >= $${idx}`;
-    values.push(min_price);
+    values.push(minPrice);
     idx++;
   }
 
-  if (max_price) {
+  if (maxPrice) {
     conditions += ` AND packetprice <= $${idx}`;
-    values.push(max_price);
+    values.push(maxPrice);
     idx++;
   }
 
@@ -73,19 +68,45 @@ router.get("/", async (req, res) => {
   values.push(enteredLimit);
   values.push(offset);
 
-  const queryString = `SELECT ${columns} ${dataSources} ${conditions} ${grouping} ${limitOffset}`;
+  const queryString = `SELECT ${columns} ${dataSources} ${
+    conditions === "WHERE" ? "" : conditions
+  } ${limitOffset}`;
+
+  const reviewQueryString = `
+    SELECT
+      packetid,
+      AVG(reviewrating) AS rating, 
+      COUNT(reviewrating) AS reviewcount
+    FROM review
+    WHERE packetid=$1
+    GROUP BY packetid;
+    `;
 
   try {
-    const allPacket = await pool.query(queryString, values);
+    const resPacket = await pool.query(queryString, values);
+    const allPacket = resPacket.rows;
+    for (let i = 0; i < allPacket.length; i++) {
+      const packet = allPacket[i];
 
-    res.status(400).json(allPacket.rows);
+      const reviewValues = [packet.packetid];
+      const resReview = await pool.query(reviewQueryString, reviewValues);
+
+      allPacket[i].rating = 0;
+      allPacket[i].reviewCount = 0;
+
+      if (resReview.rowCount > 0) {
+        allPacket[i].rating = resReview.rows[0].rating;
+        allPacket[i].reviewCount = resReview.rows[0].reviewCount;
+      }
+    }
+    res.status(400).json(allPacket);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 router.post("/", async (req, res) => {
-  let queryString, values, newPacket;
+  let queryString, values, newPacket, menuQueryString;
 
   [queryString, values] = createPacket(req);
   try {
@@ -101,16 +122,17 @@ router.post("/", async (req, res) => {
     [menuQueryString, menuItemQueryString, menus] = createMenus(req);
 
     for (let index = 0; index < menus.length; index++) {
-      values = [newPacket.packetid, menus[index].menu_day];
+      values = [newPacket.packetid, menus[index].menuDay];
 
       const resMenu = await pool.query(menuQueryString, values);
       newMenu = resMenu.rows[0];
       for (let i = 0; i < menus.length; i++) {
         const menuItemValues = createMenuItem(
           newMenu.menuid,
-          menus[index]["menu_item"],
+          menus[index].menuItem,
           i
         );
+
         await pool.query(menuItemQueryString, menuItemValues);
       }
     }
@@ -123,7 +145,7 @@ router.post("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
-  const { merchant_data } = req.query;
+  const { merchantData } = req.query;
 
   const packetQueryString = "SELECT * FROM packet";
 
@@ -149,6 +171,17 @@ router.get("/:id", async (req, res) => {
       menudescription 
     FROM menuitem WHERE menuid = $1`;
 
+  const merchantQueryString = `
+    SELECT
+      merchantid,
+      merchantimage,
+      merchantname,
+      merchantaddress,
+      merchantphone
+    FROM merchant
+    WHERE merchantid = $1;
+  `;
+
   try {
     const resPacket = await pool.query(packetQueryString);
     const packetData = resPacket.rows[0];
@@ -157,14 +190,23 @@ router.get("/:id", async (req, res) => {
     packetData.categories = resCategory.rows;
 
     const resMenu = await pool.query(menuQueryString, menuValue);
-
     packetData.menu = [];
 
     for (let i = 0; i < resMenu.rowCount; i++) {
       const menu = resMenu.rows[i];
       const resMenuItem = await pool.query(menuItemQueryString, [menu.menuid]);
-      menu.menuitem = resMenuItem.rows[0];
+      menu.menuItem = resMenuItem.rows;
       packetData.menu.push(menu);
+    }
+
+    const merchantID = packetData.merchantid;
+    delete packetData.merchantid;
+
+    if (merchantData === "true") {
+      const merchantValue = [merchantID];
+      const resMerchant = await pool.query(merchantQueryString, merchantValue);
+
+      packetData.merchant = resMerchant.rows[0];
     }
 
     res.status(400).json(packetData);
@@ -176,12 +218,16 @@ router.get("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
-  const queryString = `DELETE FROM packet WHERE packetid = $1;`;
+  const queryString = `DELETE FROM packet WHERE packetid = $1 RETURNING *;`;
   const values = [id];
 
   try {
-    await pool.query(queryString, values);
-    res.json({ message: `Succesfully deleted packet with ID ${id}` });
+    const data = await pool.query(queryString, values);
+    if (data.length > 0) {
+      res.json({ message: `Succesfully deleted packet with ID ${id}` });
+    } else {
+      res.json({ message: `There's no packet with ID ${id}` });
+    }
   } catch (error) {
     res.json({ message: error.message });
   }
@@ -192,61 +238,125 @@ router.put("/:id", async (req, res) => {
 
   const { packetName, packetImage, packetPrice, packetDescription } = req.body;
 
-  const packetQueryString = "SELECT * FROM packet";
-
-  const categoryQueryString = `
-    SELECT
-      c.categoryid,
-      c.categoryname
-    FROM packetcategory pc JOIN category c ON pc.categoryid = c.categoryid
-    WHERE pc.packetid = $1
+  const packetQueryString = `
+    UPDATE packet
+    SET
+      packetname=$1,
+      packetimage=$2,
+      packetprice=$3,
+      packetdescription=$4
+    WHERE packetid=$5;
   `;
-  const categoryValue = [id];
 
-  const menuQueryString =
-    "SELECT menuid, menuday FROM menu WHERE packetid = $1;";
-  const menuValue = [id];
+  const packetValues = [
+    packetName,
+    packetImage,
+    packetPrice,
+    packetDescription,
+    id,
+  ];
 
-  const menuItemQueryString = `
-    SELECT 
-      menuitemid, 
-      menutime, 
-      menuname, 
-      menuimage, 
-      menudescription 
-    FROM menuitem WHERE menuid = $1`;
+  const menus = req.body.menu;
+  const menuUpdateString = `
+    UPDATE menu
+    SET
+      menuday=$1
+    WHERE menuid=$2;
+  `;
+
+  const menuInsertString = `
+    INSERT INTO menu(packetid, menuday) VALUES ($1, $2) RETURNING menuid;
+  `;
+
+  const menuItemUpdateString = `
+    UPDATE menuitem
+    SET
+      menutime=$1,
+      menuname=$2,
+      menuimage=$3,
+      menudescription=$4
+    WHERE menuitemid=$5;
+  `;
+
+  const menuItemInsertString = `
+    INSERT INTO menuitem(menuid, menutime, menuname, menuimage, menudescription) VALUES ($1, $2, $3, $4, $5);
+  `;
+
+  const { categories } = req.body;
+  const packetCategoryDeleteString = `
+    DELETE FROM packetcategory WHERE packetid=$1;
+  `;
+
+  const packetCategoryInsertString = `
+    INSERT INTO packetcategory VALUES ($1, $2);
+  `;
+
+  const packetCategoryDeleteValues = [id];
 
   try {
-    const resPacket = await pool.query(packetQueryString);
-    const packetData = resPacket.rows[0];
+    await pool.query(packetQueryString, packetValues);
 
-    const resCategory = await pool.query(categoryQueryString, categoryValue);
-    packetData.categories = resCategory.rows;
+    for (let i = 0; i < menus.length; i++) {
+      menu = menus[i];
+      if (menu.menuID) {
+        const menuValues = [menu.menuDay, menu.menuID];
+        await pool.query(menuUpdateString, menuValues);
+      } else {
+        const menuValues = [id, menu.menuDay];
+        const resNewMenu = await pool.query(menuInsertString, menuValues);
+        menu.menuid = resNewMenu.rows[0].menuid;
+      }
 
-    const resMenu = await pool.query(menuQueryString, menuValue);
+      for (let i = 0; i < menu.menuItem.length; i++) {
+        const menuItem = menu.menuItem[i];
 
-    packetData.menu = [];
-
-    for (let i = 0; i < resMenu.rowCount; i++) {
-      const menu = resMenu.rows[i];
-      const resMenuItem = await pool.query(menuItemQueryString, [menu.menuid]);
-      menu.menuitem = resMenuItem.rows[0];
-      packetData.menu.push(menu);
+        if (menuItem.menuItemID) {
+          const menuItemValues = [
+            menuItem.menuTime,
+            menuItem.menuName,
+            menuItem.menuImage,
+            menuItem.menuDescription,
+            menuItem.menuItemID,
+          ];
+          await pool.query(menuItemUpdateString, menuItemValues);
+        } else {
+          const menuItemValues = [
+            menu.menuid,
+            menuItem.menuTime,
+            menuItem.menuName,
+            menuItem.menuImage,
+            menuItem.menuDescription,
+          ];
+          await pool.query(menuItemInsertString, menuItemValues);
+        }
+      }
     }
 
-    res.json(packetData);
+    await pool.query(packetCategoryDeleteString, packetCategoryDeleteValues);
+
+    for (let i = 0; i < categories.length; i++) {
+      const category = categories[i];
+
+      const packetCategoryInsertValueString = [id, category];
+
+      await pool.query(
+        packetCategoryInsertString,
+        packetCategoryInsertValueString
+      );
+    }
+    res.status(400).json({ message: "successfully updated data !" });
   } catch (error) {
-    res.json(error.message);
+    res.status(500).json({ message: error.message });
   }
 });
 
 const createPacket = (req) => {
   const {
-    merchant_id,
-    packet_name,
-    packet_image,
-    packet_price,
-    packet_description,
+    merchantID,
+    packetName,
+    packetImage,
+    packetPrice,
+    packetDescription,
   } = req.body;
 
   const queryString = `
@@ -260,11 +370,11 @@ const createPacket = (req) => {
     VALUES ($1, $2, $3, $4, $5) RETURNING *;`;
 
   const values = [
-    merchant_id,
-    packet_name,
-    packet_image,
-    packet_price,
-    packet_description,
+    merchantID,
+    packetName,
+    packetImage,
+    packetPrice,
+    packetDescription,
   ];
 
   return [queryString, values];
@@ -280,17 +390,16 @@ const createPacketCategories = (req, packetID) => {
 };
 
 const createMenus = (req) => {
-  const { menus } = req.body;
+  const { menu } = req.body;
   const menuQueryString = `INSERT INTO menu (packetid, menuday) VALUES ($1, $2) RETURNING *;`;
   const menuItemQueryString = `INSERT INTO menuitem (menuid, menutime, menuname, menuimage, MenuDescription) VALUES ($1, $2, $3, $4, $5);`;
 
-  return [menuQueryString, menuItemQueryString, menus];
+  return [menuQueryString, menuItemQueryString, menu];
 };
 
 const createMenuItem = (menuID, menuItem, index) => {
-  const { menu_time, menu_name, menu_image, menu_description } =
-    menuItem[index];
-  return [menuID, menu_time, menu_name, menu_image, menu_description];
+  const { menuTime, menuName, menuImage, menuDescription } = menuItem[index];
+  return [menuID, menuTime, menuName, menuImage, menuDescription];
 };
 
 module.exports = router;

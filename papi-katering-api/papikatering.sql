@@ -60,6 +60,7 @@ CREATE TABLE Preference (
     MinPrice INT NOT NULL,
     MaxPrice INT NOT NULL,
 
+    CONSTRAINT Preference_PK PRIMARY KEY(CustomerID),
     CONSTRAINT CustomerID_FK FOREIGN KEY(CustomerID)
         REFERENCES Customer(CustomerID)
         ON UPDATE CASCADE ON DELETE CASCADE,
