@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const router = express.Router();
+const util = require("../utils/utility");
 
 router.get("/", async (req, res) => {
   let { status } = req.body;
@@ -50,7 +51,7 @@ router.post("/", async (req, res) => {
   const queryString =
     "INSERT INTO orders (packetid, merchantid, customerid, addressid, paymentid, orderdate, orderdaycount, orderadditionalprice, orderquantity, orderstatus) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);";
 
-  const orderDate = getCurrentDate();
+  const orderDate = util.getCurrentDate();
   const orderStatus = 0;
   console.log(orderDate);
 
@@ -74,13 +75,5 @@ router.post("/", async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
-
-const getCurrentDate = () => {
-  const currDate = new Date();
-  const dateStr = `${currDate.getFullYear()}-${
-    currDate.getMonth() + 1
-  }-${currDate.getDate()}`;
-  return dateStr;
-};
 
 module.exports = router;
