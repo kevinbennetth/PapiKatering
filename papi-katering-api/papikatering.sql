@@ -168,7 +168,7 @@ CREATE TABLE Orders (
 );
 
 CREATE TABLE Review (
-    ReviewID INT,
+    ReviewID SERIAL,
     CustomerID INT,
     PacketID INT,
     ReviewDate DATE,
