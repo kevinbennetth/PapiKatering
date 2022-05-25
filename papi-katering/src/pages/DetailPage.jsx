@@ -225,7 +225,7 @@ export default function DetailPage() {
               className="w-1/6 border-2 rounded text-xl text-center border-primary p-2 focus:outline-none"
             />
             <button className="border-2 rounded text-xl font-bold w-5/6 focus:outline-none border-primary text-primary hover:bg-primary hover:text-white transition-all duration-100">
-              Langganan
+              Subscribe
             </button>
           </div>
         </div>

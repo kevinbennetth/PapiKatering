@@ -27,9 +27,8 @@ export default function Header() {
         <GoSearch className="w-5 h-5" />
       </div>
       <nav className="flex flex-row text-white items-center gap-8 font-medium">
-        <div className="cursor-pointer">CART</div>
         <div className="cursor-pointer">HOME</div>
-        <div className="cursor-pointer">BROWSE</div>
+        <div className="cursor-pointer">CHECKOUT</div>
         <Link to="/profile">
           <img
             src="https://static.zerochan.net/Ko.Elizabeth.full.2947878.jpg"
