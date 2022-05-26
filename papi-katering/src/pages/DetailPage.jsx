@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { BsFillStarFill } from "react-icons/bs";
-import MenuCard from "../components/card/MenuCard";
-import ReviewModal from "../components/modal/ReviewModal";
-import ReviewCard from "../components/card/ReviewCard";
+import MenuCard from "../components/UI/card/MenuCard";
+import ReviewModal from "../components/UI/modal/ReviewModal";
+import ReviewCard from "../components/UI/card/ReviewCard";
 import ItemsCarousel from "react-items-carousel";
 
 export default function DetailPage() {

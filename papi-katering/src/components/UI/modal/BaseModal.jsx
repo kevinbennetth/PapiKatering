@@ -1,9 +1,12 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { FaRegTimesCircle } from "react-icons/fa";
+import ReactDOM from "react-dom";
+
+const rootModal = document.getElementById("modal-root");
 
 export default function BaseModal(props) {
   const modalRef = useRef();
-  
+
   const updateRef = (e) => {
     if (modalRef.current === e.target) {
       props.hideModal();
@@ -11,7 +14,8 @@ export default function BaseModal(props) {
   };
 
   return (
-    props.show && (
+    props.show &&
+    ReactDOM.createPortal(
       <div
         className="flex items-center justify-center h-full overflow-y-auto w-full bg-black bg-opacity-50 fixed top-0 left-0 z-50"
         ref={modalRef}
@@ -24,7 +28,8 @@ export default function BaseModal(props) {
           />
           {props.children}
         </div>
-      </div>
+      </div>,
+      rootModal
     )
   );
 }
