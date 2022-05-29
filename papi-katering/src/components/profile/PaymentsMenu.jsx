@@ -1,18 +1,23 @@
 import { FaPlus, FaEdit, FaTrashAlt } from "react-icons/fa";
 import { useState, useEffect } from "react";
+import API from "../../apis/API";
 
-const PaymentsMenu = () => {
+const PaymentsMenu = (props) => {
 
+    const custID = props.custID;
     const [payments, setPayments] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:8000/payments")
-        .then(response => {
-            return response.json();
-        })
-        .then(data => {
-            setPayments(data);
-        })
+        const fetchData = async () => {
+            try {
+                const response = await API.get(`/payment?customerID=${custID}`);
+                setPayments(response.data.data.payments);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        fetchData();
     }, [])
 
     return (
@@ -26,10 +31,10 @@ const PaymentsMenu = () => {
 
             <div className="payments container mt-4">
                 {payments && payments.map((payment) => (
-                    <div className="header flex flex-row justify-between bg-white my-4 py-4 px-8 rounded-md drop-shadow-md">
+                    <div className="header flex flex-row justify-between bg-white my-4 py-4 px-8 rounded-md drop-shadow-md" key={payment.paymentid}>
                         <div className="payment w-4/5">
-                            <div className="title text-xl font-bold">{payment.paymentName}</div>
-                            <p className="text-md mt-4">{payment.details}</p>
+                            <div className="title text-xl font-bold">{payment.paymentname}</div>
+                            <p className="text-md mt-4">{payment.paymentnumber}</p>
                         </div>
                         <div className="options flex flex-row mt-2">
                             <button className="mx-2 h-0"><FaEdit className="fill-emerald-600"/></button>

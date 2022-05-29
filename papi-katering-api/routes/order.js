@@ -4,7 +4,7 @@ const router = express.Router();
 const util = require("../utils/utility");
 
 router.get("/", async (req, res) => {
-  let { status } = req.body;
+  let { status } = req.query.status;
 
   let queryString;
   let values;
@@ -17,12 +17,12 @@ router.get("/", async (req, res) => {
   }
 
   if (req.body.customerID) {
-    const { customerID } = req.body;
+    const { customerID } = req.query.customerID;
     queryString =
       "SELECT * FROM orders WHERE customerid = $1 AND orderstatus = $2;";
     values = [customerID, statusID];
   } else if (req.body.merchantID) {
-    const { merchantID } = req.body;
+    const { merchantID } = req.query.merchantID;
     queryString =
       "SELECT * FROM orders WHERE merchantid = $1 AND orderstatus = $2;";
     values = [merchantID, statusID];

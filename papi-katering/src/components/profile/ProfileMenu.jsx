@@ -1,6 +1,52 @@
 import profileImg from "../../assets/profileImg.jpg";
+import { useEffect, useState } from "react";
+import API from "../../apis/API";
 
-const ProfileMenu = () => {
+const ProfileMenu = (props) => {
+
+    const customerID = props.custID;
+    const [customer, setCustomer] = useState("");
+
+    const formatDate = (date) => {
+        date = new Date(date);
+
+        const year = (date.getFullYear()).toString();
+
+        var month = (date.getMonth()+1);
+        if(month<10){
+            month = "0" + month.toString();
+        }
+        else{
+            month = month.toString()
+        }
+
+        var day = (date.getDate());
+        if(day<10){
+            day = "0" + day.toString();
+        }
+        else{
+            day = day.toString()
+        }
+
+        const dateString = year+"-"+month+"-"+day;
+        return dateString;
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await API.get(`/user/${customerID}`);
+                setCustomer(response.data.data.customerData);
+            } catch(err) {
+                console.log(err);
+            }
+        }
+
+        fetchData();
+    }, []);
+
+    const dob = formatDate(customer.customerdob);
+
     return (
         <div className="profile-menu">
             <div className="title text-3xl border-b-2">Profile</div>
@@ -12,21 +58,21 @@ const ProfileMenu = () => {
                             <form action="" method="post">
                                 <div className="name-container my-2">
                                     <p htmlFor="name">Name</p>
-                                    <input type="text" name="name" id="name" 
+                                    <input type="text" name="name" id="name" defaultValue={customer.customername}
                                     className="rounded-md border w-full p-1"/>
                                 </div>
 
                                 <div className="dob-container my-2">
                                     <p htmlFor="dob">Date of Birth</p>
-                                    <input type="dob" name="dob" id="dob" 
+                                    <input type="date" name="dob" id="dob" defaultValue={dob}
                                     className="rounded-md border w-full p-1"/>
                                 </div>
                                 
                                 <div className="gender-container my-2">
                                     <p htmlFor="gender">Gender</p>
                                     <select name="gender" id="gender" className="rounded-md border w-full p-1">
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
                                     </select>
                                 </div>
                             </form>
@@ -36,13 +82,13 @@ const ProfileMenu = () => {
                             <form action="" method="post">
                                 <div className="email-container my-2">
                                     <p htmlFor="email">Email</p>
-                                    <input type="text" name="email" id="email" 
+                                    <input type="text" name="email" id="email" defaultValue={customer.customeremail}
                                     className="rounded-md border w-full p-1"/>
                                 </div>
                                 
                                 <div className="phone-container my-2">
                                     <p htmlFor="phone">Phone Number</p>
-                                    <input type="text" name="phone" id="phone" 
+                                    <input type="text" name="phone" id="phone" defaultValue={customer.customerphone}
                                     className="rounded-md border w-full p-1"/>
                                 </div>
                             </form>

@@ -10,39 +10,43 @@ import PaymentsMenu from "../components/profile/PaymentsMenu";
 import ProfileMenu from "../components/profile/ProfileMenu";
 import ReviewsMenu from "../components/profile/ReviewsMenu";
 
+// get customerID from local Storage
+const customerID = 1;
+
 const renderMenu = (menu) => {
     if(menu === "profile"){
-        return (<ProfileMenu />);
+        return (<ProfileMenu custID={customerID}/>);
     }
     else if(menu === "addresses"){
-        return (<AddressMenu />);
+        return (<AddressMenu custID={customerID}/>);
     }
     else if(menu === "payments"){
-        return (<PaymentsMenu />);
+        return (<PaymentsMenu custID={customerID}/>);
     }
     else if(menu === "authentication"){
-        return (<AuthenticationMenu />);
+        return (<AuthenticationMenu custID={customerID}/>);
     }
     else if(menu === "ongoing orders"){
-        return (<OngoingOrdersMenu />);
+        return (<OngoingOrdersMenu custID={customerID}/>);
     }
     else if(menu === "orders history"){
-        return (<OrdersHistoryMenu />);
+        return (<OrdersHistoryMenu custID={customerID}/>);
     }
     else if(menu === "reviews"){
-        return (<ReviewsMenu />);
+        return (<ReviewsMenu custID={customerID}/>);
     }
     else if(menu === "merchant") {
-        return (<MerchantMenu />);
-    } else if(menu === "package") {
-        return (<PackageMenu />)
+        return (<MerchantMenu custID={customerID}/>);
+    } 
+    else if(menu === "package") {
+        return (<PackageMenu custID={customerID}/>)
     }
 }
 
 const ProfilePage = () => {
 
     const [menu, setMenu] = useState("profile");
-
+    
     const renderOption = (option) => {
         if(menu===option.toLowerCase()){
             return (<span className="font-bold text-emerald-600">{option}</span>);

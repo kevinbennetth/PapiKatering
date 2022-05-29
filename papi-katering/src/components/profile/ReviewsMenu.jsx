@@ -1,6 +1,28 @@
 import {FaStar} from "react-icons/fa";
+import { useState, useEffect } from "react";
+import API from "../../apis/API";
 
-const ReviewsMenu = () => {
+const ReviewsMenu = (props) => {
+
+    const custID = props.customerID;
+    const [reviews, setReviews] = useState("");
+    const [merchant, setMerchant] = useState("");
+    const [customer, setCustomer] = useState("");
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const response = await API.get(`/review?type=user&customerID=${custID}`);
+                setReviews(response.data);
+            } catch(err) {
+                console.log(err);
+            }
+        }
+        fetchReviews();
+
+        
+    }, []);
+
     return (
         <div className="reviews-menu">
             <div className="title text-3xl border-b-2">Reviews</div>

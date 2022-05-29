@@ -5,7 +5,7 @@ const router = express.Router();
 // get all payment
 router.get("/", async (req, res)=> {
     try {
-        const body = req.body;
+        const body = req.query;
         const query = 
             `
             SELECT
@@ -16,7 +16,7 @@ router.get("/", async (req, res)=> {
                 CustomerID = $1;
             `;
         
-        const results = await poo.query(
+        const results = await pool.query(
             query,
             [body.customerID]
         );

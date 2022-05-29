@@ -3,7 +3,7 @@ import { GoSearch } from "react-icons/go";
 import { Link } from "react-router-dom";
 import logo from "../assets/LogoWhite.png";
 
-export default function Header() {
+const Header = () => {
   return (
     <header className="bg-primary py-4 px-10 flex flex-row justify-between">
       <div className="flex flex-row items-center gap-4 font-semibold text-white">
@@ -41,3 +41,5 @@ export default function Header() {
     </header>
   );
 }
+
+export default Header;

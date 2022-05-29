@@ -91,7 +91,6 @@ router.put("/:id", async (req, res) => {
 // get a merchant's data
 router.get("/:id", async (req, res) => {
     try {
-        const body = req.body;
         const query =
         `
         SELECT

@@ -63,11 +63,12 @@ CREATE TABLE Payment (
     CONSTRAINT PaymentNumberCheck CHECK(PaymentNumber ~ '[0-9]*')
 );
 
-INSERT INTO Payment (PaymentID, CustomerID, PaymentName, PaymentNumber)
-VALUES 
-(1001, 1, 'Main Card', '1234123412341234'),
-(1002, 1, 'Credit Card', '6969696969696969'),
-(1003, 1, 'Debit Card', '1234567890123456');
+-- INSERT INTO Payment (PaymentID, CustomerID, PaymentName, PaymentNumber)
+-- VALUES 
+-- (1001, 1, 'Main Card', '1234123412341234'),
+-- (1002, 1, 'Credit Card', '6969696969696969'),
+-- (1003, 1, 'Debit Card', '1234567890123456')
+-- ;
 
 CREATE TABLE Address (
     AddressID SERIAL,
@@ -80,6 +81,12 @@ CREATE TABLE Address (
         REFERENCES Customer(CustomerID)
         ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+-- INSERT INTO Address (CustomerID, AddressName, AddressDetails)
+-- VALUES 
+-- (1, 'Rumah', 'Dimana mana hatiku senang'),
+-- (1, 'Apartemen', 'Kaya gw')
+-- ;
 
 CREATE TABLE Preference (
     CustomerID INT,
