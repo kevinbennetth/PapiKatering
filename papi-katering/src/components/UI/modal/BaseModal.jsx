@@ -9,7 +9,7 @@ export default function BaseModal(props) {
 
   const updateRef = (e) => {
     if (modalRef.current === e.target) {
-      props.hideModal();
+      props.onHideModal();
     }
   };
 
@@ -24,7 +24,7 @@ export default function BaseModal(props) {
         <div className="bg-white rounded-lg p-12 shadow-lg relative w-1/2 max-h-[calc(100vh-210px)] overflow-y-auto">
           <FaRegTimesCircle
             className="absolute right-8 top-8 text-2xl cursor-pointer"
-            onClick={props.hideModal}
+            onClick={props.onHideModal}
           />
           {props.children}
         </div>

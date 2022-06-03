@@ -1,63 +1,66 @@
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import Alert from "../components/UI/alert/Alert";
+import Button from "../components/UI/button/Button";
+import ErrorMessage from "../components/UI/error/ErrorMessage";
+import Input from "../components/UI/input/Input";
+import APIContext from "../context/api-context";
 
 const LoginPage = () => {
+  const APICtx = useContext(APIContext);
+  const [error, setError] = useState(null);
+
   return (
-    <div className=" min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
-      <img
-        src="https://images2.alphacoders.com/100/1003810.jpg"
-        alt=""
-        className="w-3/12 object-cover object-left"
-      />
-      <div className="right-login col-span-8 m-auto w-[500px]">
-        <div className="login-container w-full">
+    <>
+      {error && (
+        <Alert
+          onFinishError={setError}
+          header={error.header}
+          detail={error.detail}
+        />
+      )}
+      <div className=" min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
+        <img
+          src="https://images2.alphacoders.com/100/1003810.jpg"
+          alt=""
+          className="w-3/12 object-cover object-left"
+        />
+        <div className="col-span-8 m-auto w-4/12 flex flex-col gap-8">
           <h1 className="text-3xl font-bold">Login to PAPIKATERING</h1>
 
-          <form action="" method="get" className="my-16">
-            <div className="email-container container my-8 w-full">
-              <p className="text-lg font-bold">Email Address</p>
-              <input
-                type="text"
-                name="email"
-                id="email"
-                className="bg-gray-200 rounded-md w-full p-1"
-              />
+          <form action="" className="w-full">
+            <div className="my-8">
+              <p className="text-lg font-bold my-3">Email Address</p>
+              <Input type="text" name="email" id="email" color="gray" />
             </div>
 
-            <div className="password-container container my-8">
-              <div className="password-labels flex justify-between">
-                <p className="text-lg font-bold">Password</p>
+            <div className="my-8">
+              <div className="flex flex-row justify-between items-center">
+                <p className="text-lg font-bold my-3">Password</p>
                 <Link to="" className="text-emerald-600">
                   Forgot Password?
                 </Link>
               </div>
-
-              <input
+              <Input
                 type="password"
                 name="password"
                 id="password"
-                className="bg-gray-200 rounded-md w-full p-1"
+                color="gray"
               />
             </div>
+            <Button>LOGIN</Button>
           </form>
 
-          <button
-            className="block px-10 py-2 mt-12 mb-4 bg-emerald-600 hover:bg-emerald-700
-                            text-white font-bold
-                            rounded-md"
-          >
-            Login
-          </button>
-
-          <div className="not-registered font-bold">
+          <div className="font-bold">
             Not Registered Yet?
-            <Link to="/register" className="text-emerald-600">
+            <Link to={"/register"} className="text-emerald-600">
               {" "}
               Create an Account
             </Link>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -3,7 +3,6 @@ import { BsFillStarFill } from "react-icons/bs";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 
 export default function HPackageCard(props) {
-  // console.log(props.packet)
   return (
     <div className="flex flex-row shadow-md rounded-md items-center">
       <img src={props.packet.image} className="h-36 w-36 object-cover rounded-md" alt="" />

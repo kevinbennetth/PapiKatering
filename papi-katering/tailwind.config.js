@@ -8,6 +8,15 @@ module.exports = {
     extend: {
       colors: {
         primary: '#28937F'
+      },
+      animation: {
+        "alert-move-down": "move-down 150ms ease-out both"
+      },
+      keyframes: {
+        "move-down": {
+          '0%': {transform: 'translateY(-50%)'},
+          '100%': {transform: 'translateY(100%)'}
+        }
       }
     },
   },

@@ -1,12 +1,57 @@
+import { useState } from "react";
 import BaseModal from "./BaseModal";
 
 export default function MenuModal(props) {
+  const [day, setDay] = useState("0");
+  const [menu, setMenu] = useState([
+    { menuTime: "Breakfast", menuName: "", menuImage: "", menuDescription: "" },
+    { menuTime: "Lunch", menuName: "", menuImage: "", menuDescription: "" },
+    { menuTime: "Dinner", menuName: "", menuImage: "", menuDescription: "" },
+  ]);
+
+  const updateDay = (e) => {
+    const day = parseInt(e.target.value);
+    setDay(day);
+  };
+
+  const menuChangeHandler = (e, idx, data) => {
+    const value = e.target.value;
+
+    if (data === "name") {
+      console.log("masuk name")
+      setMenu((prevMenu) => {
+        prevMenu[idx].menuName = value;
+        console.log(prevMenu[idx].menuName)
+        return prevMenu;
+      });
+    } else if (data === "image") {
+      console.log("masuk image")
+      setMenu((prevMenu) => {
+        prevMenu[idx].menuImage = value;
+        return prevMenu;
+      });
+    } else if (data === "description") {
+      console.log("masuk description")
+      setMenu((prevMenu) => {
+        prevMenu[idx].menuDescription = value;
+        return prevMenu;
+      });
+    }
+  };
+
+  const createMenuHandler = () => {
+    const createMenu = {};
+  };
+
+  const deleteMenuHandler = () => {};
+
   return (
-    <BaseModal show={props.show} hideModal={props.hideModal}>
+    <BaseModal show={props.show} onHideModal={props.hideModal}>
       <h3 className="text-xl font-bold mb-6">Categories</h3>
       <select
-        defaultValue={0}
         name="day"
+        onChange={updateDay}
+        value={day}
         className="w-full bg-white focus:outline-none cursor-pointer border-black border-opacity-50 border-2 p-2 rounded-md mb-10"
       >
         <option value="0">-- Choose Day --</option>
@@ -42,6 +87,8 @@ export default function MenuModal(props) {
                 name="name"
                 id="name"
                 className="rounded-md border w-full p-1"
+                value={menu[0].menuName}
+                onChange={(event) => menuChangeHandler(event, 0, "name")}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -51,6 +98,8 @@ export default function MenuModal(props) {
                 name="description"
                 id="description"
                 className="rounded-md border w-full p-1 resize-none"
+                value={menu[0].menuDescription}
+                onChange={(event) => menuChangeHandler(event, 0, "description")}
                 rows="8"
               />
             </div>
@@ -82,6 +131,8 @@ export default function MenuModal(props) {
                 name="name"
                 id="name"
                 className="rounded-md border w-full p-1"
+                value={menu[1].menuName}
+                onChange={(event) => menuChangeHandler(event, 1, "name")}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -91,6 +142,8 @@ export default function MenuModal(props) {
                 name="description"
                 id="description"
                 className="rounded-md border w-full p-1 resize-none"
+                value={menu[1].menuDescription}
+                onChange={(event) => menuChangeHandler(event, 1, "description")}
                 rows="8"
               />
             </div>
@@ -121,6 +174,8 @@ export default function MenuModal(props) {
                 type="text"
                 name="name"
                 id="name"
+                value={menu[2].menuName}
+                onChange={(event) => menuChangeHandler(event, 2, "name")}
                 className="rounded-md border w-full p-1"
               />
             </div>
@@ -131,6 +186,8 @@ export default function MenuModal(props) {
                 name="description"
                 id="description"
                 className="rounded-md border w-full p-1 resize-none"
+                value={menu[2].menuDescription}
+                onChange={(event) => menuChangeHandler(event, 2, "description")}
                 rows="8"
               />
             </div>
@@ -139,10 +196,18 @@ export default function MenuModal(props) {
       </div>
 
       <div className="flex flex-row justify-end gap-6 pr-2 mt-5">
-        <button className="px-8 py-3 rounded text-white font-semibold bg-primary self-start mt-2 hover:opacity-75">
+        <button
+          type="button"
+          onClick={deleteMenuHandler}
+          className="px-8 py-3 rounded text-white font-semibold bg-primary self-start mt-2 hover:opacity-75"
+        >
           Delete
         </button>
-        <button className="px-8 py-3 rounded text-white font-semibold bg-primary self-start mt-2 hover:opacity-75">
+        <button
+          type="button"
+          onClick={createMenuHandler}
+          className="px-8 py-3 rounded text-white font-semibold bg-primary self-start mt-2 hover:opacity-75"
+        >
           Save
         </button>
       </div>
