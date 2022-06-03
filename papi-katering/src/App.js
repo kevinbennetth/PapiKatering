@@ -8,6 +8,7 @@ import AddPacketPage from "./pages/AddPacketPage";
 import { APIContextProvider } from "./context/api-context";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
+import QuizPage from "./pages/QuizPage";
 
 function App() {
   return (
@@ -19,6 +20,9 @@ function App() {
           </Route>
           <Route path="/register">
             <RegisterPage />
+          </Route>
+          <Route path="/quiz">
+            <QuizPage />
           </Route>
           <Route path="/home">
             <Home />

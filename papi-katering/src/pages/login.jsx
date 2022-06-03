@@ -1,14 +1,75 @@
-import { useContext, useState } from "react";
+import axios from "axios";
+import { useContext, useReducer, useState } from "react";
 import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import Alert from "../components/UI/alert/Alert";
 import Button from "../components/UI/button/Button";
-import ErrorMessage from "../components/UI/error/ErrorMessage";
 import Input from "../components/UI/input/Input";
 import APIContext from "../context/api-context";
 
+const loginInfoReducer = (state, data) => {
+  return { ...state, ...data };
+};
+
 const LoginPage = () => {
-  const APICtx = useContext(APIContext);
+  const { API_URL } = useContext(APIContext);
   const [error, setError] = useState(null);
+  const [loginInfoState, dispatchLoginInfo] = useReducer(loginInfoReducer, {
+    email: "",
+    password: "",
+  });
+
+  const formValueHandler = (name, value) => {
+    dispatchLoginInfo({ [name]: value });
+  };
+
+  const history = useHistory();
+
+  const { email, password } = loginInfoState;
+
+  const validateFormFields = () => {
+    const submissionError = {
+      header: "",
+      detail: "",
+    };
+
+    const { email, password } = loginInfoState;
+
+    if (email.trim().length === 0 || !email.trim().includes("@")) {
+      submissionError.header = "Invalid Email";
+      submissionError.detail = "Email Can't be Empty and must contain an '@' !";
+    } else if (password.trim().length === 0) {
+      submissionError.header = "Invalid Password";
+      submissionError.detail = "Password Can't be Empty !";
+    }
+    return submissionError;
+  };
+
+  const loginHandler = async (e) => {
+    e.preventDefault();
+
+    const submissionError = validateFormFields();
+
+    const { email, password } = loginInfoState;
+
+    if (submissionError.header !== "" && submissionError.detail !== "") {
+      setError(submissionError);
+    } else {
+      const URL = `${API_URL}user/login`;
+      const body = {
+        Email: email,
+        Password: password,
+      };
+      try {
+        const loginResponse = await axios.post(URL, body);
+
+        localStorage.setItem("CustomerID", loginResponse.data.CustomerID);
+        history.push("/home");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   return (
     <>
@@ -25,13 +86,20 @@ const LoginPage = () => {
           alt=""
           className="w-3/12 object-cover object-left"
         />
-        <div className="col-span-8 m-auto w-4/12 flex flex-col gap-8">
+        <div className="col-span-8 ml-64 my-auto w-4/12 flex flex-col gap-8">
           <h1 className="text-3xl font-bold">Login to PAPIKATERING</h1>
 
-          <form action="" className="w-full">
+          <form className="w-full" onSubmit={loginHandler}>
             <div className="my-8">
               <p className="text-lg font-bold my-3">Email Address</p>
-              <Input type="text" name="email" id="email" color="gray" />
+              <Input
+                type="text"
+                name="email"
+                id="email"
+                color="gray"
+                value={email}
+                onChange={formValueHandler}
+              />
             </div>
 
             <div className="my-8">
@@ -46,9 +114,11 @@ const LoginPage = () => {
                 name="password"
                 id="password"
                 color="gray"
+                value={password}
+                onChange={formValueHandler}
               />
             </div>
-            <Button>LOGIN</Button>
+            <Button type="submit">LOGIN</Button>
           </form>
 
           <div className="font-bold">

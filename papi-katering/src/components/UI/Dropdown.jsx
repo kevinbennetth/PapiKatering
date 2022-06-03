@@ -25,8 +25,8 @@ export default function Dropdown(props) {
       className={baseClass}
       onChange={valueChangeHandler}
     >
-      {props.options.map((option, idx) => (
-        <option key={idx} value={option}>{option}</option>
+      {props.options?.map((option, idx) => (
+        <option key={idx} value={option.value}>{option.show}</option>
       ))}
     </select>
   );

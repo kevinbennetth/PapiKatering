@@ -116,7 +116,7 @@ function landing() {
     </div>
 
     <div className="boxword">
-        <div class="overlay">
+        <div className="overlay">
         <img src={catering} alt="Food" className="foodpic1"/>
         <p className="para3">Join Papi's forces and make less food choices today!</p>
       <button className="buton">Register</button>

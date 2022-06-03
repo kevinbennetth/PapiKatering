@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useContext, useReducer, useState } from "react";
 import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import Alert from "../components/UI/alert/Alert";
 import Button from "../components/UI/button/Button";
 import Dropdown from "../components/UI/Dropdown";
@@ -28,6 +29,7 @@ const RegisterPage = () => {
       confirmPassword: "",
     }
   );
+  const history = useHistory();
 
   const {
     name,
@@ -41,7 +43,7 @@ const RegisterPage = () => {
   } = registerInfoState;
 
   const validateFormFields = () => {
-    const registerError = {
+    const submissionError = {
       header: "",
       detail: "",
     };
@@ -58,43 +60,53 @@ const RegisterPage = () => {
     } = registerInfoState;
 
     if (name.trim().length === 0) {
-      registerError.header = "Invalid Name";
-      registerError.detail = "Name Can't be Empty !";
+      submissionError.header = "Invalid Name";
+      submissionError.detail = "Name Can't be Empty !";
     } else if (email.trim().length === 0 || !email.trim().includes("@")) {
-      registerError.header = "Invalid Email";
-      registerError.detail = "Email Can't be Empty and must contain an '@' !";
-    } else if (phone.trim().length === 0) {
-      registerError.header = "Invalid Phone";
-      registerError.detail = "Phone Can't be Empty !";
+      submissionError.header = "Invalid Email";
+      submissionError.detail = "Email Can't be Empty and must contain an '@' !";
+    } else if (phone.trim().length < 11 || phone.trim().length > 13) {
+      submissionError.header = "Invalid Phone";
+      submissionError.detail = "Phone has to be between 11 - 13 digits !";
     } else if (address.trim().length === 0) {
-      registerError.header = "Invalid Address";
-      registerError.detail = "Address Can't be Empty !";
+      submissionError.header = "Invalid Address";
+      submissionError.detail = "Address Can't be Empty !";
     } else if (
       dob.trim().length === 0 ||
       new Date().getTime() - new Date(dob).getTime() < 0
     ) {
-      registerError.header = "Invalid DoB";
-      registerError.detail = "DoB Can't be Empty or be after today !";
-    } else if (gender.trim() === "--Choose Gender--") {
-      registerError.header = "Invalid Gender";
-      registerError.detail = "Select a Gender !";
+      submissionError.header = "Invalid DoB";
+      submissionError.detail = "DoB Can't be Empty or be after today !";
+    } else if (gender.trim() === "default") {
+      submissionError.header = "Invalid Gender";
+      submissionError.detail = "Select a Gender !";
     } else if (password.trim().length === 0) {
-      registerError.header = "Invalid Password";
-      registerError.detail = "Password Can't be Empty !";
+      submissionError.header = "Invalid Password";
+      submissionError.detail = "Password Can't be Empty !";
     } else if (password !== confirmPassword) {
-      registerError.header = "Invalid Confirm Password";
-      registerError.detail = "Password doesn't match !";
+      submissionError.header = "Invalid Confirm Password";
+      submissionError.detail = "Password doesn't match !";
     }
-    return registerError;
+    return submissionError;
   };
 
   const registerHandler = async (e) => {
     e.preventDefault();
 
-    const registerError = validateFormFields();
+    const submissionError = validateFormFields();
 
-    if (registerError.header !== "" && registerError.detail !== "") {
-      setError(registerError);
+    const {
+      name,
+      email,
+      phone,
+      address,
+      dob,
+      gender,
+      password,
+    } = registerInfoState;
+
+    if (submissionError.header !== "" && submissionError.detail !== "") {
+      setError(submissionError);
     } else {
       const URL = `${API_URL}user/register`;
       const body = {
@@ -108,7 +120,9 @@ const RegisterPage = () => {
       };
       try {
         const registerResponse = await axios.post(URL, body);
-        console.log(registerResponse);
+
+        localStorage.setItem("CustomerID", registerResponse.data.CustomerID);
+        history.push("/quiz");
       } catch (error) {
         console.log(error);
       }
@@ -128,13 +142,13 @@ const RegisterPage = () => {
           detail={error.detail}
         />
       )}
-      <div className=" min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
+      <div className="min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
         <img
           src="https://images2.alphacoders.com/100/1003810.jpg"
           alt=""
-          className="w-3/12 object-cover object-left bg-fixed"
+          className="w-3/12 object-cover object-left"
         />
-        <div className="col-span-8 mx-auto my-32 w-4/12 flex flex-col gap-8">
+        <div className="col-span-8 ml-64 my-32 w-4/12 flex flex-col gap-8">
           <h1 className="text-3xl font-bold">Register to PAPIKATERING</h1>
 
           <form className="w-full" onSubmit={registerHandler}>
@@ -204,7 +218,11 @@ const RegisterPage = () => {
                 id="gender"
                 color="gray"
                 value={gender}
-                options={["--Choose Gender--", "Male", "Female"]}
+                options={[
+                  { show: "--Choose Gender--", value: "default" },
+                  { show: "Male", value: "default" },
+                  { show: "Female", value: "Female" },
+                ]}
                 onChange={formValueHandler}
               />
             </div>
