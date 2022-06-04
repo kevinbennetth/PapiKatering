@@ -6,6 +6,11 @@ const ProfileMenu = (props) => {
 
     const customerID = props.custID;
     const [customer, setCustomer] = useState("");
+    const [name, setName] = useState("");
+    const [DOB, setDOB] = useState("");
+    const [gender, setGender] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
 
     const formatDate = (date) => {
         date = new Date(date);
@@ -37,6 +42,11 @@ const ProfileMenu = (props) => {
             try {
                 const response = await API.get(`/user/${customerID}`);
                 setCustomer(response.data.data.customerData);
+                setName(response.data.data.customerData.customername);
+                setDOB(response.data.data.customerData.customerdob);
+                setGender(response.data.data.customerData.customergender);
+                setEmail(response.data.data.customerData.customeremail);
+                setPhone(response.data.data.customerData.customerphone);
             } catch(err) {
                 console.log(err);
             }
@@ -46,6 +56,34 @@ const ProfileMenu = (props) => {
     }, []);
 
     const dob = formatDate(customer.customerdob);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        console.log({
+            name,
+            DOB,
+            gender,
+            email,
+            phone
+        });
+
+        try {
+            const response = await API.put(`/user/${customerID}`, {
+                CustomerName: name,
+                CustomerDOB: DOB,
+                CustomerGender: gender,
+                CustomerEmail: email,
+                CustomerPhone: phone
+            })
+
+            if(response.data.status=="success"){
+                document.getElementById("status").innerHTML = "Successfully udpated profile!";
+            }
+        } catch(err) {
+            console.log(err);
+        }
+    }
 
     return (
         <div className="profile-menu">
@@ -59,18 +97,19 @@ const ProfileMenu = (props) => {
                                 <div className="name-container my-2">
                                     <p htmlFor="name">Name</p>
                                     <input type="text" name="name" id="name" defaultValue={customer.customername}
-                                    className="rounded-md border w-full p-1"/>
+                                    className="rounded-md border w-full p-1" onChange={(e) => setName(e.target.value)}/>
                                 </div>
 
                                 <div className="dob-container my-2">
                                     <p htmlFor="dob">Date of Birth</p>
                                     <input type="date" name="dob" id="dob" defaultValue={dob}
-                                    className="rounded-md border w-full p-1"/>
+                                    className="rounded-md border w-full p-1" onChange={(e) => setDOB(e.target.value)}/>
                                 </div>
                                 
                                 <div className="gender-container my-2">
                                     <p htmlFor="gender">Gender</p>
-                                    <select name="gender" id="gender" className="rounded-md border w-full p-1">
+                                    <select name="gender" id="gender" className="rounded-md border w-full p-1"
+                                    onChange={(e) => setGender(e.target.value)}>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                     </select>
@@ -83,14 +122,16 @@ const ProfileMenu = (props) => {
                                 <div className="email-container my-2">
                                     <p htmlFor="email">Email</p>
                                     <input type="text" name="email" id="email" defaultValue={customer.customeremail}
-                                    className="rounded-md border w-full p-1"/>
+                                    className="rounded-md border w-full p-1" onChange={(e) => setEmail(e.target.value)}/>
                                 </div>
                                 
                                 <div className="phone-container my-2">
                                     <p htmlFor="phone">Phone Number</p>
                                     <input type="text" name="phone" id="phone" defaultValue={customer.customerphone}
-                                    className="rounded-md border w-full p-1"/>
+                                    className="rounded-md border w-full p-1" onChange={(e) => setPhone(e.target.value)}/>
                                 </div>
+
+                                <p id="status"></p>
                             </form>
                         </div>
                     </div>
@@ -106,8 +147,8 @@ const ProfileMenu = (props) => {
                     </div>
                 </div>
             </div>
-            <button className="block px-10 py-2 mt-12 mb-4 bg-emerald-600 hover:bg-emerald-700
-                text-white font-bold rounded-md">Save</button>
+            <button type="submit" className="block px-10 py-2 mt-12 mb-4 bg-emerald-600 hover:bg-emerald-700
+                text-white font-bold rounded-md" onClick={() => handleSubmit}>Save</button>
         </div>
     );
 }

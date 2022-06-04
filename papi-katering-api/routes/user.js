@@ -1,4 +1,6 @@
 const express = require("express");
+const { isGeneratorObject } = require("util/types");
+const { brotliDecompress } = require("zlib");
 const pool = require("../db");
 const router = express.Router();
 
@@ -40,25 +42,46 @@ router.get("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
     try {
         const body = req.body;
-        const query =
-        `
-        UPDATE Customer
-        SET 
-            CustomerName = $1,
-            CustomerDOB = $2,
-            CustomerGender = $3,
-            CustomerEmail = $4,
-            CustomerPhone = $5,
-            CustomerImage = $6,
-            CustomerPassword = $7
-        WHERE
-            CustomerID = $8
-        RETURNING *;
-        `;
+        let query;
+        let values;
+
+        if(body.CustomerName){
+            query =
+            `
+            UPDATE Customer
+            SET 
+                CustomerName = $1,
+                CustomerDOB = $2,
+                CustomerGender = $3,
+                CustomerEmail = $4,
+                CustomerPhone = $5
+            WHERE
+                CustomerID = $6
+            RETURNING *;
+            `;
+
+            values = [body.CustomerName, body.CustomerDOB, body.CustomerGender, body.CustomerEmail, body.CustomerPhone, req.params.id];
+        }
+        else if(body.CustomerPassword){
+            query =
+            `
+            UPDATE Customer
+            SET
+                CustomerPassword = $1
+            WHERE
+                CustomerID = $2
+            RETURNING *;
+            `;
+
+            values = [body.CustomerPassword, req.params.id];
+        }
+        else if(body.CustomerImage){
+
+        }
 
         const results = await pool.query(
             query,
-            [body.CustomerName, body.CustomerDOB, body.CustomerGender, body.CustomerEmail, body.CustomerPhone, body.CustomerImage, body.CustomerPassword, req.params.id]
+            values
         );
 
         res.status(200).json({

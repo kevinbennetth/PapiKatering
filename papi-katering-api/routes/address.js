@@ -19,7 +19,7 @@ router.post("/", async (req, res) => {
   const { customerID, name, detail } = req.body;
 
   const queryString =
-    "INSERT INTO address (customerid, addressname, addressdetails) VALUES ($1, $2, $3);";
+    "INSERT INTO address (customerid, addressname, addressdetails) VALUES ($1, $2, $3) RETURNING *;";
   const values = [customerID, name, detail];
 
   try {

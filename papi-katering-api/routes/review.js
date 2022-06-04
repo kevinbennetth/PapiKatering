@@ -12,16 +12,28 @@ router.get("/", async (req, res) => {
 
     if(type === "packet") {
         queryString = `
-            SELECT *
-            FROM review
-            WHERE packetid = $1;
+        SELECT
+            *
+        FROM
+            review r
+            JOIN customer c on c.CustomerID = r.CustomerID
+            JOIN packet p on p.PacketID = r.PacketID
+        WHERE
+            r.CustomerID = $1,
+            p.PacketID = $2;
         `
-        values = [packetID];
+        values = [customerID, packetID];
     } else if (type === "user") {
         queryString = `
-            SELECT *
-            FROM review
-            WHERE customerid = $1;
+        SELECT
+            *
+        FROM
+            review r
+            JOIN customer c on c.CustomerID = r.CustomerID
+            JOIN packet p on p.PacketID = r.PacketID
+            JOIN merchant m on m.merchantID = p.merchantID
+        WHERE
+            r.CustomerID = $1;
         `
         values = [customerID];
     }

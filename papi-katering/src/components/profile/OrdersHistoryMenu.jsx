@@ -3,10 +3,8 @@ import API from "../../apis/API";
 
 const OrdersHistoryMenu = (props) => {
 
-    const custID = props.customerID;
+    const custID = props.custID;
     const [orders, setOrders] = useState("");
-    const [packet, setPacket] = useState("");
-    const [merchant, setMerchant] = useState("");
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -18,30 +16,13 @@ const OrdersHistoryMenu = (props) => {
             }
         };
         fetchOrders();
-
-        const merchantID = orders.merchantid;
-        const fetchMerchant = async () => {
-            try {
-                const response = await API.get(`/merchant/${merchantID}`);
-                setMerchant(response.data.data.merchantData);
-            } catch(err) {
-                console.log(err);
-            }
-        };
-        fetchMerchant();
-
-        const packetID = orders.packetid;
-        const fetchPacket = async () => {
-            try {
-                const response = await API.get(`/packet/${packetID}`);
-                setPacket(response.data);
-            } catch(err) {
-                console.log(err);
-            }
-        }
-        fetchPacket();
-
     }, []);
+
+    const formatDate = (date) => {
+        const d = new Date(date);
+
+        return d.toLocaleString('id-ID', { day: '2-digit', month: 'short' , year: 'numeric'});
+    }
 
     return (
         <div className="ongoingOrders-menu">
@@ -56,8 +37,8 @@ const OrdersHistoryMenu = (props) => {
                 { orders && orders.map((order) => (
                 <div className="grid grid-cols-12 bg-white p-4 rounded-md drop-shadow-md" key={order.orderid}>
                     <div className="card-header flex flex-row justify-between col-span-12">
-                        <div className="font-bold text-xl">{merchant.merchantname}</div>
-                        <div className="font-bold text-md">{order.orderdate}</div>
+                        <div className="font-bold text-xl">{order.merchantname}</div>
+                        <div className="font-bold text-md">{formatDate(order.orderdate)}</div>
                     </div>
                     <div className="content grid grid-cols-12 col-span-12 mt-8">
                         <div className="food-img col-span-2">
@@ -65,13 +46,13 @@ const OrdersHistoryMenu = (props) => {
                         className="profile-img-round rounded-md w-[75%]" />
                         </div>
                         <div className="package col-span-6 flex flex-col justify-center">
-                            <div className="name font-bold text-2xl">{packet.packetname}</div>
-                            <div className="price text-md">{packet.packetprice}</div>
+                            <div className="name font-bold text-2xl">{order.packetname}</div>
+                            <div className="price text-md">Rp. {order.packetprice}</div>
                         </div>
                         <div className="order-detail col-span-4 flex flex-col items-end">
-                            <div className="period text-lg">{order.orderdaycount}</div>
+                            <div className="period text-lg">{order.orderdaycount} Days</div>
                             <div className="font-bold mt-4">Total purchase</div>
-                            <div className="total-price">{packet.packetprice*order.orderquantity*order.orderdaycount}</div>
+                            <div className="total-price">Rp. {order.packetprice*order.orderquantity*order.orderdaycount}</div>
                         </div>
                     </div>
                 </div>

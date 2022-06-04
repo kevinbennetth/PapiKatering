@@ -15,14 +15,14 @@ CREATE TABLE Customer (
 
 -- INSERT INTO Customer (CustomerID, CustomerImage, CustomerName, CustomerEmail, CustomerPhone, CustomerDOB, CustomerGender, CustomerPassword) 
 -- VALUES(
---     1,
+--     2,
 --     NULL,
---     'Maklo',
---     'maklo@maklo.com',
---     '1234567890123',
---     '2000-01-01',
---     'Male',
---     'maklos'
+--     'Beegang',
+--     'bee@gimel.com',
+--     '087712387912',
+--     '2002-11-24',
+--     'Female',
+--     'maklosshi'
 -- );
 
 CREATE TABLE Merchant (
@@ -42,8 +42,8 @@ CREATE TABLE Merchant (
 
 -- INSERT INTO Merchant (MerchantID, CustomerID, MerchantImage, MerchantName, MerchantAddress, MerchantPhone)
 -- VALUES (
---     101,
---     1,
+--     102,
+--     2,
 --     NULL,
 --     'purr',
 --     'di maklo',
@@ -117,6 +117,16 @@ CREATE TABLE Packet (
         ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+-- INSERT INTO Packet(MerchantID, PacketName, PacketImage, PacketPrice, PacketDescription)
+-- VALUES
+-- (
+--     102,
+--     'Deez Nuts',
+--     NULL,
+--     25000,
+--     'Enak pokonya'
+-- );
+
 CREATE TABLE Menu (
     MenuID SERIAL,
     PacketID INT,
@@ -174,6 +184,17 @@ CREATE TABLE Orders (
     CONSTRAINT OrderStatusCheck CHECK(OrderStatus IN (0,1))
 );
 
+-- INSERT INTO Orders (PacketID, MerchantID, CustomerID, AddressID, PaymentID, OrderDate, OrderDayCount, OrderAdditionalPrice, OrderQuantity, OrderStatus)
+-- VALUES
+-- (
+--     2, 102, 1, 2, 1001,
+--     '2022-01-12', 2, 10000, 3, 1
+-- ),
+-- (
+--     2, 102, 1, 2, 1001,
+--     '2022-06-02', 2, 15000, 4, 0
+-- );
+
 CREATE TABLE Review (
     ReviewID SERIAL,
     CustomerID INT,
@@ -191,6 +212,12 @@ CREATE TABLE Review (
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ReviewRatingCheck CHECK(ReviewRating >=1 AND ReviewRating <=5)
 );
+
+INSERT INTO Review (CustomerID, PacketID, ReviewDate, ReviewRating, ReviewDescription)
+VALUES
+(1, 2, '2022-02-01', 4, 'Anjay Cakep Enak Mas'),
+(1, 2, '2022-03-01', 5, 'Gels enak pars'),
+(1, 2, '2022-01-02', 2, 'Kok ryne ga keri sih');
 
 CREATE TABLE Category (
     CategoryID INT,
@@ -211,3 +238,22 @@ CREATE TABLE PacketCategory (
         REFERENCES Category(CategoryID)
         ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+-- SELECT
+--     *
+-- FROM
+--     orders o
+--     JOIN packet p on p.PacketID = o.PacketID
+--     JOIN merchant m on m.MerchantID = o.MerchantID
+-- WHERE
+--     o.CustomerID = 1
+--     AND o.OrderStatus = 1;
+
+-- SELECT
+--     *
+-- FROM
+--     review r
+--     JOIN customer c on c.CustomerID = r.CustomerID
+--     JOIN packet p on p.CustomerID = r.CustomerID
+-- WHERE
+--     r.CustomerID = 1;

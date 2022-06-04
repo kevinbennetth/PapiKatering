@@ -45,7 +45,7 @@ router.post("/", async (req, res)=> {
         RETURNING *;
         `;
 
-        const results = await poo.query(
+        const results = await pool.query(
             query,
             [body.paymentID, body.customerID, body.name, body.cardNumber]
         );
@@ -74,7 +74,7 @@ router.get("/:id", async (req, res)=> {
                 PaymentID = $1;
             `;
 
-        const results = await poo.query(
+        const results = await pool.query(
             query,
             [req.params.id]
         );
@@ -91,7 +91,7 @@ router.get("/:id", async (req, res)=> {
 });
 
 // update payment based on id
-router.patch("/:id", async (req, res)=> {
+router.put("/:id", async (req, res)=> {
     try {
         const body = req.body;
         const query =
@@ -105,7 +105,7 @@ router.patch("/:id", async (req, res)=> {
         RETURNING *;
         `;
 
-        const results = await poo.query(
+        const results = await pool.query(
             query,
             [body.name, body.cardNumber, req.params.id]
         );
@@ -132,7 +132,7 @@ router.delete("/:id", async (req, res)=> {
             PaymentID = $1;
         `;
 
-        const result = await poo.query(
+        const result = await pool.query(
             query,
             [req.params.id]
         );
