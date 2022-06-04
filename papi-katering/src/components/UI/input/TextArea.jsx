@@ -7,7 +7,7 @@ export default function TextArea(props) {
   if (props.color === "gray") {
     color = "bg-gray-200";
   } else if (props.color === "white") {
-    color = "bg-white";
+    color = "bg-white border-gray-300 border-2";
   }
 
   const valueChangeHandler = (e) => {
@@ -21,7 +21,7 @@ export default function TextArea(props) {
       name={props.name}
       id={props.id}
       className={baseClass}
-      rows={5}
+      rows={props.rows}
       value={props.value}
       onChange={valueChangeHandler}
     />

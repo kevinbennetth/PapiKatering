@@ -7,7 +7,7 @@ export default function Dropdown(props) {
   if (props.color === "gray") {
     color = "bg-gray-200";
   } else if (props.color === "white") {
-    color = "bg-white";
+    color = "bg-white border-gray-300 border-2";
   }
 
   const valueChangeHandler = (e) => {
@@ -21,7 +21,7 @@ export default function Dropdown(props) {
     <select
       name={props.name}
       id={props.id}
-      defaultValue={props.value}
+      value={props.value}
       className={baseClass}
       onChange={valueChangeHandler}
     >

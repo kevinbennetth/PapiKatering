@@ -8,7 +8,6 @@ import Radio from "../components/UI/input/Radio";
 import APIContext from "../context/api-context";
 
 const quizInfoReducer = (state, data) => {
-  console.log({ ...state, ...data });
   return { ...state, ...data };
 };
 

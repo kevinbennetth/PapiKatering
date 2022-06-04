@@ -1,61 +1,50 @@
 import { useEffect, useState } from "react";
+import Button from "../button/Button";
 import BaseModal from "./BaseModal";
 
 export default function CategoryModal(props) {
-  const [tempSelectedCategory, setTempSelectedCategory] = useState(
-    props.selectedCategory
-  );
+  const [category, setCategory] = useState(props.category);
 
-  const selectCategoryHandler = (e) => {
-    const checked = e.target.checked;
+  const categorySaveHandler = () => {
+    props.onSave("category", category);
+    props.onHideModal();
+  };
+
+  const checkHandler = (e) => {
     const value = parseInt(e.target.value);
-    if (checked) {
-      setTempSelectedCategory((prevCategory) => [...prevCategory, value]);
+
+    if (e.target.checked) {
+      setCategory((prevCategory) => [...prevCategory, value]);
     } else {
-      setTempSelectedCategory((prevCategory) =>
-        prevCategory.filter((category) => category !== value)
+      setCategory((prevCategory) =>
+        prevCategory.filter((ctg) => ctg !== value)
       );
     }
   };
 
-  const updateCategoryHandler = (e) => {
-    e.preventDefault();
-    props.onUpdateSelectedCategory(tempSelectedCategory);
-    props.onHideModal();
-    console.log(tempSelectedCategory);
-  };
-
   return (
-    props.category.length > 0 && (
-      <BaseModal show={props.show} onHideModal={props.onHideModal}>
-        <h3 className="text-xl font-bold mb-6">Categories</h3>
-        <div className="flex flex-col gap-4 mr-20">
-          <div className="flex flex-col gap-2">
-            <strong className="mb-2">Is your food halal ?</strong>
+    <BaseModal show={props.show} onHideModal={props.onHideModal}>
+      <h3 className="text-3xl font-bold">Categories</h3>
+      <div className="flex flex-col gap-2 my-8">
+        <p className="mb-2 text-lg">
+          Please check the categories that describes your packet
+        </p>
 
-            {props.category.map((category) => (
-              <div className="flex flex-row gap-4" key={category.categoryid}>
-                <input
-                  type="checkbox"
-                  value={category.categoryid}
-                  onChange={selectCategoryHandler}
-                  defaultChecked={props.selectedCategory.includes(
-                    category.categoryid
-                  )}
-                  id=""
-                />
-                <p>{category.categoryname}</p>
-              </div>
-            ))}
+        {props.categoryList?.map((categoryItem) => (
+          <div className="flex flex-row gap-4" key={categoryItem.categoryid}>
+            <input
+              type="checkbox"
+              value={categoryItem.categoryid}
+              defaultChecked={category.includes(categoryItem.categoryid)}
+              onChange={checkHandler}
+            />
+            <p>{categoryItem.categoryname}</p>
           </div>
-          <button
-            onClick={updateCategoryHandler}
-            className="px-16 py-3 rounded text-white font-bold bg-primary self-start mt-2 hover:opacity-75"
-          >
-            Save
-          </button>
-        </div>
-      </BaseModal>
-    )
+        ))}
+      </div>
+      <Button type="button" onClick={categorySaveHandler}>
+        Save
+      </Button>
+    </BaseModal>
   );
 }

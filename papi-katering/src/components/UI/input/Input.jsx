@@ -6,7 +6,7 @@ export default function Input(props) {
   if (props.color === "gray") {
     color = "bg-gray-200";
   } else if (props.color === "white") {
-    color = "bg-white";
+    color = "border-gray-300 border-2 bg-white";
   }
 
   const baseClass = `rounded-md w-full p-2 focus:outline-none ${color}`;

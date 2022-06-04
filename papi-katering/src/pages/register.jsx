@@ -194,6 +194,7 @@ const RegisterPage = () => {
                 name="address"
                 id="address"
                 color="gray"
+                rows={5}
                 value={address}
                 onChange={formValueHandler}
               />

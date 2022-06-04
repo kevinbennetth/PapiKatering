@@ -80,7 +80,7 @@ const LoginPage = () => {
           detail={error.detail}
         />
       )}
-      <div className=" min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
+      <div className="min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
         <img
           src="https://images2.alphacoders.com/100/1003810.jpg"
           alt=""
