@@ -1,23 +1,23 @@
 import axios from "axios";
 import { useContext, useEffect, useReducer, useState } from "react";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useNavigate } from "react-router-dom";
 import Alert from "../components/UI/alert/Alert";
 import Button from "../components/UI/button/Button";
 import Input from "../components/UI/input/Input";
 import Radio from "../components/UI/input/Radio";
-import APIContext from "../context/api-context";
+import { APIContext } from "../context/context";
 
 const quizInfoReducer = (state, data) => {
   return { ...state, ...data };
 };
 
 const QuizPage = () => {
+  const navigate = useNavigate();
   const customerID = localStorage.getItem("CustomerID");
+
   const { API_URL } = useContext(APIContext);
   const [update, setUpdate] = useState(null);
   const [fetch, setFetch] = useState(false);
-
-  const history = useHistory();
 
   const halalList = [
     { text: "Only Halal", value: 1 },
@@ -90,7 +90,7 @@ const QuizPage = () => {
         } else {
           await axios.post(URL, body);
         }
-        history.push("/home");
+        navigate("/home");
       } catch (error) {
         console.log(error);
       }
@@ -115,9 +115,7 @@ const QuizPage = () => {
         });
         setFetch(true);
         setUpdate(true);
-      } catch (error) {
-
-      }
+      } catch (error) {}
     };
 
     getPreference();

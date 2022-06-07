@@ -1,13 +1,12 @@
 import axios from "axios";
 import { useContext, useReducer, useState } from "react";
-import { Link } from "react-router-dom";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { Link, useNavigate } from "react-router-dom";
 import Alert from "../components/UI/alert/Alert";
 import Button from "../components/UI/button/Button";
 import Dropdown from "../components/UI/Dropdown";
 import Input from "../components/UI/input/Input";
 import TextArea from "../components/UI/input/TextArea";
-import APIContext from "../context/api-context";
+import { APIContext } from "../context/context";
 
 const registerInfoReducer = (state, data) => {
   return { ...state, ...data };
@@ -29,7 +28,7 @@ const RegisterPage = () => {
       confirmPassword: "",
     }
   );
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const {
     name,
@@ -95,15 +94,8 @@ const RegisterPage = () => {
 
     const submissionError = validateFormFields();
 
-    const {
-      name,
-      email,
-      phone,
-      address,
-      dob,
-      gender,
-      password,
-    } = registerInfoState;
+    const { name, email, phone, address, dob, gender, password } =
+      registerInfoState;
 
     if (submissionError.header !== "" && submissionError.detail !== "") {
       setError(submissionError);
@@ -111,7 +103,7 @@ const RegisterPage = () => {
       const URL = `${API_URL}user/register`;
       const body = {
         CustomerName: name,
-        CustomerEmail: email,
+        CustomerEmail: email.toLowerCase(),
         CustomerPhone: phone,
         CustomerDOB: dob,
         CustomerGender: gender,
@@ -122,7 +114,7 @@ const RegisterPage = () => {
         const registerResponse = await axios.post(URL, body);
 
         localStorage.setItem("CustomerID", registerResponse.data.CustomerID);
-        history.push("/quiz");
+        navigate("/quiz");
       } catch (error) {
         console.log(error);
       }

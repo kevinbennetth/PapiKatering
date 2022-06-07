@@ -2,10 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import bento from "../assets/bento1.png";
 import { AiOutlineArrowRight } from "react-icons/ai";
-import refresh from "../assets/refresh.png";
-import house from "../assets/house.png";
-import call from "../assets/call.png";
-import catering from "../assets/catering.jpeg";
 import Footer from "../components/Footer";
 
 // import "../styles/landing.css";
@@ -29,7 +25,7 @@ function LandingPage() {
             </p>
             <Link
               to="/login"
-              className="py-3 flex flex-row items-center gap-4 bg-primary text-xl text-white font-semibold px-24 rounded-full self-center mt-5 hover:opacity-75"
+              className="py-4 flex flex-row items-center gap-4 bg-primary text-xl text-white font-semibold px-16 rounded-full self-center mt-5 hover:opacity-75"
             >
               <p>Login to PapiKatering</p>
 

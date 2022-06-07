@@ -1,118 +1,141 @@
-import React from 'react';
-import logo from '../assets/bento1.png'
-import {popularList} from '../HELPERS/popularList';
-import {trendingList} from '../HELPERS/trendingList';
-import PopularItem from '../components/popularItem';
-import TrendingItem from '../components/trendingItem';
-import Carousel from "react-multi-carousel";
+import React, { useContext, useState } from "react";
 import "react-multi-carousel/lib/styles.css";
-import '../styles/Home.css';
-
-const responsive = {
-  desktop: {
-    breakpoint: { max: 3000, min: 1024 },
-    items: 4,
-    slidesToSlide: 3 // optional, default to 1.
-  },
-  tablet: {
-    breakpoint: { max: 1024, min: 464 },
-    items: 2,
-    slidesToSlide: 2 // optional, default to 1.
-  },
-  mobile: {
-    breakpoint: { max: 464, min: 0 },
-    items: 1,
-    slidesToSlide: 1 // optional, default to 1.
-  }
-};
-
-
+import { AiOutlineArrowRight } from "react-icons/ai";
+import { popularList } from "../HELPERS/popularList";
+import { trendingList } from "../HELPERS/trendingList";
+import bento from "../assets/bento1.png";
+import { Link } from "react-router-dom";
+import Button from "../components/UI/button/Button";
+import ItemsCarousel from "react-items-carousel";
+import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
+import ItemCard from "../components/ItemCard";
+import { APIContext } from "../context/context";
 
 function Home() {
+  const [activeItemIndex, setActiveItemIndex] = useState(0);
+
+  const { API_URL } = useContext(APIContext);
+
   return (
-    <div>
-      <div className="content">
-            <div className="textBox">
-                <h1>TODAY'S FAVOURITE</h1>
-                
-                <h2>Freshness in every Bite!</h2> 
+    <div className="bg-[#F8F8F8]">
+      <div className="flex flex-row items-center gap-5 py-24">
+        <div className="w-1/2 flex justify-center">
+          <div className="flex flex-col items-start gap-5">
+            <p className="text-red-600 font-semibold text-lg">
+              TODAY'S FAVOURITE
+            </p>
+            <h1 className="text-5xl font-black leading-[4rem]">
+              Freshness <br /> in every bite
+            </h1>
+            <p className="text-lg font-medium">
+              Have yourself a bento with variety of
+              <br />
+              beef, chicken, sushi, seafood, and salads!
+            </p>
+            <Link
+              to="/"
+              className="py-4 flex flex-row items-center gap-4 bg-primary text-xl text-white font-semibold px-16 rounded-full self-center mt-5 hover:opacity-75"
+            >
+              <p>Visit Merchant Page</p>
 
-
-                <p>Have yourself a bento with  
-                variety of beef, chicken, sushi, seafood, and salads!</p>
-                <div className="visit">
-                    <button>Visit Merchant Page</button>
-                </div> 
-            </div>
-
-            <div className="imgBox">
-               <img src={logo} alt="Logo" />
-            </div>
-        </div>
-      <div className="home">
-        <div className="judul">
-          <h2 className="recom">PAPI'S RECOMMENDATION</h2>
-          <button>Retake Quiz</button>
-        </div>
-
-      
-            <Carousel
-            responsive={responsive}
-            swipeable={true}
-            draggable={false}
-            autoPlay={false}
-            className="trendingList"
-              >
-                {trendingList.map((trendingItem, key) => {
-                    return (
-                    <TrendingItem 
-                    key={key}
-                    image={trendingItem.image} 
-                    name={trendingItem.name} 
-                    place={trendingItem.place} 
-                    rate={trendingItem.rate}
-                    fee={trendingItem.fee}
-                    />
-                    );
-                })}
-            </Carousel>
-
-          <h1 className="mostPopular">MOST POPULAR MERCHANTS</h1>
-          <div className="popularList">
-                {popularList.map((popularItem, key) => {
-                    return (
-                    <PopularItem 
-                    key={key}
-                    image={popularItem.image} 
-                    name={popularItem.name} 
-                    place={popularItem.place} 
-                    rate={popularItem.rate}
-                    />
-                    );
-                })}
+              <AiOutlineArrowRight className="fill-white mx-1 w-7 h-7" />
+            </Link>
           </div>
-          <h2 className="trending">TRENDING TODAY</h2>
-            <Carousel
-            responsive={responsive}
-            swipeable={true}
-            draggable={false}
-            autoPlay={false}
-            className="trendingList"
-              >
-                {trendingList.map((trendingItem, key) => {
-                    return (
-                    <TrendingItem 
-                    key={key}
-                    image={trendingItem.image} 
-                    name={trendingItem.name} 
-                    place={trendingItem.place} 
-                    rate={trendingItem.rate}
-                    fee={trendingItem.fee}
-                    />
-                    );
-                })}
-            </Carousel>
-          
+        </div>
+        <div className="relative self-start w-1/2 flex justify-center items-center">
+          <img src={bento} alt="" className="mr-40" />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-10 p-16">
+        <div className="flex flex-row justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold">PAPI'S RECOMMENDATION</h1>
+          <Button>
+            <Link to={"/quiz"}>Retake Quiz</Link>
+          </Button>
+        </div>
+        <ItemsCarousel
+          requestToChangeActive={(e) => setActiveItemIndex(e)}
+          activeItemIndex={activeItemIndex}
+          numberOfCards={5}
+          gutter={20}
+          leftChevron={
+            <button>
+              <AiOutlineLeft className="fill-primary mx-1 w-6 h-6" />
+            </button>
+          }
+          rightChevron={
+            <button>
+              <AiOutlineRight className="fill-primary mx-1 w-6 h-6" />
+            </button>
+          }
+          outsideChevron
+          chevronWidth={40}
+        >
+          {trendingList.map((trendingItem, key) => {
+            return (
+              <ItemCard
+                key={key}
+                image={trendingItem.image}
+                name={trendingItem.name}
+                place={trendingItem.place}
+                rate={trendingItem.rate}
+                fee={trendingItem.fee}
+              />
+            );
+          })}
+        </ItemsCarousel>
+      </div>
+
+      <div className="flex flex-col gap-10 p-16">
+        <h1 className="text-4xl font-bold">MOST POPULAR MERCHANTS</h1>
+        <div className="grid grid-cols-5 gap-6">
+          {popularList.map((popularItem, key) => {
+            return (
+              <ItemCard
+                key={key}
+                image={popularItem.image}
+                name={popularItem.name}
+                place={popularItem.place}
+                rate={popularItem.rate}
+              />
+            );
+          })}
+        </div>
+      </div>
+      <div className="flex flex-col gap-10 p-16">
+        <h1 className="text-4xl font-bold">TRENDING TODAY</h1>
+        <ItemsCarousel
+          requestToChangeActive={(e) => setActiveItemIndex(e)}
+          activeItemIndex={activeItemIndex}
+          numberOfCards={5}
+          gutter={20}
+          leftChevron={
+            <button>
+              <AiOutlineLeft className="fill-primary mx-1 w-6 h-6" />
+            </button>
+          }
+          rightChevron={
+            <button>
+              <AiOutlineRight className="fill-primary mx-1 w-6 h-6" />
+            </button>
+          }
+          outsideChevron
+          chevronWidth={40}
+        >
+          {trendingList.map((trendingItem, key) => {
+            return (
+              <ItemCard
+                key={key}
+                image={trendingItem.image}
+                name={trendingItem.name}
+                place={trendingItem.place}
+                rate={trendingItem.rate}
+                fee={trendingItem.fee}
+              />
+            );
+          })}
+        </ItemsCarousel>
       </div>
     </div>
   );

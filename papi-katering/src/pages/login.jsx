@@ -1,17 +1,17 @@
 import axios from "axios";
 import { useContext, useReducer, useState } from "react";
-import { Link } from "react-router-dom";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { Link, useNavigate } from "react-router-dom";
 import Alert from "../components/UI/alert/Alert";
 import Button from "../components/UI/button/Button";
 import Input from "../components/UI/input/Input";
-import APIContext from "../context/api-context";
+import { APIContext, UserContext } from "../context/context";
 
 const loginInfoReducer = (state, data) => {
   return { ...state, ...data };
 };
 
 const LoginPage = () => {
+  const { onUserLogin } = useContext(UserContext);
   const { API_URL } = useContext(APIContext);
   const [error, setError] = useState(null);
   const [loginInfoState, dispatchLoginInfo] = useReducer(loginInfoReducer, {
@@ -23,7 +23,7 @@ const LoginPage = () => {
     dispatchLoginInfo({ [name]: value });
   };
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { email, password } = loginInfoState;
 
@@ -57,16 +57,35 @@ const LoginPage = () => {
     } else {
       const URL = `${API_URL}user/login`;
       const body = {
-        Email: email,
+        Email: email.toLowerCase(),
         Password: password,
       };
       try {
         const loginResponse = await axios.post(URL, body);
 
-        localStorage.setItem("CustomerID", loginResponse.data.CustomerID);
-        history.push("/home");
+        console.log(loginResponse.data.data.returned);
+        if (loginResponse.data.status === "success") {
+          const data = loginResponse.data.data.returned;
+          
+          onUserLogin(data.customerid, data.merchantid)
+          // localStorage.setItem(
+          //   "CustomerID",
+          //   loginResponse.data.data.returned.customerid
+          // );
+          // localStorage.setItem(
+          //   "MerchantID",
+          //   loginResponse.data.data.returned.merchantid
+          // );
+          navigate("/home");
+        } else {
+          submissionError.header = "Wrong Credentials";
+          submissionError.detail = "Either your email or password is wrong";
+          setError(submissionError);
+        }
       } catch (error) {
-        console.log(error);
+        submissionError.header = "Server Error";
+        submissionError.detail = "Something went wrong with the server";
+        setError(submissionError);
       }
     }
   };

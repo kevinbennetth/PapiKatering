@@ -1,37 +1,102 @@
-import React from "react";
+import axios from "axios";
+import React, { useContext, useEffect, useState } from "react";
+import { APIContext } from "../../../context/context";
+import Button from "../button/Button";
+import Dropdown from "../Dropdown";
+import TextArea from "../input/TextArea";
 import BaseModal from "./BaseModal";
 
+const dropdownValue = [
+  { value: 1, show: 1 },
+  { value: 2, show: 2 },
+  { value: 3, show: 3 },
+  { value: 4, show: 4 },
+  { value: 5, show: 5 },
+];
+
 export default function ReviewModal(props) {
+  const { API_URL } = useContext(APIContext);
+  const customerID = parseInt(localStorage.getItem("CustomerID"));
+  const { selectedReview } = props;
+
+  const [rating, setRating] = useState(5);
+  const [description, setDescription] = useState("");
+
+  const reviewSubmitHandler = async () => {
+    if (selectedReview) {
+      const API = `${API_URL}review/${selectedReview.reviewid}`;
+      const body = {
+        rating,
+        description,
+      };
+      try {
+        await axios.put(API, body);
+        props.onUpdate();
+        props.onHideModal();
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      const API = `${API_URL}review`;
+      const body = {
+        customerid: customerID,
+        packetid: props.packetid,
+        rating,
+        description,
+      };
+      try {
+        await axios.post(API, body);
+        props.onUpdate();
+        props.onHideModal();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const formValueHandler = (name, value) => {
+    if (name === "rating") {
+      setRating(value);
+    } else if (name === "description") {
+      setDescription(value);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedReview !== null && selectedReview !== undefined) {
+      setRating(selectedReview.reviewrating);
+      setDescription(selectedReview.reviewdescription);
+    }
+  }, [selectedReview]);
+
   return (
-    <BaseModal show={props.show} hideModal={props.hideModal}>
+    <BaseModal show={props.show} onHideModal={props.onHideModal}>
       <h3 className="text-xl font-bold mb-6">Add Review</h3>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 mb-4">
         <label htmlFor="score">Review Score</label>
-        <select
-          defaultValue={5}
-          name="score"
-          className="w-min bg-white focus:outline-none cursor-pointer border-black border-opacity-50 border-2 p-2 rounded-md"
-        >
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-        </select>
-
+        <Dropdown
+          color="white"
+          name="rating"
+          id="rating"
+          value={rating}
+          options={dropdownValue}
+          onChange={formValueHandler}
+        />
         <label htmlFor="">Description</label>
-        <textarea
-          name=""
-          id=""
-          cols="30"
-          rows="10"
-          className="focus:outline-none resize-none border-black border-opacity-50 border-2 p-2 rounded-md"
-        ></textarea>
-
-        <button className="px-16 py-3 rounded text-white font-bold bg-primary self-start mt-2 hover:opacity-75">
-          Save
-        </button>
+        <TextArea
+          type="text"
+          name="description"
+          id="description"
+          color="white"
+          rows={12}
+          value={description}
+          onChange={formValueHandler}
+        />
       </div>
+
+      <Button type="button" onClick={reviewSubmitHandler}>
+        Save
+      </Button>
     </BaseModal>
   );
 }

@@ -2,6 +2,7 @@ import React from "react";
 import { GoSearch } from "react-icons/go";
 import { Link } from "react-router-dom";
 import logo from "../assets/LogoWhite.png";
+import Dropdown from "./UI/Dropdown";
 
 export default function Header() {
   return (

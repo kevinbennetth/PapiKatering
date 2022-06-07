@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useReducer, useState } from "react";
+import React, { useContext, useReducer, useState } from "react";
 import CategoryModal from "../components/UI/modal/CategoryModal";
 import { FaPlus } from "react-icons/fa";
 import Alert from "../components/UI/alert/Alert";
 import axios from "axios";
-import APIContext from "../context/api-context";
+import { APIContext } from "../context/context";
 import Button from "../components/UI/button/Button";
 import Input from "../components/UI/input/Input";
 import TextArea from "../components/UI/input/TextArea";
 import MenuForm from "./AddPacket/MenuForm";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useNavigate } from "react-router-dom";
 
 const packetReducer = (state, data) => {
   return { ...state, ...data };
@@ -17,109 +17,18 @@ const packetReducer = (state, data) => {
 export default function AddPacketPage() {
   const { API_URL } = useContext(APIContext);
   const MerchantID = localStorage.getItem("MerchantID");
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [categoryModal, setCategoryModal] = useState(false);
   const [packet, dispatchPacket] = useReducer(packetReducer, {
-    packetid: 1,
+    packetid: "",
     packetname: "",
     packetprice: "",
     packetimage:
       "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
     packetdescription: "",
-    category: [1, 2],
-    menu: [
-      {
-        menuid: 1,
-        menuday: 1,
-        menuitems: [
-          {
-            menuitemid: 1,
-            menutime: "Breakfast",
-            menuimage:
-              "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
-            menuname: "Mi Pangsit",
-            menudescription: "Deskripsi singat mi pangsit, agak singkat si",
-          },
-          {
-            menuitemid: 2,
-            menutime: "Lunch",
-            menuimage:
-              "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
-            menuname: "Mi Pangsit",
-            menudescription: "Deskripsi singat mi pangsit, agak singkat si",
-          },
-          {
-            menuitemid: 3,
-            menutime: "Dinner",
-            menuimage:
-              "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
-            menuname: "Mi Pangsit",
-            menudescription: "Deskripsi singat mi pangsit, agak singkat si",
-          },
-        ],
-      },
-      {
-        menuid: 2,
-        menuday: 3,
-        menuitems: [
-          {
-            menuitemid: 4,
-            menutime: "Breakfast",
-            menuimage:
-              "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
-            menuname: "Mi Pangsit",
-            menudescription: "Deskripsi singat mi pangsit, agak singkat si",
-          },
-          {
-            menuitemid: 5,
-            menutime: "Lunch",
-            menuimage:
-              "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
-            menuname: "Mi Pangsit",
-            menudescription: "Deskripsi singat mi pangsit, agak singkat si",
-          },
-          {
-            menuitemid: 6,
-            menutime: "Dinner",
-            menuimage:
-              "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
-            menuname: "Mi Pangsit",
-            menudescription: "Deskripsi singat mi pangsit, agak singkat si",
-          },
-        ],
-      },
-      {
-        menuid: 3,
-        menuday: 5,
-        menuitems: [
-          {
-            menuitemid: 7,
-            menutime: "Breakfast",
-            menuimage:
-              "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
-            menuname: "Mi Pangsit",
-            menudescription: "Deskripsi singat mi pangsit, agak singkat si",
-          },
-          {
-            menuitemid: 8,
-            menutime: "Lunch",
-            menuimage:
-              "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
-            menuname: "Mi Pangsit",
-            menudescription: "Deskripsi singat mi pangsit, agak singkat si",
-          },
-          {
-            menuitemid: 9,
-            menutime: "Dinner",
-            menuimage:
-              "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
-            menuname: "Mi Pangsit",
-            menudescription: "Deskripsi singat mi pangsit, agak singkat si",
-          },
-        ],
-      },
-    ],
+    category: [],
+    menu: [],
   });
   const [error, setError] = useState(null);
   const { packetname, packetprice, packetdescription, category, menu } = packet;
@@ -168,7 +77,7 @@ export default function AddPacketPage() {
       } catch (error) {
         console.log(error);
       }
-      history.push("/profile");
+      navigate("/profile");
     }
   };
 
@@ -176,7 +85,7 @@ export default function AddPacketPage() {
     const URL = `${API_URL}packet/${packet.packetid}`;
     try {
       await axios.delete(URL);
-      history.push("/profile");
+      navigate("/profile");
     } catch (error) {
       console.log(error);
     }
@@ -282,7 +191,7 @@ export default function AddPacketPage() {
           </div>
         </div>
 
-        <MenuForm menu={menu} onUpdate={formValueHandler} />
+        <MenuForm menu={menu} onUpdate={formValueHandler} type={"EDIT"} />
         <div className="flex flex-row justify-end gap-6 mt-10">
           {menu.packetid !== "" && (
             <Button type="button" onClick={deletePacketHandler}>
