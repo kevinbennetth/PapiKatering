@@ -15,10 +15,20 @@ const PaymentModal = (props) => {
         setNumber(() => (selectedPayment) ? selectedPayment.paymentnumber : "");
     }, [selectedPayment]);
 
+    const validate = (name, number) => {
+        if(name.length<1){
+            return false;
+        }
+        if(number.toString().length!=16){
+            return false;
+        }
+
+        return true;
+    }
+
     const handleSubmit = async (e) => {
         try {
-            console.log(number.toString().length);
-            if(number.toString().length==16){
+            if(validate(name, number)){
                 let response;
                 if(selectedPayment){
                     response = API.put(`/payment/${selectedPayment.paymentid}`,{
@@ -39,7 +49,7 @@ const PaymentModal = (props) => {
                 document.getElementById("status").innerHTML = "Sucessfully added!";
                 document.getElementById("status").className = "text-neutral-800";
             } else{
-                document.getElementById("status").innerHTML = "Card number needs to have 16 digits";
+                document.getElementById("status").innerHTML = "Invalid input";
                 document.getElementById("status").className = "text-red-500";
             }
         } catch(err) {

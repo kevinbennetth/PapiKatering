@@ -1,6 +1,6 @@
 CREATE TABLE Customer (
-    CustomerID INT,
-    CustomerImage VARCHAR(100),
+    CustomerID SERIAL,
+    CustomerImage VARCHAR(200),
     CustomerName VARCHAR(50) NOT NULL,
     CustomerEmail VARCHAR(50) NOT NULL,
     CustomerPhone VARCHAR(13) NOT NULL,
@@ -15,20 +15,20 @@ CREATE TABLE Customer (
 
 -- INSERT INTO Customer (CustomerID, CustomerImage, CustomerName, CustomerEmail, CustomerPhone, CustomerDOB, CustomerGender, CustomerPassword) 
 -- VALUES(
---     2,
+--     1,
 --     NULL,
---     'Beegang',
---     'bee@gimel.com',
---     '087712387912',
---     '2002-11-24',
---     'Female',
---     'maklosshi'
+--     'Maklo',
+--     'maklo@maklo.com',
+--     '1234567890123',
+--     '2000-01-01',
+--     'Male',
+--     'maklos'
 -- );
 
 CREATE TABLE Merchant (
-    MerchantID INT,
+    MerchantID SERIAL,
     CustomerID INT,
-    MerchantImage VARCHAR(100),
+    MerchantImage VARCHAR(200),
     MerchantName VARCHAR(50) NOT NULL,
     MerchantAddress TEXT NOT NULL,
     MerchantPhone VARCHAR(13) NOT NULL,
@@ -42,8 +42,8 @@ CREATE TABLE Merchant (
 
 -- INSERT INTO Merchant (MerchantID, CustomerID, MerchantImage, MerchantName, MerchantAddress, MerchantPhone)
 -- VALUES (
---     102,
---     2,
+--     101,
+--     1,
 --     NULL,
 --     'purr',
 --     'di maklo',
@@ -51,7 +51,7 @@ CREATE TABLE Merchant (
 -- );
 
 CREATE TABLE Payment (
-    PaymentID INT,
+    PaymentID SERIAL,
     CustomerID INT,
     PaymentName VARCHAR(50),
     PaymentNumber CHAR(16),
@@ -63,12 +63,11 @@ CREATE TABLE Payment (
     CONSTRAINT PaymentNumberCheck CHECK(PaymentNumber ~ '[0-9]*')
 );
 
--- INSERT INTO Payment (PaymentID, CustomerID, PaymentName, PaymentNumber)
--- VALUES 
--- (1001, 1, 'Main Card', '1234123412341234'),
--- (1002, 1, 'Credit Card', '6969696969696969'),
--- (1003, 1, 'Debit Card', '1234567890123456')
--- ;
+INSERT INTO Payment (PaymentID, CustomerID, PaymentName, PaymentNumber)
+VALUES 
+(1001, 1, 'Main Card', '1234123412341234'),
+(1002, 1, 'Credit Card', '6969696969696969'),
+(1003, 1, 'Debit Card', '1234567890123456');
 
 CREATE TABLE Address (
     AddressID SERIAL,
@@ -81,12 +80,6 @@ CREATE TABLE Address (
         REFERENCES Customer(CustomerID)
         ON UPDATE CASCADE ON DELETE CASCADE
 );
-
--- INSERT INTO Address (CustomerID, AddressName, AddressDetails)
--- VALUES 
--- (1, 'Rumah', 'Dimana mana hatiku senang'),
--- (1, 'Apartemen', 'Kaya gw')
--- ;
 
 CREATE TABLE Preference (
     CustomerID INT,
@@ -107,7 +100,7 @@ CREATE TABLE Packet (
     PacketID SERIAL,
     MerchantID INT,
     PacketName VARCHAR(50),
-    PacketImage VARCHAR(100),
+    PacketImage VARCHAR(200),
     PacketPrice INT,
     PacketDescription TEXT,
 
@@ -116,16 +109,6 @@ CREATE TABLE Packet (
         REFERENCES Merchant(MerchantID)
         ON UPDATE CASCADE ON DELETE CASCADE
 );
-
--- INSERT INTO Packet(MerchantID, PacketName, PacketImage, PacketPrice, PacketDescription)
--- VALUES
--- (
---     102,
---     'Deez Nuts',
---     NULL,
---     25000,
---     'Enak pokonya'
--- );
 
 CREATE TABLE Menu (
     MenuID SERIAL,
@@ -145,7 +128,7 @@ CREATE TABLE MenuItem (
     MenuID INT,
     MenuTime VARCHAR(10),
     MenuName VARCHAR(50),
-    MenuImage VARCHAR(100),
+    MenuImage VARCHAR(200),
     MenuDescription VARCHAR(255),
 
     CONSTRAINT MenuItemID_PK PRIMARY KEY(MenuItemID),
@@ -184,17 +167,6 @@ CREATE TABLE Orders (
     CONSTRAINT OrderStatusCheck CHECK(OrderStatus IN (0,1))
 );
 
--- INSERT INTO Orders (PacketID, MerchantID, CustomerID, AddressID, PaymentID, OrderDate, OrderDayCount, OrderAdditionalPrice, OrderQuantity, OrderStatus)
--- VALUES
--- (
---     2, 102, 1, 2, 1001,
---     '2022-01-12', 2, 10000, 3, 1
--- ),
--- (
---     2, 102, 1, 2, 1001,
---     '2022-06-02', 2, 15000, 4, 0
--- );
-
 CREATE TABLE Review (
     ReviewID SERIAL,
     CustomerID INT,
@@ -212,12 +184,6 @@ CREATE TABLE Review (
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT ReviewRatingCheck CHECK(ReviewRating >=1 AND ReviewRating <=5)
 );
-
-INSERT INTO Review (CustomerID, PacketID, ReviewDate, ReviewRating, ReviewDescription)
-VALUES
-(1, 2, '2022-02-01', 4, 'Anjay Cakep Enak Mas'),
-(1, 2, '2022-03-01', 5, 'Gels enak pars'),
-(1, 2, '2022-01-02', 2, 'Kok ryne ga keri sih');
 
 CREATE TABLE Category (
     CategoryID INT,
@@ -238,22 +204,3 @@ CREATE TABLE PacketCategory (
         REFERENCES Category(CategoryID)
         ON UPDATE CASCADE ON DELETE CASCADE
 );
-
--- SELECT
---     *
--- FROM
---     orders o
---     JOIN packet p on p.PacketID = o.PacketID
---     JOIN merchant m on m.MerchantID = o.MerchantID
--- WHERE
---     o.CustomerID = 1
---     AND o.OrderStatus = 1;
-
--- SELECT
---     *
--- FROM
---     review r
---     JOIN customer c on c.CustomerID = r.CustomerID
---     JOIN packet p on p.CustomerID = r.CustomerID
--- WHERE
---     r.CustomerID = 1;

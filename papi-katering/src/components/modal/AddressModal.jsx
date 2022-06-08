@@ -15,25 +15,39 @@ const AddressModal = (props) => {
         setDetails(() => (selectedAddress) ? selectedAddress.addressdetails : "");
     }, [selectedAddress]);
 
+    const validate = (name, details) => {
+        if(name.length<1){
+            return false;
+        }
+        if(details.length<1){
+            return false;
+        }
+
+        return true;
+    }
+
     const handleSubmit = async (e) => {
         try {
             let response;
-            console.log(name);
-            console.log(details);
-            if(selectedAddress){
-                response = API.put(`/address/${selectedAddress.addressid}`,{
-                    name,
-                    detail: details
-                });
+            if(validate(name, details)){
+                if(selectedAddress){
+                    response = await API.put(`/address/${selectedAddress.addressid}`,{
+                        name,
+                        detail: details
+                    });
+                }
+                else{
+                    response = await API.post(`/address/`, {
+                        customerID: custID,
+                        name,
+                        detail : details
+                    });
+                }
+                props.hideModal();
             }
             else{
-                response = API.post(`/address/`, {
-                    customerID: custID,
-                    name,
-                    detail : details
-                });
+                document.getElementById("status").innerHTML = "Invalid input";
             }
-            props.hideModal();
         } catch(err) {
             console.log(err);
         }
@@ -53,6 +67,8 @@ const AddressModal = (props) => {
                 <textarea name="addressDetails" id="addressDetails" cols="30" rows="5"
                 className="rounded-md border w-full p-1" defaultValue={(selectedAddress) ? selectedAddress.addressdetails : ""}
                 onChange={(e) => setDetails(e.target.value)}/>
+
+                <p id="status"></p>
             </form>
 
             <button type="submit" className="block px-10 py-2 mt-8 mb-4 bg-emerald-600 hover:bg-emerald-700

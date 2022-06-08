@@ -3,25 +3,56 @@ const pool = require("../db");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
+    const reqParams = req.query;
+
     try {
-        const query =
-        `
-        SELECT
-            *
-        FROM
-            Merchant
-        `;
+        let query;
+        let values;
 
-        const results = await pool.query(
-            query
-        );
+        if(reqParams.CustomerID){
+            query =
+            `
+            SELECT
+                *
+            FROM
+                Merchant
+            WHERE
+                CustomerID = $1;
+            `;
+            values=[reqParams.CustomerID]
 
-        res.status(200).json({
-            status: "success",
-            data: {
-                merchantData: results.rows[0]
-            }
-        });
+            const results = await pool.query(
+                query,
+                values
+            );
+    
+            res.status(200).json({
+                status: "success",
+                data: {
+                    merchantData: results.rows[0]
+                }
+            });
+        }
+        else{
+            query =
+            `
+            SELECT
+                *
+            FROM
+                Merchant
+            `;
+
+            const results = await pool.query(
+                query
+            );
+    
+            res.status(200).json({
+                status: "success",
+                data: {
+                    merchantData: results.rows
+                }
+            });
+        }
     } catch (err) {
         console.log(err);
     }
@@ -33,15 +64,15 @@ router.post("/", async (req, res) => {
         const body = req.body;
         const query = 
         `
-        INSERT INTO Merchant (MerchantID, CustomerID, MerchantImage, MerchantName, MerchantAddress, MerchantPhone)
+        INSERT INTO Merchant (CustomerID, MerchantImage, MerchantName, MerchantAddress, MerchantPhone)
         VALUES
-        ($1, $2, $3, $4, $5, $6)
+        ($1, $2, $3, $4, $5)
         RETURNING *;
         `;
 
         const results = await pool.query(
             query,
-            [body.MerchantID, body.CustomerID, body.MerchantImage, body.MerchantName, body.MerchantAddress, body.MerchantPhone]
+            [body.CustomerID, body.MerchantImage, body.MerchantName, body.MerchantAddress, body.MerchantPhone]
         );
 
         res.status(201).json({

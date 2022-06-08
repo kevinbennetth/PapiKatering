@@ -57,29 +57,48 @@ const ProfileMenu = (props) => {
 
     const dob = formatDate(customer.customerdob);
 
+    const validate = (name, email, phone) => {
+        if(name.length<1){
+            return false;
+        }
+        if(!(email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/))){
+            return false;
+        }
+        if(phone.length!=12){
+            return false;
+        }
+
+        return true;
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         console.log({
             name,
-            DOB,
+            dob,
             gender,
             email,
             phone
-        });
+        })
 
         try {
-            const response = await API.put(`/user/${customerID}`, {
-                CustomerName: name,
-                CustomerDOB: DOB,
-                CustomerGender: gender,
-                CustomerEmail: email,
-                CustomerPhone: phone
-            })
-
-            if(response.data.status=="success"){
-                document.getElementById("status").innerHTML = "Successfully udpated profile!";
-            }
+            if(validate(name,email,phone)){
+                const response = await API.put(`/user/${customerID}`, {
+                    CustomerName: name,
+                    CustomerDOB: DOB,
+                    CustomerGender: gender,
+                    CustomerEmail: email,
+                    CustomerPhone: phone
+                })
+    
+                if(response.data.status=="success"){
+                    document.getElementById("status").innerHTML = "Successfully updated profile!";
+                }
+            }           
+            else{
+                document.getElementById("status").innerHTML = "Invalid input";
+            } 
         } catch(err) {
             console.log(err);
         }
@@ -148,7 +167,7 @@ const ProfileMenu = (props) => {
                 </div>
             </div>
             <button type="submit" className="block px-10 py-2 mt-12 mb-4 bg-emerald-600 hover:bg-emerald-700
-                text-white font-bold rounded-md" onClick={() => handleSubmit}>Save</button>
+                text-white font-bold rounded-md" onClick={(e) => handleSubmit(e)}>Save</button>
         </div>
     );
 }
