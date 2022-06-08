@@ -6,13 +6,14 @@ import Button from "../components/UI/button/Button";
 import Dropdown from "../components/UI/Dropdown";
 import Input from "../components/UI/input/Input";
 import TextArea from "../components/UI/input/TextArea";
-import { APIContext } from "../context/context";
+import { APIContext, UserContext } from "../context/context";
 
 const registerInfoReducer = (state, data) => {
   return { ...state, ...data };
 };
 
 const RegisterPage = () => {
+  const { onUserLogin } = useContext(UserContext);
   const { API_URL } = useContext(APIContext);
   const [error, setError] = useState(null);
   const [registerInfoState, dispatchRegisterInfo] = useReducer(
@@ -113,7 +114,9 @@ const RegisterPage = () => {
       try {
         const registerResponse = await axios.post(URL, body);
 
-        localStorage.setItem("CustomerID", registerResponse.data.CustomerID);
+        const data = registerResponse.data;
+
+        onUserLogin(data.customerID, "");
         navigate("/quiz");
       } catch (error) {
         console.log(error);

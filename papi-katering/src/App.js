@@ -10,6 +10,7 @@ import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import QuizPage from "./pages/QuizPage";
 import LandingPage from "./pages/LandingPage";
+import MerchantPage from "./pages/MerchantPage";
 
 function App() {
   return (
@@ -17,13 +18,14 @@ function App() {
       <Router>
         <Header />
         <Routes>
-          <Route exact path="/login" element={<LoginPage />} />
-          <Route exact path="/register" element={<RegisterPage />} />
-          <Route exact path="/quiz" element={<QuizPage />} />
-          <Route exact path="/home" element={<Home />} />
-          <Route exact path="/detail/:id" element={<DetailPage />} />
-          <Route exact path="/addpacket" element={<AddPacketPage />} />
-          <Route exact path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/quiz" element={<QuizPage />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/detail/:id" element={<DetailPage />} />
+          <Route path="/addpacket" element={<AddPacketPage />} />
+          <Route path="/merchant/:id" element={<MerchantPage />} />
+          <Route path="/" element={<LandingPage />} />
         </Routes>
         <Footer />
       </Router>

@@ -7,10 +7,10 @@ import Dropdown from "./UI/Dropdown";
 export default function Header() {
   return (
     <header className="bg-primary py-4 px-10 flex flex-row justify-between">
-      <div className="flex flex-row items-center gap-4 font-semibold text-white">
+      <Link to="/home" className="flex flex-row items-center gap-4 font-semibold text-white">
         <img src={logo} alt="" className="w-12" />
         PAPI KATERING
-      </div>
+      </Link>
       <div className="flex flex-row items-center bg-white px-5 rounded gap-4 w-3/6">
         <select
           name=""
@@ -28,8 +28,8 @@ export default function Header() {
         <GoSearch className="w-5 h-5" />
       </div>
       <nav className="flex flex-row text-white items-center gap-8 font-medium">
-        <div className="cursor-pointer">HOME</div>
-        <div className="cursor-pointer">CHECKOUT</div>
+        <Link to="/home" className="cursor-pointer hover:underline">HOME</Link>
+        <Link to="/checkout" className="cursor-pointer hover:underline">CHECKOUT</Link>
         <Link to="/profile">
           <img
             src="https://static.zerochan.net/Ko.Elizabeth.full.2947878.jpg"

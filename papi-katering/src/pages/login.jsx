@@ -62,20 +62,10 @@ const LoginPage = () => {
       };
       try {
         const loginResponse = await axios.post(URL, body);
+        const data = loginResponse.data.data.returned;
 
-        console.log(loginResponse.data.data.returned);
         if (loginResponse.data.status === "success") {
-          const data = loginResponse.data.data.returned;
-          
-          onUserLogin(data.customerid, data.merchantid)
-          // localStorage.setItem(
-          //   "CustomerID",
-          //   loginResponse.data.data.returned.customerid
-          // );
-          // localStorage.setItem(
-          //   "MerchantID",
-          //   loginResponse.data.data.returned.merchantid
-          // );
+          onUserLogin(data.customerID, data.merchantID)
           navigate("/home");
         } else {
           submissionError.header = "Wrong Credentials";

@@ -7,18 +7,18 @@ import ReviewCard from "../components/UI/card/ReviewCard";
 import ItemsCarousel from "react-items-carousel";
 import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 import Button from "../components/UI/button/Button";
-import { APIContext, CartContext } from "../context/context";
+import { APIContext, CartContext, UserContext } from "../context/context";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function DetailPage() {
   const { API_URL } = useContext(APIContext);
   const { cart, onUpdateCart } = useContext(CartContext);
-  
+
   const { id } = useParams();
-  
-  const customerID = parseInt(localStorage.getItem("CustomerID"));
-  const merchantID = parseInt(localStorage.getItem("MerchantID"));
+  console.log(id);
+
+  const { customerID, merchantID } = useContext(UserContext);
 
   const navigate = useNavigate();
 
@@ -57,6 +57,7 @@ export default function DetailPage() {
       const data = await axios.get(API);
       setPacket(data.data);
       checkCanReview(data.data);
+      console.log(data.data);
     } catch (error) {}
   };
 
@@ -124,9 +125,9 @@ export default function DetailPage() {
         <div className="flex flex-row gap-16 items-center">
           <div className="w-1/2">
             <img
-              src="https://ik.imagekit.io/tvlk/cul-asset/guys1L+Yyer9kzI3sp-pb0CG1j2bhflZGFUZOoIf1YOBAm37kEUOKR41ieUZm7ZJ/cul-assets-252301483284-b172d73b6c43cddb/culinary/asset/REST_823-720x720-FIT_AND_TRIM-546ba62036aeff0535844d034100a061.jpeg?tr=q-40,c-at_max,w-720,h-1280&amp;_src=imagekit"
+              src={packet.packetimage}
               alt=""
-              className="w-1/2 rounded-md m-auto"
+              className="w-1/2 aspect-square rounded-md m-auto object-cover"
             />
           </div>
           <div className="flex flex-col gap-2 w-1/2">
@@ -188,11 +189,14 @@ export default function DetailPage() {
             <MenuCard menu={menu} key={menu.menuid} type={"VIEW"} />
           ))}
         </ItemsCarousel>
-        <div className="rounded shadow-md flex flex-row items-center p-8 gap-10 cursor-pointer">
+        <div
+          onClick={() => navigate(`/merchant/${packet.merchant.merchantid}`)}
+          className="rounded shadow-md flex flex-row items-center p-8 gap-10 cursor-pointer"
+        >
           <img
             src={packet.merchant.merchantimage}
             alt=""
-            className="w-24 rounded-full"
+            className="w-24 aspect-square rounded-full"
           />
           <div className="flex flex-col">
             <h3 className="text-2xl font-extrabold">

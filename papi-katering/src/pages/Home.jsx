@@ -1,20 +1,47 @@
-import React, { useContext, useState } from "react";
-import "react-multi-carousel/lib/styles.css";
-import { AiOutlineArrowRight } from "react-icons/ai";
-import { popularList } from "../HELPERS/popularList";
-import { trendingList } from "../HELPERS/trendingList";
-import bento from "../assets/bento1.png";
-import { Link } from "react-router-dom";
-import Button from "../components/UI/button/Button";
+import axios from "axios";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  AiOutlineArrowRight,
+  AiOutlineLeft,
+  AiOutlineRight,
+} from "react-icons/ai";
 import ItemsCarousel from "react-items-carousel";
-import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
+import "react-multi-carousel/lib/styles.css";
+import { Link } from "react-router-dom";
+import bento from "../assets/bento1.png";
 import ItemCard from "../components/ItemCard";
-import { APIContext } from "../context/context";
+import Button from "../components/UI/button/Button";
+import { APIContext, UserContext } from "../context/context";
+import { trendingList } from "../HELPERS/trendingList";
 
 function Home() {
   const [activeItemIndex, setActiveItemIndex] = useState(0);
-
+  const [merchant, setMerchant] = useState([]);
+  const [popularPacket, setPopularPacket] = useState([]);
+  const [recommendedPacket, setRecommendedPacket] = useState([]);
   const { API_URL } = useContext(APIContext);
+  const { customerID, merchantID } = useContext(UserContext);
+
+  const fetchHomeData = async () => {
+    const merchantURL = `${API_URL}merchant`;
+    const packetURL = `${API_URL}packet/home`;
+    const recommendationURL = `${API_URL}packet/recommend/${customerID}`;
+
+    try {
+      const merchantResponse = await axios.get(merchantURL);
+      setMerchant(merchantResponse.data.data.merchantData);
+
+      const packetResponse = await axios.get(packetURL);
+      setPopularPacket(packetResponse.data.data.packetData);
+
+      const recommendationResponse = await axios.get(recommendationURL);
+      setRecommendedPacket(recommendationResponse.data.data);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    fetchHomeData();
+  }, []);
 
   return (
     <div className="bg-[#F8F8F8]">
@@ -33,7 +60,7 @@ function Home() {
               beef, chicken, sushi, seafood, and salads!
             </p>
             <Link
-              to="/"
+              to="/merchant/1"
               className="py-4 flex flex-row items-center gap-4 bg-primary text-xl text-white font-semibold px-16 rounded-full self-center mt-5 hover:opacity-75"
             >
               <p>Visit Merchant Page</p>
@@ -51,7 +78,7 @@ function Home() {
         <div className="flex flex-row justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">PAPI'S RECOMMENDATION</h1>
           <Button>
-            <Link to={"/quiz"}>Retake Quiz</Link>
+            <Link to="/quiz">Retake Quiz</Link>
           </Button>
         </div>
         <ItemsCarousel
@@ -72,15 +99,14 @@ function Home() {
           outsideChevron
           chevronWidth={40}
         >
-          {trendingList.map((trendingItem, key) => {
+          {recommendedPacket.map((packet) => {
             return (
               <ItemCard
-                key={key}
-                image={trendingItem.image}
-                name={trendingItem.name}
-                place={trendingItem.place}
-                rate={trendingItem.rate}
-                fee={trendingItem.fee}
+                image={packet.packetimage}
+                name={packet.packetname}
+                place={packet.merchantname}
+                rate={packet.reviewaverage}
+                fee={packet.packetprice + " / day"}
               />
             );
           })}
@@ -90,21 +116,25 @@ function Home() {
       <div className="flex flex-col gap-10 p-16">
         <h1 className="text-4xl font-bold">MOST POPULAR MERCHANTS</h1>
         <div className="grid grid-cols-5 gap-6">
-          {popularList.map((popularItem, key) => {
+          {merchant.map((merchant) => {
             return (
-              <ItemCard
-                key={key}
-                image={popularItem.image}
-                name={popularItem.name}
-                place={popularItem.place}
-                rate={popularItem.rate}
-              />
+              <Link
+                to={`/merchant/${merchant.merchantid}`}
+                key={merchant.merchantid}
+              >
+                <ItemCard
+                  image={merchant.merchantimage}
+                  name={merchant.merchantname}
+                  rate={merchant.reviewaverage}
+                  place={merchant.merchantaddress}
+                />
+              </Link>
             );
           })}
         </div>
       </div>
       <div className="flex flex-col gap-10 p-16">
-        <h1 className="text-4xl font-bold">TRENDING TODAY</h1>
+        <h1 className="text-4xl font-bold">MOST POPULAR PACKETS</h1>
         <ItemsCarousel
           requestToChangeActive={(e) => setActiveItemIndex(e)}
           activeItemIndex={activeItemIndex}
@@ -123,16 +153,17 @@ function Home() {
           outsideChevron
           chevronWidth={40}
         >
-          {trendingList.map((trendingItem, key) => {
+          {popularPacket.map((packet) => {
             return (
-              <ItemCard
-                key={key}
-                image={trendingItem.image}
-                name={trendingItem.name}
-                place={trendingItem.place}
-                rate={trendingItem.rate}
-                fee={trendingItem.fee}
-              />
+              <Link to={`/detail/${[packet.packetid]}`} key={packet.packetid}>
+                <ItemCard
+                  image={packet.packetimage}
+                  name={packet.packetname}
+                  place={packet.merchantname}
+                  rate={packet.reviewaverage}
+                  fee={packet.packetprice + " / day"}
+                />
+              </Link>
             );
           })}
         </ItemsCarousel>

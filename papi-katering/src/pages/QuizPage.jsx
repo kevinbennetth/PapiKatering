@@ -5,7 +5,7 @@ import Alert from "../components/UI/alert/Alert";
 import Button from "../components/UI/button/Button";
 import Input from "../components/UI/input/Input";
 import Radio from "../components/UI/input/Radio";
-import { APIContext } from "../context/context";
+import { APIContext, UserContext } from "../context/context";
 
 const quizInfoReducer = (state, data) => {
   return { ...state, ...data };
@@ -13,7 +13,7 @@ const quizInfoReducer = (state, data) => {
 
 const QuizPage = () => {
   const navigate = useNavigate();
-  const customerID = localStorage.getItem("CustomerID");
+  const { customerID } = useContext(UserContext);
 
   const { API_URL } = useContext(APIContext);
   const [update, setUpdate] = useState(null);
@@ -53,11 +53,11 @@ const QuizPage = () => {
     } else if (vegetarian === "") {
       submissionError.header = "Invalid Vegetarian Section";
       submissionError.detail = "Please Choose the Vegetarian Section !";
-    } else if (isNaN(minPrice) || parseInt(minPrice) < 0) {
+    } else if (!parseInt(minPrice) > 0) {
       submissionError.header = "Invalid Minimum Price";
       submissionError.detail =
         "Please Insert a Valid Number that is more than 0 !";
-    } else if (isNaN(maxPrice) || parseInt(maxPrice) <= parseInt(minPrice)) {
+    } else if (!parseInt(maxPrice) > 0 && parseInt(maxPrice) <= parseInt(minPrice)) {
       submissionError.header = "Invalid Maximum Price";
       submissionError.detail =
         "Please Insert a Valid Number that is more than the Minimum Price !";
@@ -78,12 +78,13 @@ const QuizPage = () => {
       let URL = `${API_URL}preference`;
 
       const body = {
-        CustomerID: parseInt(customerID),
+        CustomerID: customerID,
         Halal: parseInt(halal),
         Vegetarian: parseInt(vegetarian),
-        MinPrice: parseInt(minPrice),
-        MaxPrice: parseInt(maxPrice),
+        MinPrice: isNaN(minPrice) ? "" : parseInt(minPrice),
+        MaxPrice: isNaN(maxPrice) ? "" : parseInt(maxPrice),
       };
+      console.log(body);
       try {
         if (update) {
           await axios.put(URL, body);
@@ -98,6 +99,9 @@ const QuizPage = () => {
   };
 
   const formValueHandler = (name, value) => {
+    if((name === "minPrice" || name === "maxPrice") && !(value > 0)) {
+      value = "";
+    }
     dispatchQuizInfo({ [name]: value });
   };
 
@@ -107,19 +111,21 @@ const QuizPage = () => {
       try {
         const responsePreference = await axios.get(URL);
         const preference = responsePreference.data;
-        dispatchQuizInfo({
-          halal: preference.halal,
-          vegetarian: preference.vegetarian,
-          minPrice: preference.minprice,
-          maxPrice: preference.maxprice,
-        });
+        if (preference.message !== "NOT FOUND") {
+          dispatchQuizInfo({
+            halal: preference.halal,
+            vegetarian: preference.vegetarian,
+            minPrice: preference.minprice,
+            maxPrice: preference.maxprice,
+          });
+          setUpdate(true);
+        }
         setFetch(true);
-        setUpdate(true);
       } catch (error) {}
     };
 
     getPreference();
-  }, [API_URL]);
+  }, [API_URL, customerID]);
 
   const { halal, vegetarian, minPrice, maxPrice } = quizInfoState;
 
@@ -139,7 +145,7 @@ const QuizPage = () => {
             alt=""
             className="w-3/12 object-cover object-left"
           />
-          <div className="ml-64 my-auto w-5/12 flex flex-col gap-8">
+          <div className="ml-64 my-auto w-5/12 flex flex-col gap-8 py-20">
             <div className="flex flex-col">
               <h3 className="text-3xl font-bold mb-4">Papi's Advisor</h3>
               <p className="text-lg">
@@ -161,7 +167,7 @@ const QuizPage = () => {
                         <Radio
                           name="halal"
                           value={halalItem.value}
-                          checked={halalItem.value == halal}
+                          checked={halalItem.value.toString() === halal.toString()}
                           onChange={formValueHandler}
                         />
                         <p className="text-lg">{halalItem.text}</p>
@@ -178,7 +184,9 @@ const QuizPage = () => {
                         <Radio
                           name="vegetarian"
                           value={vegetarianItem.value}
-                          checked={vegetarianItem.value == vegetarian}
+                          checked={
+                            vegetarianItem.value.toString() === vegetarian.toString()
+                          }
                           onChange={formValueHandler}
                         />
                         <p className="text-lg">{vegetarianItem.text}</p>

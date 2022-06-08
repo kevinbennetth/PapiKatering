@@ -69,16 +69,16 @@ function LandingPage() {
               <path
                 d="M94.4167 51.5C94.4167 77.25 75.5763 94.4167 52.3326 94.4167C33.4407 94.4167 18.1967 84.3957 12.875 68.6667M8.58337 51.5C8.58337 25.75 27.4238 8.58337 50.6675 8.58337C69.5637 8.58337 84.8034 18.6044 90.125 34.3334"
                 stroke="#28937F"
-                stroke-width="6"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
               <path
                 d="M30.0417 72.9584L12.875 68.6667L8.58337 85.8334M72.9584 30.0417L90.125 34.3334L94.4167 17.1667"
                 stroke="#28937F"
-                stroke-width="6"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
 

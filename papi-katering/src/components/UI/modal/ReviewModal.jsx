@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import { APIContext } from "../../../context/context";
+import { APIContext, UserContext } from "../../../context/context";
 import Button from "../button/Button";
 import Dropdown from "../Dropdown";
 import TextArea from "../input/TextArea";
@@ -16,7 +16,7 @@ const dropdownValue = [
 
 export default function ReviewModal(props) {
   const { API_URL } = useContext(APIContext);
-  const customerID = parseInt(localStorage.getItem("CustomerID"));
+  const { customerID } = useContext(UserContext);
   const { selectedReview } = props;
 
   const [rating, setRating] = useState(5);

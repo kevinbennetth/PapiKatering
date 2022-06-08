@@ -3,7 +3,7 @@ import CategoryModal from "../components/UI/modal/CategoryModal";
 import { FaPlus } from "react-icons/fa";
 import Alert from "../components/UI/alert/Alert";
 import axios from "axios";
-import { APIContext } from "../context/context";
+import { APIContext, UserContext } from "../context/context";
 import Button from "../components/UI/button/Button";
 import Input from "../components/UI/input/Input";
 import TextArea from "../components/UI/input/TextArea";
@@ -16,7 +16,7 @@ const packetReducer = (state, data) => {
 
 export default function AddPacketPage() {
   const { API_URL } = useContext(APIContext);
-  const MerchantID = localStorage.getItem("MerchantID");
+  const { merchantID } = useContext(UserContext);
   const navigate = useNavigate();
 
   const [categoryModal, setCategoryModal] = useState(false);
@@ -70,7 +70,7 @@ export default function AddPacketPage() {
       setError(submissionError);
     } else {
       const URL = `${API_URL}packet`;
-      const body = { merchantid: parseInt(MerchantID), ...packet };
+      const body = { merchantid: parseInt(merchantID), ...packet };
 
       try {
         await axios.post(URL, body);
