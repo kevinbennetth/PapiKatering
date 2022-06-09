@@ -8,6 +8,8 @@ export default function Dropdown(props) {
     color = "bg-gray-200";
   } else if (props.color === "white") {
     color = "bg-white border-gray-300 border-2";
+  } else if(props.color === "header") {
+    color = "bg-white"
   }
 
   const valueChangeHandler = (e) => {

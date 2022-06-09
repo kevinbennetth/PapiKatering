@@ -16,7 +16,7 @@ module.exports = {
         "move-down": {
           '0%': {transform: 'translateY(-50%)'},
           '100%': {transform: 'translateY(100%)'}
-        }
+        },
       }
     },
   },

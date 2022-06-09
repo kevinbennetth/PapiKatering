@@ -15,10 +15,11 @@ const packetRouter = require("./routes/packet");
 const merchantRouter = require("./routes/merchant");
 const userRouter = require("./routes/user");
 const orderRouter = require("./routes/order");
-const paymentRouter = require("./routes/payment")
+const paymentRouter = require("./routes/payment");
 const addressRouter = require("./routes/address");
 const preferenceRouter = require("./routes/preference");
 const reviewRouter = require("./routes/review");
+const categoryRouter = require("./routes/category");
 
 app.use("/packet", packetRouter);
 app.use("/merchant", merchantRouter);
@@ -28,6 +29,7 @@ app.use("/payment", paymentRouter);
 app.use("/address", addressRouter);
 app.use("/preference", preferenceRouter);
 app.use("/review", reviewRouter);
+app.use("/category", categoryRouter);
 
 const port = process.env.PORT;
 app.listen(port, () => {

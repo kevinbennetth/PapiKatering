@@ -3,105 +3,259 @@ const pool = require("../db");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const { merchantID, q, categories, minPrice, maxPrice, page, limit } = req.query;
-  let columns =
-    "packet.packetid, packet.packetname, packet.packetimage, packet.packetprice, merchant.merchantname";
+  const { q, halal, vegetarian, minPrice, maxPrice, page, limit } = req.query;
 
-  let dataSources =
-    "FROM packet JOIN merchant ON packet.merchantid = merchant.merchantid";
+  const inData = [];
+  const notInData = [];
+  const values = [];
 
-  let conditions = "WHERE";
+  let valueCounter = 1;
 
-  let values = [];
-
-  let idx = 1;
-
-  if (categories) {
-    numberCategories = categories
-      .split(",")
-      .map((category) => parseInt(category));
-
-    let categoryFormat = "";
-
-    numberCategories.forEach(() => {
-      if (idx == 1) categoryFormat += `$${idx}`;
-      else categoryFormat += `, $${idx}`;
-      idx++;
-    });
-
-    dataSources += ` JOIN packetcategory ON packet.packetid = packetcategory.packetid`;
-
-    conditions += ` categoryid IN (${categoryFormat})`;
-    values = [...numberCategories];
+  if (parseInt(vegetarian) === 1) {
+    inData.push(1);
+  } else if (parseInt(vegetarian) === -1) {
+    notInData.push(1);
   }
 
-  if (merchantID) {
-    conditions += ` AND packet.merchantid=$${idx}`;
-    values.push(merchantID);
-    idx++;
+  if (parseInt(halal) === 1) {
+    inData.push(2);
+  } else if (parseInt(halal) === -1) {
+    notInData.push(2);
   }
 
-  if (q) {
-    conditions += ` AND packetname=$${idx}`;
-    values.push(q);
-    idx++;
+  let categoryCondition = "";
+  if (notInData.length === 2) {
+    categoryCondition += " AND pc.categoryid IS NULL";
+  } else {
+    if (inData.length > 0) {
+      categoryCondition += " AND pc.categoryid IN (";
+      inData.forEach((indata, idx) => {
+        if (idx > 0) categoryCondition += ", ";
+        categoryCondition += indata;
+      });
+      categoryCondition += ")";
+    }
+
+    if (notInData.length > 0) {
+      categoryCondition += " AND pc.categoryid NOT IN (";
+      notInData.forEach((notindata, idx) => {
+        if (idx > 0) condition += ", ";
+        categoryCondition += notindata;
+      });
+      categoryCondition += ")";
+    }
   }
 
-  if (minPrice) {
-    conditions += ` AND packetprice >= $${idx}`;
+  if (minPrice !== "") {
+    categoryCondition += ` AND p.packetprice > ${valueCounter}`;
     values.push(minPrice);
-    idx++;
+    valueCounter++;
   }
 
-  if (maxPrice) {
-    conditions += ` AND packetprice <= $${idx}`;
+  if (maxPrice !== "") {
+    categoryCondition += ` AND p.packetprice < ${valueCounter}`;
     values.push(maxPrice);
-    idx++;
+    valueCounter++;
   }
 
   const enteredPage = page ? page : 1;
-  const enteredLimit = limit ? limit : 25;
+  const enteredLimit = limit ? limit : 20;
   const offset = (enteredPage - 1) * enteredLimit;
 
-  const limitOffset = ` LIMIT $${idx} OFFSET $${idx + 1}`;
-
-  values.push(enteredLimit);
+  const offsetString = `LIMIT $${valueCounter} OFFSET $${valueCounter + 1}`;
+  values.push(parseInt(enteredLimit));
   values.push(offset);
 
-  const queryString = `SELECT ${columns} ${dataSources} ${
-    conditions === "WHERE" ? "" : conditions
-  } ${limitOffset}`;
-
-  const reviewQueryString = `
+  const query = `
     SELECT
-      packetid,
-      AVG(reviewrating) AS rating, 
-      COUNT(reviewrating) AS reviewcount
-    FROM review
-    WHERE packetid=$1
-    GROUP BY packetid;
-    `;
+      p.packetid,
+      p.packetname, 
+      p.packetimage, 
+      p.packetprice, 
+      m.merchantname,
+      AVG(reviewrating)::numeric(10,1) as reviewaverage
+    FROM packet p LEFT JOIN review r ON p.packetid = r.packetid
+        JOIN merchant AS m ON p.merchantid = m.merchantid
+        LEFT JOIN packetcategory pc ON p.packetid = pc.packetid
+    WHERE p.packetname ILIKE '%${q}%' ${categoryCondition}
+    GROUP BY 
+      p.packetid,
+      p.packetname, 
+      p.packetimage, 
+      p.packetprice, 
+      m.merchantname
+    ORDER BY reviewaverage ASC
+    ${offsetString};
+  `;
+
+  const countQuery = `
+    SELECT
+      COUNT(p.packetid) AS totalrowcount
+    FROM packet p LEFT JOIN review r ON p.packetid = r.packetid
+        JOIN merchant AS m ON p.merchantid = m.merchantid
+        LEFT JOIN packetcategory pc ON p.packetid = pc.packetid
+    WHERE p.packetname ILIKE '%${q}%' ${categoryCondition}
+  `;
+
+  console.log(query);
+  console.log(values);
 
   try {
-    const resPacket = await pool.query(queryString, values);
-    const allPacket = resPacket.rows;
-    for (let i = 0; i < allPacket.length; i++) {
-      const packet = allPacket[i];
+    const results = await pool.query(query, values);
+    let packets = processEmptyAverageReview(results.rows);
 
-      const reviewValues = [packet.packetid];
-      const resReview = await pool.query(reviewQueryString, reviewValues);
+    const rowCountResult = await pool.query(countQuery);
+    let page = rowCountResult.rows[0].totalrowcount / limit + 1;
 
-      allPacket[i].rating = 0;
-      allPacket[i].reviewCount = 0;
+    res.json({ data: packets, page });
+  } catch (error) {
+    console.log(error.message);
+  }
+});
 
-      if (resReview.rowCount > 0) {
-        allPacket[i].rating = resReview.rows[0].rating;
-        allPacket[i].reviewCount = resReview.rows[0].reviewCount;
+router.get("/home", async (req, res) => {
+  const query = `
+  SELECT
+    p.packetid,
+    p.packetname, 
+    p.packetimage, 
+    p.packetprice, 
+    m.merchantname,
+    AVG(reviewrating)::numeric(10,1) as reviewaverage
+  FROM packet p LEFT JOIN review r ON p.packetid = r.packetid
+      JOIN merchant AS m ON p.merchantid = m.merchantid
+  GROUP BY 
+    p.packetid,
+    p.packetname, 
+    p.packetimage, 
+    p.packetprice, 
+    m.merchantname
+  ORDER BY reviewaverage ASC
+  LIMIT 8;
+  `;
+
+  try {
+    const results = await pool.query(query);
+
+    let packets = processEmptyAverageReview(results.rows);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        packetData: packets,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.get("/recommend/:id", async (req, res) => {
+  const { id } = req.params;
+  const preferenceQuery = `
+    SELECT * FROM preference WHERE customerid = $1;
+  `;
+
+  const preferenceValue = [id];
+
+  try {
+    const preferenceResponse = await pool.query(
+      preferenceQuery,
+      preferenceValue
+    );
+    const preference = preferenceResponse.rows[0];
+
+    // 1 = vegetarian, 2 = halal
+
+    const inData = [];
+    const notInData = [];
+
+    if (preference.vegetarian === 1) {
+      inData.push(1);
+    } else if (preference.vegetarian === -1) {
+      notInData.push(1);
+    }
+
+    if (preference.halal === 1) {
+      inData.push(2);
+    } else if (preference.halal === -1) {
+      notInData.push(2);
+    }
+
+    let condition = "WHERE";
+    if (notInData.length === 2) {
+      condition += " categoryid IS NULL";
+    } else {
+      if (inData.length > 0) {
+        condition += " categoryid IN (";
+        inData.forEach((indata, idx) => {
+          if (idx > 0) condition += ", ";
+          condition += indata;
+        });
+        condition += ")";
+      }
+
+      if (inData.length > 0 && notInData.length > 0) {
+        condition += " AND";
+      }
+
+      if (notInData.length > 0) {
+        condition += " categoryid NOT IN (";
+        notInData.forEach((notindata, idx) => {
+          if (idx > 0) condition += ", ";
+          condition += notindata;
+        });
+        condition += ")";
       }
     }
-    res.status(400).json(allPacket);
+    if (inData.length > 0 && notInData.length > 0) {
+      condition += " AND";
+    }
+    condition += " p.packetprice BETWEEN $1 AND $2";
+
+    const query = `
+    SELECT
+        p.packetid,
+        p.packetname, 
+        p.packetimage, 
+        p.packetprice, 
+        m.merchantname,
+        pc.categoryid,
+        x.categorycount,
+        AVG(reviewrating)::numeric(10,1) as reviewaverage
+    FROM packet p JOIN merchant m ON p.merchantid = m.merchantid
+        LEFT JOIN review r ON p.packetid = r.packetid
+        LEFT JOIN packetcategory pc ON p.packetid = pc.packetid
+        LEFT JOIN (
+            SELECT
+                packetid,
+                COUNT(categoryid) AS categorycount
+            FROM packetcategory
+            GROUP BY packetid
+        ) AS x ON pc.packetid = x.packetid
+    ${condition}
+    GROUP BY 
+        p.packetid,
+        p.packetname, 
+        p.packetimage, 
+        p.packetprice, 
+        m.merchantname,
+        pc.categoryid,
+        x.categorycount
+    ORDER BY reviewaverage ASC
+    LIMIT 8;
+    `;
+
+    const response = await pool.query(query, [
+      preference.minprice,
+      preference.maxprice,
+    ]);
+
+    const data = processEmptyAverageReview(response.rows);
+
+    res.status(200).json({ data: data });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log(error);
   }
 });
 
@@ -122,14 +276,14 @@ router.post("/", async (req, res) => {
     [menuQueryString, menuItemQueryString, menus] = createMenus(req);
 
     for (let index = 0; index < menus.length; index++) {
-      values = [newPacket.packetid, menus[index].menuDay];
+      values = [newPacket.packetid, menus[index].menuday];
 
       const resMenu = await pool.query(menuQueryString, values);
       newMenu = resMenu.rows[0];
       for (let i = 0; i < menus.length; i++) {
         const menuItemValues = createMenuItem(
           newMenu.menuid,
-          menus[index].menuItem,
+          menus[index].menuitems,
           i
         );
 
@@ -137,7 +291,7 @@ router.post("/", async (req, res) => {
       }
     }
 
-    res.status(400).json({ message: "successfully added new packet" });
+    res.status(200).json({ message: "successfully added new packet" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -147,7 +301,8 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
   const { merchantData } = req.query;
 
-  const packetQueryString = "SELECT * FROM packet";
+  const packetQueryString = "SELECT * FROM packet WHERE packetid=$1";
+  const packetValue = [id];
 
   const categoryQueryString = `
     SELECT
@@ -182,12 +337,50 @@ router.get("/:id", async (req, res) => {
     WHERE merchantid = $1;
   `;
 
+  const transactionCountQuery = `
+    SELECT
+      COUNT(*)
+    FROM orders
+    WHERE packetid = $1;
+  `;
+
+  const merchantReviewCountQuery = `
+    SELECT
+      AVG(reviewrating)::numeric(10,1) as reviewaverage
+    FROM review AS r JOIN packet AS p ON r.packetid = p.packetid
+      JOIN merchant AS m ON p.merchantid = m.merchantid
+    WHERE m.merchantid = $1;
+  `;
+
+  const reviewDataQuery = `
+    SELECT
+      COUNT(*) AS reviewcount,
+      AVG(reviewrating)::numeric(10,1) as reviewaverage
+    FROM review
+    WHERE packetid = $1;
+  `;
+
+  const reviewQuery = `
+    SELECT
+      r.reviewid,
+      c.customerid,
+      c.customerimage,
+      c.customername,
+      r.reviewdate,
+      r.reviewrating,
+      r.reviewdescription
+    FROM review AS r JOIN customer AS c ON r.customerid = c.customerid
+    WHERE r.packetid = $1
+    ORDER BY r.reviewdate DESC;
+
+  `;
+
   try {
-    const resPacket = await pool.query(packetQueryString);
+    const resPacket = await pool.query(packetQueryString, packetValue);
     const packetData = resPacket.rows[0];
 
     const resCategory = await pool.query(categoryQueryString, categoryValue);
-    packetData.categories = resCategory.rows;
+    packetData.category = resCategory.rows;
 
     const resMenu = await pool.query(menuQueryString, menuValue);
     packetData.menu = [];
@@ -195,7 +388,7 @@ router.get("/:id", async (req, res) => {
     for (let i = 0; i < resMenu.rowCount; i++) {
       const menu = resMenu.rows[i];
       const resMenuItem = await pool.query(menuItemQueryString, [menu.menuid]);
-      menu.menuItem = resMenuItem.rows;
+      menu.menuitems = resMenuItem.rows;
       packetData.menu.push(menu);
     }
 
@@ -207,9 +400,35 @@ router.get("/:id", async (req, res) => {
       const resMerchant = await pool.query(merchantQueryString, merchantValue);
 
       packetData.merchant = resMerchant.rows[0];
+
+      const resMerchantReview = await pool.query(
+        merchantReviewCountQuery,
+        merchantValue
+      );
+
+      packetData.merchant.reviewrating =
+        resMerchantReview.rows[0].reviewaverage;
+
+      const transactionCountValue = [packetData.packetid];
+      const resTransactionCount = await pool.query(
+        transactionCountQuery,
+        transactionCountValue
+      );
+
+      packetData.transactioncount = resTransactionCount.rows[0].count;
+
+      const reviewDataValue = [packetData.packetid];
+
+      const resReview = await pool.query(reviewQuery, reviewDataValue);
+      packetData.review = resReview.rows;
+
+      const resReviewData = await pool.query(reviewDataQuery, reviewDataValue);
+      packetData.reviewcount = resReviewData.rows[0].reviewcount;
+
+      packetData.reviewaverage = resReviewData.rows[0].reviewaverage;
     }
 
-    res.status(400).json(packetData);
+    res.status(200).json(packetData);
   } catch (error) {
     res.status(500).json(error.message);
   }
@@ -352,11 +571,11 @@ router.put("/:id", async (req, res) => {
 
 const createPacket = (req) => {
   const {
-    merchantID,
-    packetName,
-    packetImage,
-    packetPrice,
-    packetDescription,
+    merchantid,
+    packetname,
+    packetimage,
+    packetprice,
+    packetdescription,
   } = req.body;
 
   const queryString = `
@@ -370,21 +589,21 @@ const createPacket = (req) => {
     VALUES ($1, $2, $3, $4, $5) RETURNING *;`;
 
   const values = [
-    merchantID,
-    packetName,
-    packetImage,
-    packetPrice,
-    packetDescription,
+    merchantid,
+    packetname,
+    packetimage,
+    packetprice,
+    packetdescription,
   ];
 
   return [queryString, values];
 };
 
 const createPacketCategories = (req, packetID) => {
-  const { categories } = req.body;
+  const { category } = req.body;
   const queryString = `INSERT INTO PacketCategory VALUES ($1, $2)`;
 
-  const values = categories.map((category) => [packetID, category]);
+  const values = category.map((category) => [packetID, category]);
 
   return [queryString, values];
 };
@@ -398,8 +617,14 @@ const createMenus = (req) => {
 };
 
 const createMenuItem = (menuID, menuItem, index) => {
-  const { menuTime, menuName, menuImage, menuDescription } = menuItem[index];
-  return [menuID, menuTime, menuName, menuImage, menuDescription];
+  const { menutime, menuname, menuimage, menudescription } = menuItem[index];
+  return [menuID, menutime, menuname, menuimage, menudescription];
+};
+
+const processEmptyAverageReview = (data) => {
+  return data.map((data) =>
+    data.reviewaverage === null ? { ...data, reviewaverage: "0.0" } : data
+  );
 };
 
 module.exports = router;

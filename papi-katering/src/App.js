@@ -11,6 +11,7 @@ import RegisterPage from "./pages/Register";
 import QuizPage from "./pages/QuizPage";
 import LandingPage from "./pages/LandingPage";
 import MerchantPage from "./pages/MerchantPage";
+import SearchPage from "./pages/AddPacket/SearchPage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/detail/:id" element={<DetailPage />} />
           <Route path="/addpacket" element={<AddPacketPage />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/merchant/:id" element={<MerchantPage />} />
           <Route path="/" element={<LandingPage />} />
         </Routes>

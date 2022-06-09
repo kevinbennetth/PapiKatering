@@ -23,7 +23,7 @@ function Home() {
   const { customerID, merchantID } = useContext(UserContext);
 
   const fetchHomeData = async () => {
-    const merchantURL = `${API_URL}merchant`;
+    const merchantURL = `${API_URL}merchant/home`;
     const packetURL = `${API_URL}packet/home`;
     const recommendationURL = `${API_URL}packet/recommend/${customerID}`;
 
