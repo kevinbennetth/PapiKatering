@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useReducer, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ItemCard from "../../components/ItemCard";
 import Button from "../../components/UI/button/Button";
 import Input from "../../components/UI/input/Input";
 import Radio from "../../components/UI/input/Radio";
 import { APIContext } from "../../context/context";
 import axios from "axios";
+import PaginationButton from "../../components/UI/pagination/PaginationButton";
 
 const filterReducer = (state, data) => {
   return { ...state, ...data };
@@ -36,7 +37,7 @@ export default function SearchPage() {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(0);
   const [fetching, setFetching] = useState(false);
-  
+
   const processUrl = (url) => {
     let data = decodeURI(url.search);
     data = data.replace("?", "");
@@ -82,15 +83,16 @@ export default function SearchPage() {
         const URL = `${API_URL}packet?q=${queryData.q}&minPrice=${filter.minPrice}&maxPrice=${filter.maxPrice}&halal=${halal}&vegetarian=${vegetarian}&page=${page}&limit=20`;
         const response = await axios.get(URL);
         console.log("DAPET FOOD");
-        console.log(response)
+        console.log(response);
         setSearchData(response.data.data);
+        setPageCount(response.data.page);
       } else if (queryData.type === "Merchant") {
         const URL = `${API_URL}merchant?q=${
           queryData.q
         }&limit=${20}&page=${page}`;
         const response = await axios.get(URL);
         console.log("DAPET MERCHANT");
-        console.log(response)
+        console.log(response);
         setSearchData(response.data);
       }
       setFetching(false);
@@ -100,7 +102,7 @@ export default function SearchPage() {
   useEffect(() => {
     setSearchData([]);
     fetchData();
-  }, [queryData]);
+  }, [queryData, page]);
 
   const resetFilters = () => {
     dispatchFilter({ halal: "", vegetarian: "", minPrice: "", maxPrice: "" });
@@ -108,6 +110,10 @@ export default function SearchPage() {
 
   const filterHandler = () => {
     fetchData();
+  };
+
+  const pageChangeHandler = (page) => {
+    setPage(page);
   };
 
   return (
@@ -251,30 +257,44 @@ export default function SearchPage() {
         <p className="mt-4 ml-2">
           Search Results for <strong>{queryData.q}</strong>
         </p>
-        <div className="grid grid-cols-4 w-full gap-x-6">
+        <div className="grid grid-cols-4 w-full gap-x-6 min-h-screen">
           {!fetching
             ? queryData.type === "Food"
               ? searchData?.map((data) => (
-                  <ItemCard
-                    key={data.packetid}
-                    image={data.packetimage}
-                    name={data.packetname}
-                    place={data.merchantname}
-                    rate={data.reviewaverage}
-                    fee={data.packetprice}
-                  />
+                  <Link to={`/detail/${data.packetid}`} key={data.packetid}>
+                    <ItemCard
+                      image={data.packetimage}
+                      name={data.packetname}
+                      place={data.merchantname}
+                      rate={data.reviewaverage}
+                      fee={data.packetprice}
+                    />
+                  </Link>
                 ))
               : searchData?.map((data) => (
-                  <ItemCard
+                  <Link
+                    to={`/merchant/${data.merchantid}`}
                     key={data.merchantid}
-                    image={data.merchantimage}
-                    name={data.merchantname}
-                    place={data.merchantaddress}
-                    rate={data.reviewaverage}
-                  />
+                  >
+                    <ItemCard
+                      image={data.merchantimage}
+                      name={data.merchantname}
+                      place={data.merchantaddress}
+                      rate={data.reviewaverage}
+                    />
+                  </Link>
                 ))
             : emptyCard.map((card) => <ItemCard key={card} type="skeleton" />)}
         </div>
+        {searchData.length > 0 && (
+          <div className="self-end mt-10 w-1/4">
+            <PaginationButton
+              currPage={page}
+              maxPage={pageCount}
+              onUpdatePage={pageChangeHandler}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
