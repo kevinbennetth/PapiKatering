@@ -47,7 +47,6 @@ router.post("/", async (req, res) => {
 
   try {
     const resReview = await pool.query(queryString, values);
-    console.log(resReview);
     if (resReview.rowCount > 0) {
       res.status(200).json({ message: "Successfully Added a Review !" });
     } else {

@@ -97,15 +97,12 @@ router.get("/", async (req, res) => {
     WHERE p.packetname ILIKE '%${q}%' ${categoryCondition}
   `;
 
-  console.log(query);
-  console.log(values);
-
   try {
     const results = await pool.query(query, values);
     let packets = processEmptyAverageReview(results.rows);
 
     const rowCountResult = await pool.query(countQuery);
-    let page = rowCountResult.rows[0].totalrowcount / limit + 1;
+    let page = parseInt(rowCountResult.rows[0].totalrowcount / limit) + 1;
 
     res.json({ data: packets, page });
   } catch (error) {
@@ -182,21 +179,21 @@ router.get("/recommend/:id", async (req, res) => {
       notInData.push(2);
     }
 
-    let condition = "WHERE";
+    let categoryCondition = "WHERE";
     if (notInData.length === 2) {
-      condition += " categoryid IS NULL";
+      categoryCondition += " pc.categoryid IS NULL";
     } else {
       if (inData.length > 0) {
-        condition += " categoryid IN (";
+        categoryCondition += " pc.categoryid IN (";
         inData.forEach((indata, idx) => {
           if (idx > 0) condition += ", ";
-          condition += indata;
+          categoryCondition += indata;
         });
-        condition += ")";
+        categoryCondition += ")";
       }
 
       if (inData.length > 0 && notInData.length > 0) {
-        condition += " AND";
+        categoryCondition += " AND";
       }
 
       if (notInData.length > 0) {
@@ -211,7 +208,13 @@ router.get("/recommend/:id", async (req, res) => {
     if (inData.length > 0 && notInData.length > 0) {
       condition += " AND";
     }
-    condition += " p.packetprice BETWEEN $1 AND $2";
+    if (preference.minPrice !== "") {
+      categoryCondition += ` AND p.packetprice > $1`;
+    }
+
+    if (preference.maxPrice !== "") {
+      categoryCondition += ` AND p.packetprice < $2`;
+    }
 
     const query = `
     SELECT
@@ -233,7 +236,7 @@ router.get("/recommend/:id", async (req, res) => {
             FROM packetcategory
             GROUP BY packetid
         ) AS x ON pc.packetid = x.packetid
-    ${condition}
+    ${categoryCondition}
     GROUP BY 
         p.packetid,
         p.packetname, 
@@ -301,8 +304,25 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
   const { merchantData } = req.query;
 
-  const packetQueryString = "SELECT * FROM packet WHERE packetid=$1";
-  const packetValue = [id];
+  const packetQueryString = `
+    SELECT
+      p.packetid,
+      p.packetname, 
+      p.packetimage, 
+      p.packetprice, 
+      m.merchantid,
+      AVG(reviewrating)::numeric(10,1) as reviewaverage
+    FROM packet p LEFT JOIN review r ON p.packetid = r.packetid
+      JOIN merchant m ON p.merchantid = m.merchantid
+    WHERE p.packetid = $1
+    GROUP BY
+      p.packetid,
+      p.packetname, 
+      p.packetimage, 
+      p.packetprice,
+      m.merchantid;
+    `;
+  const packetValue = [parseInt(id)];
 
   const categoryQueryString = `
     SELECT
@@ -354,8 +374,7 @@ router.get("/:id", async (req, res) => {
 
   const reviewDataQuery = `
     SELECT
-      COUNT(*) AS reviewcount,
-      AVG(reviewrating)::numeric(10,1) as reviewaverage
+      COUNT(*) AS reviewcount
     FROM review
     WHERE packetid = $1;
   `;
@@ -377,7 +396,12 @@ router.get("/:id", async (req, res) => {
 
   try {
     const resPacket = await pool.query(packetQueryString, packetValue);
-    const packetData = resPacket.rows[0];
+    let packetData = resPacket.rows[0];
+    packetData = {
+      ...packetData,
+      reviewaverage:
+        packetData.reviewaverage === null ? "0.0" : packetData.reviewaverage,
+    };
 
     const resCategory = await pool.query(categoryQueryString, categoryValue);
     packetData.category = resCategory.rows;
@@ -406,8 +430,10 @@ router.get("/:id", async (req, res) => {
         merchantValue
       );
 
-      packetData.merchant.reviewrating =
-        resMerchantReview.rows[0].reviewaverage;
+      packetData.merchant.reviewaverage =
+        resMerchantReview.rows[0].reviewaverage === null
+          ? "0.0"
+          : resMerchantReview.rows[0].reviewaverage;
 
       const transactionCountValue = [packetData.packetid];
       const resTransactionCount = await pool.query(
@@ -416,7 +442,6 @@ router.get("/:id", async (req, res) => {
       );
 
       packetData.transactioncount = resTransactionCount.rows[0].count;
-
       const reviewDataValue = [packetData.packetid];
 
       const resReview = await pool.query(reviewQuery, reviewDataValue);
@@ -424,8 +449,6 @@ router.get("/:id", async (req, res) => {
 
       const resReviewData = await pool.query(reviewDataQuery, reviewDataValue);
       packetData.reviewcount = resReviewData.rows[0].reviewcount;
-
-      packetData.reviewaverage = resReviewData.rows[0].reviewaverage;
     }
 
     res.status(200).json(packetData);

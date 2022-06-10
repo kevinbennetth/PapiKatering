@@ -82,8 +82,6 @@ export default function SearchPage() {
       if (queryData.type === "Food") {
         const URL = `${API_URL}packet?q=${queryData.q}&minPrice=${filter.minPrice}&maxPrice=${filter.maxPrice}&halal=${halal}&vegetarian=${vegetarian}&page=${page}&limit=20`;
         const response = await axios.get(URL);
-        console.log("DAPET FOOD");
-        console.log(response);
         setSearchData(response.data.data);
         setPageCount(response.data.page);
       } else if (queryData.type === "Merchant") {
@@ -91,8 +89,6 @@ export default function SearchPage() {
           queryData.q
         }&limit=${20}&page=${page}`;
         const response = await axios.get(URL);
-        console.log("DAPET MERCHANT");
-        console.log(response);
         setSearchData(response.data);
       }
       setFetching(false);

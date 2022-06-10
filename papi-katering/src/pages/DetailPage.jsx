@@ -16,7 +16,6 @@ export default function DetailPage() {
   const { cart, onUpdateCart } = useContext(CartContext);
 
   const { id } = useParams();
-  console.log(id);
 
   const { customerID, merchantID } = useContext(UserContext);
 
@@ -57,7 +56,6 @@ export default function DetailPage() {
       const data = await axios.get(API);
       setPacket(data.data);
       checkCanReview(data.data);
-      console.log(data.data);
     } catch (error) {}
   };
 
@@ -104,6 +102,8 @@ export default function DetailPage() {
     setWarningSelect(() => value);
     addToCartHandler();
   };
+
+  console.log(packet)
 
   return (
     packet && (
@@ -204,7 +204,7 @@ export default function DetailPage() {
             </h3>
             <div className="flex flex-row gap-2 items-center mt-4">
               <BsFillStarFill className="text-yellow-300 w-6 h-6" />
-              {packet.merchant.reviewrating + " "}
+              {packet.merchant.reviewaverage + " "}
               <p>rata-rata ulasan</p>
             </div>
           </div>

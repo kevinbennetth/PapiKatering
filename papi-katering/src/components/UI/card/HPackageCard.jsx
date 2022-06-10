@@ -4,6 +4,7 @@ import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 export default function HPackageCard(props) {
+  console.log(props.packet)
   return (
     <Link to={`/detail/${props.packet.packetid}`} className="flex flex-row shadow-md rounded-md items-center hover:scale-[101%] transition-transform">
       <img

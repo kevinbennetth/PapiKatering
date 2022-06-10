@@ -40,7 +40,6 @@ router.put("/", async (req, res) => {
   const queryString =
     "UPDATE preference SET halal = $1, vegetarian = $2, minprice = $3, maxprice = $4 WHERE customerid=$5 RETURNING *;";
   const values = [Halal, Vegetarian, MinPrice, MaxPrice, CustomerID];
-  console.log(values);
 
   try {
     const updatedPreference = await pool.query(queryString, values);

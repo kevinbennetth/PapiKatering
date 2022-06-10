@@ -101,13 +101,15 @@ function Home() {
         >
           {recommendedPacket.map((packet) => {
             return (
-              <ItemCard
-                image={packet.packetimage}
-                name={packet.packetname}
-                place={packet.merchantname}
-                rate={packet.reviewaverage}
-                fee={packet.packetprice + " / day"}
-              />
+              <Link to={`/detail/${packet.packetid}`} key={packet.packetid}>
+                <ItemCard
+                  image={packet.packetimage}
+                  name={packet.packetname}
+                  place={packet.merchantname}
+                  rate={packet.reviewaverage}
+                  fee={packet.packetprice + " / day"}
+                />
+              </Link>
             );
           })}
         </ItemsCarousel>

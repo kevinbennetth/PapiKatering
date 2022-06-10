@@ -3,7 +3,7 @@ const pool = require("../db");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  const { customerID } = req.body;
+  const { customerID } = req.query;
   const queryString = "SELECT * FROM address WHERE customerid=$1;";
   const values = [customerID];
 

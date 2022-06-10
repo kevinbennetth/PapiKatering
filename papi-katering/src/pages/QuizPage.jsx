@@ -84,7 +84,6 @@ const QuizPage = () => {
         MinPrice: isNaN(minPrice) ? "" : parseInt(minPrice),
         MaxPrice: isNaN(maxPrice) ? "" : parseInt(maxPrice),
       };
-      console.log(body);
       try {
         if (update) {
           await axios.put(URL, body);

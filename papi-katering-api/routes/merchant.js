@@ -38,9 +38,6 @@ router.get("/", async (req, res) => {
   ${offsetString};
   `;
 
-  console.log(query);
-  console.log(values);
-
   try {
     const results = await pool.query(query, values);
     let merchants = processEmptyAverageReview(results.rows);
@@ -204,7 +201,7 @@ router.get("/:id", async (req, res) => {
 
       packet.packetratingcount = packetRating.packetratingcount;
       if (packetRating.packetratingcount === "0") {
-        packet.packetratingaverage = "0";
+        packet.packetratingaverage = "0.0";
       } else {
         packet.packetratingaverage = packetRating.packetratingaverage;
       }
@@ -215,6 +212,7 @@ router.get("/:id", async (req, res) => {
       const packetSold = packetSoldResponse.rows[0];
       packet.sold = packetSold.sold;
     });
+
 
     const merchantReviewCountQuery = `
     SELECT
@@ -229,7 +227,10 @@ router.get("/:id", async (req, res) => {
     ]);
 
     const merchantData = results.rows[0];
-    merchantData.reviewrating = averageRating.rows[0].reviewaverage;
+    merchantData.reviewrating =
+      averageRating.rows[0].reviewaverage === null
+        ? "0.0"
+        : averageRating.rows[0].reviewaverage;
 
     res.status(200).json({
       status: "success",
