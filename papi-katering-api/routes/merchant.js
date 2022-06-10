@@ -38,12 +38,24 @@ router.get("/", async (req, res) => {
   ${offsetString};
   `;
 
+  const merchantCountQuery = `
+  SELECT
+    COUNT(*) as totalrowcount
+  FROM  merchant m LEFT JOIN packet p ON m.merchantid = p.merchantid
+    LEFT JOIN review r ON p.packetid = r.packetid
+  WHERE merchantname ILIKE '%${q}%'
+  `;
+
   try {
     const results = await pool.query(query, values);
     let merchants = processEmptyAverageReview(results.rows);
-    res.json(merchants);
+
+    const rowCountResult = await pool.query(merchantCountQuery);
+    let page = parseInt(rowCountResult.rows[0].totalrowcount / limit) + 1;
+
+    res.json({ data: merchants, page: page });
   } catch (error) {
-    console.log(error.message);
+    res.json(error.message);
   }
 });
 
@@ -212,7 +224,6 @@ router.get("/:id", async (req, res) => {
       const packetSold = packetSoldResponse.rows[0];
       packet.sold = packetSold.sold;
     });
-
 
     const merchantReviewCountQuery = `
     SELECT

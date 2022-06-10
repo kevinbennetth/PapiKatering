@@ -79,18 +79,19 @@ export default function SearchPage() {
   const fetchData = async () => {
     setFetching(true);
     try {
+      let response;
       if (queryData.type === "Food") {
         const URL = `${API_URL}packet?q=${queryData.q}&minPrice=${filter.minPrice}&maxPrice=${filter.maxPrice}&halal=${halal}&vegetarian=${vegetarian}&page=${page}&limit=20`;
-        const response = await axios.get(URL);
-        setSearchData(response.data.data);
-        setPageCount(response.data.page);
+        response = await axios.get(URL);
       } else if (queryData.type === "Merchant") {
         const URL = `${API_URL}merchant?q=${
           queryData.q
         }&limit=${20}&page=${page}`;
-        const response = await axios.get(URL);
-        setSearchData(response.data);
+        response = await axios.get(URL);
       }
+      console.log(response)
+      setSearchData(response.data.data);
+      setPageCount(response.data.page);
       setFetching(false);
     } catch (error) {}
   };

@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import bento from "../assets/bento1.png";
 import ItemCard from "../components/ItemCard";
 import Button from "../components/UI/button/Button";
+import UploadButton from "../components/UI/button/UploadButton";
 import { APIContext, UserContext } from "../context/context";
 import { trendingList } from "../HELPERS/trendingList";
 
