@@ -6,8 +6,6 @@ const util = require("../utils/utility");
 router.get("/", async (req, res) => {
   const { type, packetID, customerID } = req.body;
 
-    const { type, packetID, customerID }  = req.query;
-    
     let queryString = "";
     let values = [];
 
