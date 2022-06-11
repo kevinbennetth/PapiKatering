@@ -205,11 +205,14 @@ router.get("/:id", async (req, res) => {
 
   `;
 
-    packets.forEach(async (packet) => {
+    for (let i = 0; i < packets.length; i++) {
+      const packet = packets[i];
       const packetRatingResponse = await pool.query(packetRatingQuery, [
         packet.packetid,
       ]);
       const packetRating = packetRatingResponse.rows[0];
+
+      console.log(packetRating);
 
       packet.packetratingcount = packetRating.packetratingcount;
       if (packetRating.packetratingcount === "0") {
@@ -217,13 +220,14 @@ router.get("/:id", async (req, res) => {
       } else {
         packet.packetratingaverage = packetRating.packetratingaverage;
       }
+      console.log(packet.packetratingcount);
 
       const packetSoldResponse = await pool.query(packetSoldQuery, [
         packet.packetid,
       ]);
       const packetSold = packetSoldResponse.rows[0];
       packet.sold = packetSold.sold;
-    });
+    }
 
     const merchantReviewCountQuery = `
     SELECT
