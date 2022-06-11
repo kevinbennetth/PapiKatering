@@ -114,7 +114,7 @@ const LoginPage = () => {
             <div className="my-8">
               <div className="flex flex-row justify-between items-center">
                 <p className="text-lg font-bold my-3">Password</p>
-                <Link to="" className="text-emerald-600">
+                <Link to="" className="text-emerald-600 focus:outline-none">
                   Forgot Password?
                 </Link>
               </div>
@@ -132,7 +132,7 @@ const LoginPage = () => {
 
           <div className="font-bold">
             Not Registered Yet?
-            <Link to={"/register"} className="text-emerald-600">
+            <Link to={"/register"} className="text-primary focus:outline-none">
               {" "}
               Create an Account
             </Link>

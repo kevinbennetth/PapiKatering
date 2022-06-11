@@ -176,7 +176,7 @@ function LandingPage() {
             Join Papi's Forces and Make Less <br /> Food Choices Today !
           </h2>
           <button className="py-5  bg-primary text-4xl text-white font-semibold px-24  rounded-md mt-5 hover:opacity-75">
-            <Link to="/register">Register</Link>
+            <Link to="/register" className="focus:outline-none">Register</Link>
           </button>
         </div>
       </div>

@@ -62,7 +62,7 @@ function Home() {
             </p>
             <Link
               to="/merchant/1"
-              className="py-4 flex flex-row items-center gap-4 bg-primary text-xl text-white font-semibold px-16 rounded-full self-center mt-5 hover:opacity-75"
+              className="focus:outline-none py-4 flex flex-row items-center gap-4 bg-primary text-xl text-white font-semibold px-16 rounded-full self-center mt-5 hover:opacity-75"
             >
               <p>Visit Merchant Page</p>
 
@@ -102,7 +102,7 @@ function Home() {
         >
           {recommendedPacket.map((packet) => {
             return (
-              <Link to={`/detail/${packet.packetid}`} key={packet.packetid}>
+              <Link to={`/detail/${packet.packetid}`} key={packet.packetid} className="focus:outline-none">
                 <ItemCard
                   image={packet.packetimage}
                   name={packet.packetname}
@@ -124,6 +124,7 @@ function Home() {
               <Link
                 to={`/merchant/${merchant.merchantid}`}
                 key={merchant.merchantid}
+                className="focus:outline-none"
               >
                 <ItemCard
                   image={merchant.merchantimage}
@@ -158,7 +159,7 @@ function Home() {
         >
           {popularPacket.map((packet) => {
             return (
-              <Link to={`/detail/${[packet.packetid]}`} key={packet.packetid}>
+              <Link to={`/detail/${[packet.packetid]}`} key={packet.packetid} className="focus:outline-none">
                 <ItemCard
                   image={packet.packetimage}
                   name={packet.packetname}

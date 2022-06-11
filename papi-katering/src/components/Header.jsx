@@ -17,17 +17,16 @@ const options = [
 ];
 
 export default function Header() {
-
   const [query, setQuery] = useState("");
   const [type, setType] = useState("Food");
 
   const navigate = useNavigate();
 
   const searchValueHandler = (name, value) => {
-    if(name === "query") {
+    if (name === "query") {
       setQuery(value);
-    } else if(name === "type") {
-      setType(value)
+    } else if (name === "type") {
+      setType(value);
     }
   };
 
@@ -40,7 +39,7 @@ export default function Header() {
     <header className="bg-primary py-4 px-10 flex flex-row justify-between">
       <Link
         to="/home"
-        className="flex flex-row items-center gap-4 font-semibold text-white"
+        className="flex flex-row items-center gap-4 font-semibold text-white cursor-pointer focus:outline-none"
       >
         <img src={logo} alt="" className="w-12" />
         PAPI KATERING
@@ -64,16 +63,25 @@ export default function Header() {
           placeholder="Search food or merchant"
           onChange={searchValueHandler}
         />
-        <GoSearch className="w-7 h-7 hover:opacity-60w cursor-pointer" onClick={submitHandler} />
+        <GoSearch
+          className="w-7 h-7 hover:opacity-60w cursor-pointer"
+          onClick={submitHandler}
+        />
       </form>
       <nav className="flex flex-row text-white items-center gap-8 font-medium">
-        <Link to="/home" className="cursor-pointer hover:underline">
+        <Link
+          to="/home"
+          className="cursor-pointer hover:underline focus:outline-none"
+        >
           HOME
         </Link>
-        <Link to="/checkout" className="cursor-pointer hover:underline">
+        <Link
+          to="/checkout"
+          className="cursor-pointer hover:underline focus:outline-none"
+        >
           CHECKOUT
         </Link>
-        <Link to="/profile">
+        <Link to="/profile" className="visited:outline-none">
           <img
             src="https://static.zerochan.net/Ko.Elizabeth.full.2947878.jpg"
             alt=""

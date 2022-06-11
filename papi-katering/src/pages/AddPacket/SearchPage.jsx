@@ -258,7 +258,7 @@ export default function SearchPage() {
           {!fetching
             ? queryData.type === "Food"
               ? searchData?.map((data) => (
-                  <Link to={`/detail/${data.packetid}`} key={data.packetid}>
+                  <Link to={`/detail/${data.packetid}`} key={data.packetid} className="focus:outline-none">
                     <ItemCard
                       image={data.packetimage}
                       name={data.packetname}

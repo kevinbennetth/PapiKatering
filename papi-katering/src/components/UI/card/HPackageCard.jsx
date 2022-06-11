@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 export default function HPackageCard(props) {
   return (
-    <Link to={`/detail/${props.packet.packetid}`} className="flex flex-row shadow-md rounded-md items-center hover:scale-[101%] transition-transform">
+    <Link to={`/detail/${props.packet.packetid}`} className="focus:outline-none flex flex-row shadow-md rounded-md items-center hover:scale-[101%] transition-transform">
       <img
         src={props.packet.packetimage}
         className="h-36 w-36 object-cover rounded-md"

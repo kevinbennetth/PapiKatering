@@ -61,7 +61,7 @@ const MerchantPage = () => {
           <div className="text-3xl font-bold my-8">Packets</div>
           <div className="flex flex-col gap-5">
             {packets.map((packet) => (
-              <HPackageCard packet={packet} />
+              <HPackageCard packet={packet} key={packet.packetid} />
             ))}
           </div>
         </div>
