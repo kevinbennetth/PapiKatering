@@ -6,32 +6,47 @@ const util = require("../utils/utility");
 router.get("/", async (req, res) => {
   const { type, packetID, customerID } = req.body;
 
-  let queryString = "";
-  let values = [];
+    const { type, packetID, customerID }  = req.query;
+    
+    let queryString = "";
+    let values = [];
 
-  if (type === "packet") {
-    queryString = `
-            SELECT *
-            FROM review
-            WHERE packetid = $1;
-        `;
-    values = [packetID];
-  } else if (type === "user") {
-    queryString = `
-            SELECT *
-            FROM review
-            WHERE customerid = $1;
-        `;
-    values = [customerID];
-  }
+    if(type === "packet") {
+        queryString = `
+        SELECT
+            *
+        FROM
+            review r
+            JOIN customer c on c.CustomerID = r.CustomerID
+            JOIN packet p on p.PacketID = r.PacketID
+        WHERE
+            r.CustomerID = $1,
+            p.PacketID = $2;
+        `
+        values = [customerID, packetID];
+    } else if (type === "user") {
+        queryString = `
+        SELECT
+            *
+        FROM
+            review r
+            JOIN customer c on c.CustomerID = r.CustomerID
+            JOIN packet p on p.PacketID = r.PacketID
+            JOIN merchant m on m.merchantID = p.merchantID
+        WHERE
+            r.CustomerID = $1;
+        `
+        values = [customerID];
+    }
 
-  try {
-    const resReview = await pool.query(queryString, values);
-    res.status(200).json(resReview.rows);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+    try {
+        const resReview = await pool.query(queryString, values);
+        res.status(200).json(resReview.rows);
+        
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
+})
 
 router.post("/", async (req, res) => {
   const { customerid, packetid, rating, description } = req.body;

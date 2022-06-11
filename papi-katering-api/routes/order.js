@@ -4,7 +4,7 @@ const router = express.Router();
 const util = require("../utils/utility");
 
 router.get("/", async (req, res) => {
-  let { status } = req.body;
+  let status = req.query.status;
 
   let queryString;
   let values;
@@ -16,15 +16,36 @@ router.get("/", async (req, res) => {
     statusID = 1;
   }
 
-  if (req.body.customerID) {
-    const { customerID } = req.body;
+  if (req.query.customerID) {
+    const customerID = req.query.customerID;
     queryString =
-      "SELECT * FROM orders WHERE customerid = $1 AND orderstatus = $2;";
+      `
+      SELECT
+        *
+      FROM
+        Orders o
+        JOIN Packet p on p.PacketID = o.PacketID
+        JOIN Merchant m on m.MerchantID = o.MerchantID
+      WHERE
+        o.CustomerID = $1
+        AND o.OrderStatus = $2;
+      `;
+    
     values = [customerID, statusID];
-  } else if (req.body.merchantID) {
-    const { merchantID } = req.body;
+  } else if (req.query.merchantID) {
+    const merchantID = req.query.merchantID;
     queryString =
-      "SELECT * FROM orders WHERE merchantid = $1 AND orderstatus = $2;";
+    `
+    SELECT
+      *
+    FROM
+      Orders o
+      JOIN Packet p on p.PacketID = o.PacketID
+      JOIN Merchant m on m.MerchantID = o.MerchantID
+    WHERE
+      o.MerchantID = $1
+      AND o.OrderStatus = $2;
+    `
     values = [merchantID, statusID];
   }
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { FaTwitter, FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
-export default function Footer() {
+
+const Footer = () => {
   return (
     <footer className="bg-primary flex flex-col items-center py-10 gap-6">
       <div className="flex flex-row gap-4">
@@ -19,3 +20,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+export default Footer;

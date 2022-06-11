@@ -98,33 +98,30 @@ router.get("/home", async (req, res) => {
 
 // create new merchant
 router.post("/", async (req, res) => {
-  try {
-    const body = req.body;
-    const query = `
-        INSERT INTO Merchant (MerchantID, CustomerID, MerchantImage, MerchantName, MerchantAddress, MerchantPhone)
+    try {
+        const body = req.body;
+        const query = 
+        `
+        INSERT INTO Merchant (CustomerID, MerchantImage, MerchantName, MerchantAddress, MerchantPhone)
         VALUES
-        ($1, $2, $3, $4, $5, $6)
+        ($1, $2, $3, $4, $5)
         RETURNING *;
         `;
 
-    const results = await pool.query(query, [
-      body.MerchantID,
-      body.CustomerID,
-      body.MerchantImage,
-      body.MerchantName,
-      body.MerchantAddress,
-      body.MerchantPhone,
-    ]);
+        const results = await pool.query(
+            query,
+            [body.CustomerID, body.MerchantImage, body.MerchantName, body.MerchantAddress, body.MerchantPhone]
+        );
 
-    res.status(201).json({
-      status: "success",
-      data: {
-        merchantData: results.rows[0],
-      },
-    });
-  } catch (err) {
-    console.log(err);
-  }
+        res.status(201).json({
+            status: "success",
+            data: {
+                merchantData: results.rows[0]
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
 });
 
 // update merchant's data
@@ -164,8 +161,9 @@ router.put("/:id", async (req, res) => {
 
 // get a merchant's data
 router.get("/:id", async (req, res) => {
-  try {
-    const query = `
+    try {
+        const query =
+        `
         SELECT
             *
         FROM

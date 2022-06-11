@@ -3,11 +3,11 @@ const pool = require("../db");
 const router = express.Router();
 
 // get all payment
-router.get("/", async (req, res) => {
-  const { customerID } = req.query;
-
-  try {
-    const query = `
+router.get("/", async (req, res)=> {
+    try {
+        const body = req.query;
+        const query = 
+            `
             SELECT
                 *
             FROM
@@ -15,19 +15,22 @@ router.get("/", async (req, res) => {
             WHERE
                 customerid = $1;
             `;
+        
+        const results = await pool.query(
+            query,
+            [body.customerID]
+        );
 
-    const results = await pool.query(query, [customerID]);
-
-    res.status(200).json({
-      status: "success",
-      data: {
-        customerID: customerID,
-        payments: results.rows,
-      },
-    });
-  } catch (err) {
-    console.log(err);
-  }
+        res.status(200).json({
+            status: "success",
+            data: {
+                customerID: body.customerID,
+                payments: results.rows
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
 });
 
 // create new payment
@@ -41,22 +44,20 @@ router.post("/", async (req, res) => {
         RETURNING *;
         `;
 
-    const results = await pool.query(query, [
-      body.paymentID,
-      body.customerID,
-      body.name,
-      body.cardNumber,
-    ]);
+        const results = await pool.query(
+            query,
+            [body.paymentID, body.customerID, body.name, body.cardNumber]
+        );
 
-    res.status(201).json({
-      status: "success",
-      data: {
-        payment: results.rows[0],
-      },
-    });
-  } catch (err) {
-    console.log(err);
-  }
+        res.status(201).json({
+            status: "success",
+            data: {
+                payment: results.rows[0]
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
 });
 
 // get payment based on id
@@ -71,24 +72,28 @@ router.get("/:id", async (req, res) => {
                 PaymentID = $1;
             `;
 
-    const results = await pool.query(query, [req.params.id]);
+        const results = await pool.query(
+            query,
+            [req.params.id]
+        );
 
-    res.status(200).json({
-      status: "success",
-      data: {
-        payment: results.rows[0],
-      },
-    });
-  } catch (err) {
-    console.log(err);
-  }
+        res.status(200).json({
+            status: "success",
+            data: {
+                payment: results.rows[0]
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
 });
 
 // update payment based on id
-router.put("/:id", async (req, res) => {
-  try {
-    const body = req.body;
-    const query = `
+router.put("/:id", async (req, res)=> {
+    try {
+        const body = req.body;
+        const query =
+        `
         UPDATE Payment
         SET 
             PaymentName = $1,
@@ -98,21 +103,21 @@ router.put("/:id", async (req, res) => {
         RETURNING *;
         `;
 
-    const results = await pool.query(query, [
-      body.name,
-      body.cardNumber,
-      req.params.id,
-    ]);
+        const results = await pool.query(
+            query,
+            [body.name, body.cardNumber, req.params.id]
+        );
 
-    res.status(200).json({
-      status: "success",
-      data: {
-        payment: results.rows[0],
-      },
-    });
-  } catch (err) {
-    console.log(err);
-  }
+
+        res.status(200).json({
+            status: "success",
+            data: {
+                payment: results.rows[0]
+            }
+        });
+    } catch (err) {
+        console.log(err);
+    }
 });
 
 // delete payment based on id
@@ -124,14 +129,17 @@ router.delete("/:id", async (req, res) => {
             PaymentID = $1;
         `;
 
-    const result = await pool.query(query, [req.params.id]);
+        const result = await pool.query(
+            query,
+            [req.params.id]
+        );
 
-    res.status(204).json({
-      status: "success",
-    });
-  } catch (err) {
-    console.log(error);
-  }
+        res.status(204).json({
+            status: "success"
+        });
+    } catch (err) {
+        console.log(error);
+    }
 });
 
 module.exports = router;
