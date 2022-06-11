@@ -1,34 +1,35 @@
 import { useEffect, useState } from "react";
 import Alert from "../alert/Alert";
 import Button from "../button/Button";
+import UploadButton from "../button/UploadButton";
 import Dropdown from "../Dropdown";
 import Input from "../input/Input";
 import TextArea from "../input/TextArea";
-import BaseModal from "./BaseModal";
+import NewBaseModal from "./NewBaseModal";
+
+const defaultMenuImage =
+  "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg";
 
 const emptyMenuItems = [
   {
     menuitemid: "",
     menutime: "Breakfast",
     menuname: "",
-    menuimage:
-      "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
+    menuimage: "",
     menudescription: "",
   },
   {
     menuitemid: "",
     menutime: "Lunch",
     menuname: "",
-    menuimage:
-      "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
+    menuimage: "",
     menudescription: "",
   },
   {
     menuitemid: "",
     menutime: "Dinner",
     menuname: "",
-    menuimage:
-      "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
+    menuimage: "",
     menudescription: "",
   },
 ];
@@ -45,14 +46,14 @@ const dayDropdown = [
 ];
 
 export default function MenuModal(props) {
-  const { menu } = props;
+  const { menu, menuInfo } = props;
   const [menuDay, setMenuDay] = useState(0);
   const [menuItems, setMenuItems] = useState(emptyMenuItems);
   const [error, setError] = useState(null);
-
-  // const [update, setUpdate] = useState(false);
+  const [unavailableDays, setUnavailableDays] = useState([]);
 
   useEffect(() => {
+    
     if (menu !== null) {
       setMenuItems(menu.menuitems);
       setMenuDay(menu.menuday);
@@ -62,16 +63,21 @@ export default function MenuModal(props) {
     }
   }, [menu]);
 
+  useEffect(() => {
+    let unavailable = menuInfo.map(menuinf => menuinf.menuday)
+    console.log(unavailable)
+    setUnavailableDays(unavailable);
+  }, [menuInfo]);
+
   const validateFormFields = () => {
     const submissionError = {
       header: "",
       detail: "",
     };
 
-    if(menuDay === 0) {
+    if (menuDay === 0) {
       submissionError.header = "Menu Day Error";
       submissionError.detail = `Please choose a day !`;
-
     } else {
       for (let index = 0; index < menuItems.length; index++) {
         const menuitem = menuItems[index];
@@ -102,12 +108,15 @@ export default function MenuModal(props) {
         menuday: menuDay,
         menuitems: menuItems,
       };
+      console.log(newMenu)
 
       if (menu === null) {
         props.onUpdate(newMenu, "ADD");
       } else {
         props.onUpdate(newMenu, "UPDATE");
       }
+      setMenuItems(emptyMenuItems);
+      setMenuDay(0);
     }
   };
 
@@ -137,7 +146,7 @@ export default function MenuModal(props) {
 
   return (
     <>
-      <BaseModal show={props.show} onHideModal={props.onHideModal}>
+      <NewBaseModal show={props.show} onHideModal={props.onHideModal}>
         {error && (
           <Alert
             onFinishError={setError}
@@ -151,7 +160,7 @@ export default function MenuModal(props) {
           id="menuday"
           color="white"
           value={menuDay}
-          options={dayDropdown}
+          options={dayDropdown.filter(day => !unavailableDays.includes(day.value))}
           onChange={formDayHandler}
         />
         {menuItems?.map((menuitem, idx) => (
@@ -160,11 +169,24 @@ export default function MenuModal(props) {
             <div className="flex flex-row gap-10">
               <div className="flex flex-col w-1/3 gap-4 items-center">
                 <img
-                  src={menuitem.menuimage}
+                  src={
+                    typeof menuitem.menuimage === "string" ||
+                    menuitem.menuimage instanceof String
+                      ? menuitem.menuimage === ""
+                        ? defaultMenuImage
+                        : menuitem.menuimage
+                      : URL.createObjectURL(menuitem.menuimage)
+                  }
                   className="object-cover rounded-md aspect-square w-full"
                   alt=""
                 />
-                <Button type="button">Edit</Button>
+                <UploadButton
+                  onFileSelect={formMenuValueHandler}
+                  name={`${menuitem.menutime}-menuimage`}
+                  id={`${menuitem.menutime}-menuimage`}
+                >
+                  Edit
+                </UploadButton>
               </div>
               <div className="w-2/3 flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
@@ -206,7 +228,7 @@ export default function MenuModal(props) {
             Save
           </Button>
         </div>
-      </BaseModal>
+      </NewBaseModal>
     </>
   );
 }

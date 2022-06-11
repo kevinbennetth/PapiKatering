@@ -1,6 +1,6 @@
 CREATE TABLE Customer (
     CustomerID SERIAL,
-    CustomerImage VARCHAR(200),
+    Customerimage varchar(500),
     CustomerName VARCHAR(50) NOT NULL,
     CustomerEmail VARCHAR(50) NOT NULL,
     CustomerPhone VARCHAR(13) NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE Customer (
 CREATE TABLE Merchant (
     MerchantID SERIAL,
     CustomerID INT,
-    MerchantImage VARCHAR(200),
+    Merchantimage varchar(500),
     MerchantName VARCHAR(50) NOT NULL,
     MerchantAddress TEXT NOT NULL,
     MerchantPhone VARCHAR(13) NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE Packet (
     PacketID SERIAL,
     MerchantID INT,
     PacketName VARCHAR(50),
-    PacketImage VARCHAR(200),
+    PacketImage VARCHAR(500),
     PacketPrice INT,
     PacketDescription TEXT,
 
@@ -128,7 +128,7 @@ CREATE TABLE MenuItem (
     MenuID INT,
     MenuTime VARCHAR(10),
     MenuName VARCHAR(50),
-    MenuImage VARCHAR(200),
+    Menuimage varchar(500),
     MenuDescription VARCHAR(255),
 
     CONSTRAINT MenuItemID_PK PRIMARY KEY(MenuItemID),

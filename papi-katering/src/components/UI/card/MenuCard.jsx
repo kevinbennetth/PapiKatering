@@ -12,6 +12,9 @@ const day = [
   "Sunday",
 ];
 
+const defaultMenuImage =
+  "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg";
+
 export default function MenuCard(props) {
   const editHandler = () => {
     props.onUpdate(props.menu.menuid, "EDIT");
@@ -37,15 +40,22 @@ export default function MenuCard(props) {
         )}
       </div>
       <div className="flex flex-col gap-6">
-        {props.menu.menuitems.map((menuItem) => (
+        {props.menu.menuitems.map((menuItem, idx) => (
           <div
             className="flex flex-row gap-6 items-center"
-            key={menuItem.menuitemid}
+            key={menuItem.menuitemid === "" ? idx : menuItem.menuitemid}
           >
             <img
-              src={menuItem.menuimage}
+              src={
+                typeof menuItem.menuimage === "string" ||
+                menuItem.menuimage instanceof String
+                  ? menuItem.menuimage === ""
+                    ? defaultMenuImage
+                    : menuItem.menuimage
+                  : URL.createObjectURL(menuItem.menuimage)
+              }
               alt=""
-              className="object-cover w-24 h-24 rounded-md"
+              className="object-cover w-24 h-24 rounded-md aspect-square"
             />
             <div className="flex flex-col gap-2 w-full">
               <div className="flex flex-row items-center justify-between w-full">

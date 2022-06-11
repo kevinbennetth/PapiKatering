@@ -16,8 +16,12 @@ const cartReducer = (state, data) => {
   return { ...state, ...data };
 };
 
-export const ContextProvider = (props) => {
+const PacketContext = createContext({
+  packetid: "",
+  onSelectPacket: () => {},
+});
 
+export const ContextProvider = (props) => {
   const [cart, dispatchCart] = useReducer(cartReducer, {
     packetid: "",
     merchantid: "",
@@ -27,12 +31,17 @@ export const ContextProvider = (props) => {
   });
 
   const [user, setUser] = useState({ customerID: "", merchantID: "" });
+  const [selectPacket, setSelectPacket] = useState("");
 
   const updateCartHandler = (value) => {
     dispatchCart(value);
   };
 
-  const setLoggedUser = (customerID, merchantID) => {
+  const selectPacketHandler = (value) => {
+    setSelectPacket(value);
+  };
+
+  const setLoggedUserHandler = (customerID, merchantID) => {
     setUser({ customerID, merchantID });
   };
 
@@ -43,14 +52,21 @@ export const ContextProvider = (props) => {
           value={{
             customerID: user.customerID,
             merchantID: user.merchantID,
-            onUserLogin: setLoggedUser,
+            onUserLogin: setLoggedUserHandler,
           }}
         >
-          {props.children}
+          <PacketContext.Provider
+            value={{
+              packetid: selectPacket,
+              onSelectPacket: selectPacketHandler,
+            }}
+          >
+            {props.children}
+          </PacketContext.Provider>
         </UserContext.Provider>
       </CartContext.Provider>
     </APIContext.Provider>
   );
 };
 
-export { APIContext, CartContext, UserContext };
+export { APIContext, CartContext, UserContext, PacketContext };

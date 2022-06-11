@@ -119,41 +119,28 @@ router.post("/login", async (req, res) => {
     const body = req.body;
     const query = `
         SELECT
-            c.CustomerID
+            c.CustomerID,
+            m.merchantid
         FROM
-            Customer c
+            Customer c LEFT JOIN merchant m ON c.customerid = m.customerid
         WHERE
             CustomerEmail = $1
             AND CustomerPassword = $2;
         `;
 
-    const merchantQuery = `
-        SELECT
-            m.merchantid
-        FROM
-            Merchant m
-        WHERE
-            m.customerid = $1;
-        `;
 
     const results = await pool.query(query, [body.Email, body.Password]);
 
     if (results.rowCount > 0) {
-      const merchantResults = await pool.query(merchantQuery, [
-        results.rows[0].customerid,
-      ]);
+      
 
-      let merchantID = "";
-      if (merchantResults.rowCount > 0) {
-        merchantID = results.rows[0].merchantid;
-      }
-
+      console.log(results.rows)
       res.status(201).json({
         status: "success",
         data: {
           returned: {
             customerID: results.rows[0].customerid,
-            merchantID: merchantID,
+            merchantID: results.rows[0].merchantid,
           },
         },
       });

@@ -63,7 +63,7 @@ const LoginPage = () => {
       try {
         const loginResponse = await axios.post(URL, body);
         const data = loginResponse.data.data.returned;
-
+        
         if (loginResponse.data.status === "success") {
           onUserLogin(data.customerID, data.merchantID)
           navigate("/home");

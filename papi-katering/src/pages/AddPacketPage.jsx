@@ -3,35 +3,50 @@ import CategoryModal from "../components/UI/modal/CategoryModal";
 import { FaPlus } from "react-icons/fa";
 import Alert from "../components/UI/alert/Alert";
 import axios from "axios";
-import { APIContext, UserContext } from "../context/context";
+import { APIContext, PacketContext, UserContext } from "../context/context";
 import Button from "../components/UI/button/Button";
 import Input from "../components/UI/input/Input";
 import TextArea from "../components/UI/input/TextArea";
 import MenuForm from "./AddPacket/MenuForm";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import UploadButton from "../components/UI/button/UploadButton";
+import { uploadAndGetURL } from "../components/UI/button/firebase/uploadUtilities";
+import { useEffect } from "react";
+import LoadingBar from "react-top-loading-bar";
 
 const packetReducer = (state, data) => {
   return { ...state, ...data };
 };
 
+const categoryList = [
+  { categoryid: 1, categoryname: "Vegetarian" },
+  { categoryid: 2, categoryname: "Halal" },
+];
+
 export default function AddPacketPage() {
   const { API_URL } = useContext(APIContext);
+
   const { merchantID } = useContext(UserContext);
+  const { packetid, onSelectPacket } = useContext(PacketContext);
+
   const navigate = useNavigate();
+  const defaultImage =
+    "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg";
 
   const [categoryModal, setCategoryModal] = useState(false);
+  const [error, setError] = useState(null);
+  const [uploadPogress, setUploadPogress] = useState(0);
   const [packet, dispatchPacket] = useReducer(packetReducer, {
     packetid: "",
     packetname: "",
     packetprice: "",
-    packetimage:
-      "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg",
+    packetimage: "",
     packetdescription: "",
     category: [],
     menu: [],
   });
-  const [error, setError] = useState(null);
   const { packetname, packetprice, packetdescription, category, menu } = packet;
+
   const validateFormFields = () => {
     const submissionError = {
       header: "",
@@ -43,7 +58,7 @@ export default function AddPacketPage() {
     if (packetname.trim().length === 0) {
       submissionError.header = "Name Error";
       submissionError.detail = "Packet Name can't be empty !";
-    } else if (Number.isInteger(packetprice)) {
+    } else if (!Number.isInteger(packetprice)) {
       submissionError.header = "Price Error";
       submissionError.detail = "Price has to be numeric !";
     } else if (parseInt(packetprice) <= 0) {
@@ -57,32 +72,71 @@ export default function AddPacketPage() {
     return submissionError;
   };
 
-  const categoryList = [
-    { categoryid: 1, categoryname: "Vegetarian" },
-    { categoryid: 2, categoryname: "Halal" },
-  ];
-
   const savePacketHandler = async (e) => {
     e.preventDefault();
     const submissionError = validateFormFields();
 
+    const totalImageUpload = (packet.menu.length * 3) + 1;
+    let uploadCounter = 0;
+
     if (submissionError.header !== "" && submissionError.detail !== "") {
       setError(submissionError);
     } else {
-      const URL = `${API_URL}packet`;
-      const body = { merchantid: parseInt(merchantID), ...packet };
-
       try {
-        await axios.post(URL, body);
+        if (
+          !(
+            typeof packet.packetimage === "string" ||
+            packet.packetimage instanceof String
+          )
+        ) {
+          packet.packetimage = await uploadAndGetURL(packet.packetimage);
+        }
+        uploadCounter++;
+        setUploadPogress(uploadCounter / totalImageUpload * 100);
+
+        for (let i = 0; i < packet.menu.length; i++) {
+          let menu = packet.menu[i];
+          for (let j = 0; j < menu.menuitems.length; j++) {
+            const menuitem = menu.menuitems[j];
+            let newmenuimage = defaultImage;
+            if (
+              !(
+                typeof menuitem.menuimage === "string" ||
+                menuitem.menuimage instanceof String
+              )
+            ) {
+              newmenuimage = await uploadAndGetURL(menuitem.menuimage);
+            } else if (menuitem.menuimage !== "") {
+              newmenuimage = menuitem.menuimage;
+            }
+            packet.menu[i].menuitems[j] = {
+              ...packet.menu[i].menuitems[j],
+              menuimage: newmenuimage,
+            };
+            uploadCounter++;
+            setUploadPogress(uploadCounter / totalImageUpload * 100);
+          }
+        }
+        const body = { merchantid: parseInt(merchantID), ...packet };
+
+        if (packetid === "") {
+          const URL = `${API_URL}packet`;
+          await axios.post(URL, body);
+        } else {
+          const URL = `${API_URL}packet/${packetid}`;
+          await axios.put(URL, body);
+          onSelectPacket("");
+        }
+        console.log(body);
+        navigate("/profile");
       } catch (error) {
         console.log(error);
       }
-      navigate("/profile");
     }
   };
 
   const deletePacketHandler = async () => {
-    const URL = `${API_URL}packet/${packet.packetid}`;
+    const URL = `${API_URL}packet/${packetid}`;
     try {
       await axios.delete(URL);
       navigate("/profile");
@@ -92,12 +146,33 @@ export default function AddPacketPage() {
   };
 
   const formValueHandler = (name, value) => {
+    if (name === "packetprice") {
+      value = parseInt(value);
+    }
     dispatchPacket({ [name]: value });
   };
 
   const hideModalHandler = () => {
     setCategoryModal(false);
   };
+
+  useEffect(() => {
+    const fetchPacket = async () => {
+      if (packetid !== "") {
+        try {
+          const URL = `${API_URL}packet/${packetid}`;
+          const data = await axios.get(URL);
+          let tempPacket = data.data;
+          tempPacket.category = tempPacket.category.map(
+            (ctg) => ctg.categoryid
+          );
+
+          dispatchPacket(tempPacket);
+        } catch (error) {}
+      }
+    };
+    fetchPacket();
+  }, [packetid]);
 
   return (
     <div className="flex flex-col mx-auto my-24 w-11/12 gap-10">
@@ -115,15 +190,34 @@ export default function AddPacketPage() {
         onHideModal={hideModalHandler}
         onSave={formValueHandler}
       />
+      <LoadingBar
+      height={8}
+        color="#fde047"
+        progress={uploadPogress}
+        onLoaderFinished={() => setUploadPogress(0)}
+      />
       <form onSubmit={savePacketHandler} className="">
         <div className="flex flex-row w-full gap-20">
           <div className="flex flex-col items-center justify-center gap-6 w-1/2">
             <img
-              src="https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg"
+              src={
+                typeof packet.packetimage === "string" ||
+                packet.packetimage instanceof String
+                  ? packet.packetimage === ""
+                    ? defaultImage
+                    : packet.packetimage
+                  : URL.createObjectURL(packet.packetimage)
+              }
               alt=""
               className="w-1/2 object-cover rounded-md aspect-square"
             />
-            <Button>Edit</Button>
+            <UploadButton
+              onFileSelect={formValueHandler}
+              name="packetimage"
+              id="packetimage"
+            >
+              Edit
+            </UploadButton>
           </div>
           <div className="flex flex-col w-1/2 gap-5 justify-center">
             <div className="flex flex-col gap-4">
@@ -176,10 +270,10 @@ export default function AddPacketPage() {
               </div>
               <div className="flex flex-row gap-4 flex-wrap items-start min-h-[4rem]">
                 {categoryList?.map(
-                  (ctg) =>
+                  (ctg, idx) =>
                     category.includes(ctg.categoryid) && (
                       <span
-                        key={ctg.categoryid}
+                        key={ctg.categoryid === "" ? idx : ctg.categoryid}
                         className="bg-primary text-white px-4 py-1 rounded-full font-semibold"
                       >
                         {ctg.categoryname}

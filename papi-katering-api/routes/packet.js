@@ -272,8 +272,10 @@ router.post("/", async (req, res) => {
 
     [queryString, values] = createPacketCategories(req, newPacket.packetid);
 
-    for (let index = 0; index < values.length; index++) {
-      await pool.query(queryString, values[index]);
+    if (queryString !== null && values !== null) {
+      for (let index = 0; index < values.length; index++) {
+        await pool.query(queryString, values[index]);
+      }
     }
 
     [menuQueryString, menuItemQueryString, menus] = createMenus(req);
@@ -283,13 +285,12 @@ router.post("/", async (req, res) => {
 
       const resMenu = await pool.query(menuQueryString, values);
       newMenu = resMenu.rows[0];
-      for (let i = 0; i < menus.length; i++) {
+      for (let i = 0; i < menus[index].menuitems.length; i++) {
         const menuItemValues = createMenuItem(
           newMenu.menuid,
           menus[index].menuitems,
           i
         );
-
         await pool.query(menuItemQueryString, menuItemValues);
       }
     }
@@ -309,6 +310,7 @@ router.get("/:id", async (req, res) => {
       p.packetid,
       p.packetname, 
       p.packetimage, 
+      p.packetdescription,
       p.packetprice, 
       m.merchantid,
       AVG(reviewrating)::numeric(10,1) as reviewaverage
@@ -410,11 +412,14 @@ router.get("/:id", async (req, res) => {
     packetData.menu = [];
 
     for (let i = 0; i < resMenu.rowCount; i++) {
-      const menu = resMenu.rows[i];
+      let menu = resMenu.rows[i];
       const resMenuItem = await pool.query(menuItemQueryString, [menu.menuid]);
-      menu.menuitems = resMenuItem.rows;
+      menu.menuitems = sortMenuItem(resMenuItem);
+      
       packetData.menu.push(menu);
     }
+
+    packetData.menu = packetData?.menu.sort((menu1, menu2) => menu1.menuday > menu2.menuday);
 
     const merchantID = packetData.merchantid;
     delete packetData.merchantid;
@@ -478,39 +483,57 @@ router.delete("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
 
-  const { packetName, packetImage, packetPrice, packetDescription } = req.body;
+  const { packetname, packetimage, packetprice, packetdescription } = req.body;
 
-  const packetQueryString = `
+  try {
+    // update packet data
+    const packetQueryString = `
     UPDATE packet
     SET
-      packetname=$1,
-      packetimage=$2,
-      packetprice=$3,
-      packetdescription=$4
+    packetname=$1,
+    packetimage=$2,
+    packetprice=$3,
+    packetdescription=$4
     WHERE packetid=$5;
-  `;
+    `;
 
-  const packetValues = [
-    packetName,
-    packetImage,
-    packetPrice,
-    packetDescription,
-    id,
-  ];
+    const packetValues = [
+      packetname,
+      packetimage,
+      packetprice,
+      packetdescription,
+      id,
+    ];
 
-  const menus = req.body.menu;
-  const menuUpdateString = `
-    UPDATE menu
-    SET
-      menuday=$1
-    WHERE menuid=$2;
-  `;
+    await pool.query(packetQueryString, packetValues);
 
-  const menuInsertString = `
-    INSERT INTO menu(packetid, menuday) VALUES ($1, $2) RETURNING menuid;
-  `;
+    // update menu
+    const menuSelectString = `
+      SELECT
+        menuid
+      FROM menu
+      WHERE packetid = $1;
+    `;
 
-  const menuItemUpdateString = `
+    const menuData = await pool.query(menuSelectString, [id]);
+    let toDeletePacketMenuIds = menuData.rows.map((menu) => menu.menuid);
+
+    const menuUpdateString = `
+      UPDATE menu
+      SET
+        menuday=$1
+      WHERE menuid=$2;
+    `;
+
+    const menuInsertString = `
+      INSERT INTO menu(packetid, menuday) VALUES ($1, $2) RETURNING menuid;
+    `;
+
+    const menuRemoveString = `
+      DELETE FROM menu WHERE menuid=$1;
+    `;
+
+    const menuItemUpdateString = `
     UPDATE menuitem
     SET
       menutime=$1,
@@ -518,75 +541,98 @@ router.put("/:id", async (req, res) => {
       menuimage=$3,
       menudescription=$4
     WHERE menuitemid=$5;
-  `;
+    `;
 
-  const menuItemInsertString = `
+    const menuItemInsertString = `
     INSERT INTO menuitem(menuid, menutime, menuname, menuimage, menudescription) VALUES ($1, $2, $3, $4, $5);
-  `;
+    `;
 
-  const { categories } = req.body;
-  const packetCategoryDeleteString = `
-    DELETE FROM packetcategory WHERE packetid=$1;
-  `;
-
-  const packetCategoryInsertString = `
-    INSERT INTO packetcategory VALUES ($1, $2);
-  `;
-
-  const packetCategoryDeleteValues = [id];
-
-  try {
-    await pool.query(packetQueryString, packetValues);
-
+    const menus = req.body.menu;
     for (let i = 0; i < menus.length; i++) {
-      menu = menus[i];
-      if (menu.menuID) {
-        const menuValues = [menu.menuDay, menu.menuID];
+      let menu = menus[i];
+      if (menu.menuid !== "") {
+        toDeletePacketMenuIds = toDeletePacketMenuIds.filter(
+          (menuid) => menuid != menu.menuid
+        );
+        console.log(menu)
+        const menuValues = [menu.menuday, menu.menuid];
         await pool.query(menuUpdateString, menuValues);
       } else {
-        const menuValues = [id, menu.menuDay];
+        const menuValues = [id, menu.menuday];
         const resNewMenu = await pool.query(menuInsertString, menuValues);
         menu.menuid = resNewMenu.rows[0].menuid;
       }
 
-      for (let i = 0; i < menu.menuItem.length; i++) {
-        const menuItem = menu.menuItem[i];
+      for (let i = 0; i < menu.menuitems.length; i++) {
+        const menuItem = menu.menuitems[i];
 
-        if (menuItem.menuItemID) {
+        if (menuItem.menuitemid) {
           const menuItemValues = [
-            menuItem.menuTime,
-            menuItem.menuName,
-            menuItem.menuImage,
-            menuItem.menuDescription,
-            menuItem.menuItemID,
+            menuItem.menutime,
+            menuItem.menuname,
+            menuItem.menuimage,
+            menuItem.menudescription,
+            menuItem.menuitemid,
           ];
           await pool.query(menuItemUpdateString, menuItemValues);
         } else {
           const menuItemValues = [
             menu.menuid,
-            menuItem.menuTime,
-            menuItem.menuName,
-            menuItem.menuImage,
-            menuItem.menuDescription,
+            menuItem.menutime,
+            menuItem.menuname,
+            menuItem.menuimage,
+            menuItem.menudescription,
           ];
           await pool.query(menuItemInsertString, menuItemValues);
         }
       }
     }
 
-    await pool.query(packetCategoryDeleteString, packetCategoryDeleteValues);
-
-    for (let i = 0; i < categories.length; i++) {
-      const category = categories[i];
-
-      const packetCategoryInsertValueString = [id, category];
-
-      await pool.query(
-        packetCategoryInsertString,
-        packetCategoryInsertValueString
-      );
+    for (let i = 0; i < toDeletePacketMenuIds.length; i++) {
+      await pool.query(menuRemoveString, [toDeletePacketMenuIds[i]]);
     }
-    res.status(400).json({ message: "successfully updated data !" });
+
+    const { category } = req.body;
+
+    const categorySelectString = `
+      SELECT
+        categoryid
+      FROM packetcategory
+      WHERE packetid = $1;
+    `;
+
+    const categoryResponse = await pool.query(categorySelectString, [id]);
+
+    let previousCategories = categoryResponse.rows.map((ctg) => ctg.categoryid);
+
+    // delete categories
+    const toDeleteCategories = previousCategories.filter(
+      (ctg) => !category.includes(ctg)
+    );
+
+    const categoryDeleteString = `
+      DELETE FROM packetcategory
+      WHERE packetid=$1 AND categoryid=$2;
+    `;
+
+    for (let i = 0; i < toDeleteCategories.length; i++) {
+      await pool.query(categoryDeleteString, [id, toDeleteCategories[i]]);
+    }
+
+    // insert categories
+    const toInsertCategories = category.filter(
+      (ctg) => !previousCategories.includes(ctg)
+    );
+
+    const categoryInsertString = `
+      INSERT INTO packetcategory (packetid, categoryid) VALUES ($1, $2);
+    `;
+
+    for (let i = 0; i < toInsertCategories.length; i++) {
+      await pool.query(categoryInsertString, [id, toInsertCategories[i]]);
+    }
+
+    res.status(200).json({ message: "successfully updated data !" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -624,11 +670,15 @@ const createPacket = (req) => {
 
 const createPacketCategories = (req, packetID) => {
   const { category } = req.body;
-  const queryString = `INSERT INTO PacketCategory VALUES ($1, $2)`;
+  if (category) {
+    const queryString = `INSERT INTO PacketCategory VALUES ($1, $2)`;
 
-  const values = category.map((category) => [packetID, category]);
+    const values = category.map((category) => [packetID, category]);
 
-  return [queryString, values];
+    return [queryString, values];
+  }
+
+  return [null, null];
 };
 
 const createMenus = (req) => {
@@ -649,5 +699,19 @@ const processEmptyAverageReview = (data) => {
     data.reviewaverage === null ? { ...data, reviewaverage: "0.0" } : data
   );
 };
+
+const sortMenuItem = (resMenuItem) => {
+  let menutItemArray = [{}, {}, {}];
+  resMenuItem.rows.forEach(menuItem => {
+    if(menuItem.menutime === "Breakfast") {
+      menutItemArray[0] = menuItem;
+    } else if(menuItem.menutime === "Lunch") {
+      menutItemArray[1] = menuItem;
+    } else if(menuItem.menutime === "Dinner") {
+      menutItemArray[2] = menuItem;
+    }
+  });
+  return menutItemArray;
+}
 
 module.exports = router;

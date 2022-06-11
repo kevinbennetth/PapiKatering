@@ -77,6 +77,7 @@ export default function MenuForm(props) {
         onHideModal={hideModalHandler}
         menu={selectedMenu}
         onUpdate={menuChangeHandler}
+        menuInfo={props.menu}
       />
       <div className="flex flex-col gap-6">
         <h4
@@ -108,6 +109,7 @@ export default function MenuForm(props) {
               menu={menu}
               key={menu.menuid}
               onUpdate={menuCardUpdateHandler}
+              type="EDIT"
             />
           ))}
         </ItemsCarousel>
