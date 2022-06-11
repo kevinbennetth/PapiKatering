@@ -1,290 +1,300 @@
-import React, { useState } from "react";
+import React, { useContext, useReducer, useState } from "react";
+import CategoryModal from "../components/UI/modal/CategoryModal";
 import { FaPlus } from "react-icons/fa";
-import ItemsCarousel from "react-items-carousel";
-import MenuCard from "../components/card/MenuCard";
-import CategoryModal from "../components/modal/CategoryModal";
-import MenuModal from "../components/modal/MenuModal";
+import Alert from "../components/UI/alert/Alert";
+import axios from "axios";
+import { APIContext, PacketContext, UserContext } from "../context/context";
+import Button from "../components/UI/button/Button";
+import Input from "../components/UI/input/Input";
+import TextArea from "../components/UI/input/TextArea";
+import MenuForm from "./AddPacket/MenuForm";
+import { useNavigate, useParams } from "react-router-dom";
+import UploadButton from "../components/UI/button/UploadButton";
+import { uploadAndGetURL } from "../components/UI/button/firebase/uploadUtilities";
+import { useEffect } from "react";
+import LoadingBar from "react-top-loading-bar";
+
+const packetReducer = (state, data) => {
+  return { ...state, ...data };
+};
+
+const categoryList = [
+  { categoryid: 1, categoryname: "Vegetarian" },
+  { categoryid: 2, categoryname: "Halal" },
+];
 
 export default function AddPacketPage() {
-  const [orderCount, setOrderCount] = useState(0);
-  const [modal, setModal] = useState(null);
-  const [activeItemIndex, setActiveItemIndex] = useState(0);
+  const { API_URL } = useContext(APIContext);
 
-  const packet = {
-    name: "Bang Jago",
-    price: 30000,
-    description: "Testing ngabb",
-    categories: [
-      {
-        id: 1,
-        category: "Vegetarian",
-      },
-      {
-        id: 2,
-        category: "Halal",
-      },
-    ],
-    menu: [
-      {
-        id: 1,
-        day: "Monday",
-        menuItem: [
-          {
-            id: 1,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Breakfast",
-          },
-          {
-            id: 2,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Lunch",
-          },
-          {
-            id: 3,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Dinner",
-          },
-        ],
-      },
-      {
-        id: 2,
-        day: "Wednesday",
-        menuItem: [
-          {
-            id: 4,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Breakfast",
-          },
-          {
-            id: 5,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Lunch",
-          },
-          {
-            id: 6,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Dinner",
-          },
-        ],
-      },
-      {
-        id: 3,
-        day: "Friday",
-        menuItem: [
-          {
-            id: 7,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Breakfast",
-          },
-          {
-            id: 8,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Lunch",
-          },
-          {
-            id: 9,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Dinner",
-          },
-        ],
-      },
-      {
-        id: 4,
-        day: "Sunday",
-        menuItem: [
-          {
-            id: 10,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Breakfast",
-          },
-          {
-            id: 11,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Lunch",
-          },
-          {
-            id: 12,
-            image:
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Mi_ayam_jamur.JPG/1200px-Mi_ayam_jamur.JPG",
-            name: "Mi Pangsit",
-            description: "Deskripsi singat mi pangsit, agak singkat si",
-            time: "Dinner",
-          },
-        ],
-      },
-    ],
-    merchant: {
-      name: "Winter Catering",
-      rating: "5",
-      lastOnline: "1 jam yang lalu",
-    },
-    reviews: [
-      {
-        id: 1,
-        image: "https://static.zerochan.net/Ko.Elizabeth.full.2947878.jpg",
-        name: "Gustaf",
-        date: "12 Jan 2022",
-        review: "Wado, enak bener ngab boleh dicoba ni ges",
-        rating: 5,
-      },
-      {
-        id: 2,
-        image: "https://static.zerochan.net/Ko.Elizabeth.full.2947878.jpg",
-        name: "Gustaf",
-        date: "12 Jan 2022",
-        review: "Kata bokap gua enak bener",
-        rating: 5,
-      },
-    ],
+  const { merchantID } = useContext(UserContext);
+  const { packetid, onSelectPacket } = useContext(PacketContext);
+
+  const navigate = useNavigate();
+  const defaultImage =
+    "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg";
+
+  const [categoryModal, setCategoryModal] = useState(false);
+  const [error, setError] = useState(null);
+  const [uploadPogress, setUploadPogress] = useState(0);
+  const [packet, dispatchPacket] = useReducer(packetReducer, {
+    packetid: "",
+    packetname: "",
+    packetprice: "",
+    packetimage: "",
+    packetdescription: "",
+    category: [],
+    menu: [],
+  });
+  const { packetname, packetprice, packetdescription, category, menu } = packet;
+
+  const validateFormFields = () => {
+    const submissionError = {
+      header: "",
+      detail: "",
+    };
+
+    const { packetname, packetprice, packetdescription } = packet;
+
+    if (packetname.trim().length === 0) {
+      submissionError.header = "Name Error";
+      submissionError.detail = "Packet Name can't be empty !";
+    } else if (!Number.isInteger(packetprice)) {
+      submissionError.header = "Price Error";
+      submissionError.detail = "Price has to be numeric !";
+    } else if (parseInt(packetprice) <= 0) {
+      submissionError.header = "Price Error";
+      submissionError.detail = "Price must be more than 0 !";
+    } else if (packetdescription.trim().length === 0) {
+      submissionError.header = "Description Error";
+      submissionError.detail = "Description can't be empty !";
+    }
+
+    return submissionError;
   };
 
-  const showModal = (modalType) => {
-    document.body.style.overflow = "hidden";
-    setModal(modalType);
+  const savePacketHandler = async (e) => {
+    e.preventDefault();
+    const submissionError = validateFormFields();
+
+    const totalImageUpload = (packet.menu.length * 3) + 1;
+    let uploadCounter = 0;
+
+    if (submissionError.header !== "" && submissionError.detail !== "") {
+      setError(submissionError);
+    } else {
+      try {
+        if (
+          !(
+            typeof packet.packetimage === "string" ||
+            packet.packetimage instanceof String
+          )
+        ) {
+          packet.packetimage = await uploadAndGetURL(packet.packetimage);
+        }
+        uploadCounter++;
+        setUploadPogress(uploadCounter / totalImageUpload * 100);
+
+        for (let i = 0; i < packet.menu.length; i++) {
+          let menu = packet.menu[i];
+          for (let j = 0; j < menu.menuitems.length; j++) {
+            const menuitem = menu.menuitems[j];
+            let newmenuimage = defaultImage;
+            if (
+              !(
+                typeof menuitem.menuimage === "string" ||
+                menuitem.menuimage instanceof String
+              )
+            ) {
+              newmenuimage = await uploadAndGetURL(menuitem.menuimage);
+            } else if (menuitem.menuimage !== "") {
+              newmenuimage = menuitem.menuimage;
+            }
+            packet.menu[i].menuitems[j] = {
+              ...packet.menu[i].menuitems[j],
+              menuimage: newmenuimage,
+            };
+            uploadCounter++;
+            setUploadPogress(uploadCounter / totalImageUpload * 100);
+          }
+        }
+        const body = { merchantid: parseInt(merchantID), ...packet };
+
+        if (packetid === "") {
+          const URL = `${API_URL}packet`;
+          await axios.post(URL, body);
+        } else {
+          const URL = `${API_URL}packet/${packetid}`;
+          await axios.put(URL, body);
+          onSelectPacket("");
+        }
+        console.log(body);
+        navigate("/profile");
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
-  const hideModal = () => {
-    document.body.style.overflow = "visible";
-    document.body.style.paddingRight = "0";
-    setModal(null);
+  const deletePacketHandler = async () => {
+    const URL = `${API_URL}packet/${packetid}`;
+    try {
+      await axios.delete(URL);
+      navigate("/profile");
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  const formValueHandler = (name, value) => {
+    if (name === "packetprice") {
+      value = parseInt(value);
+    }
+    dispatchPacket({ [name]: value });
+  };
+
+  const hideModalHandler = () => {
+    setCategoryModal(false);
+  };
+
+  useEffect(() => {
+    const fetchPacket = async () => {
+      if (packetid !== "") {
+        try {
+          const URL = `${API_URL}packet/${packetid}`;
+          const data = await axios.get(URL);
+          let tempPacket = data.data;
+          tempPacket.category = tempPacket.category.map(
+            (ctg) => ctg.categoryid
+          );
+
+          dispatchPacket(tempPacket);
+        } catch (error) {}
+      }
+    };
+    fetchPacket();
+  }, [packetid]);
 
   return (
-    <div className="py-20 px-24 flex flex-col gap-10">
-      <CategoryModal show={modal === "category"} hideModal={hideModal} />
-      <MenuModal show={modal === "menu"} hideModal={hideModal} />
-      <div className="flex flex-row w-full gap-20">
-        <div className="flex flex-col items-center justify-center gap-6 w-1/2">
-          <img
-            src="https://www.expatica.com/app/uploads/sites/5/2014/05/french-food-1920x1080.jpg"
-            alt=""
-            className="w-1/2 object-cover rounded-md aspect-square"
-          />
-          <button
-            className=" px-10 py-2 bg-primary hover:bg-emerald-700
-                                    text-white font-bold rounded-md"
-          >
-            Edit
-          </button>
-        </div>
-        <div className="flex flex-col w-1/2 gap-5 justify-center">
-          <div className="flex flex-col gap-4">
-            <p htmlFor="name">Packet Name</p>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              className="rounded-md border w-4/5 p-1 "
+    <div className="flex flex-col mx-auto my-24 w-11/12 gap-10">
+      {error && (
+        <Alert
+          onFinishError={setError}
+          header={error.header}
+          detail={error.detail}
+        />
+      )}
+      <CategoryModal
+        show={categoryModal}
+        categoryList={categoryList}
+        category={category}
+        onHideModal={hideModalHandler}
+        onSave={formValueHandler}
+      />
+      <LoadingBar
+      height={8}
+        color="#fde047"
+        progress={uploadPogress}
+        onLoaderFinished={() => setUploadPogress(0)}
+      />
+      <form onSubmit={savePacketHandler} className="">
+        <div className="flex flex-row w-full gap-20">
+          <div className="flex flex-col items-center justify-center gap-6 w-1/2">
+            <img
+              src={
+                typeof packet.packetimage === "string" ||
+                packet.packetimage instanceof String
+                  ? packet.packetimage === ""
+                    ? defaultImage
+                    : packet.packetimage
+                  : URL.createObjectURL(packet.packetimage)
+              }
+              alt=""
+              className="w-1/2 object-cover rounded-md aspect-square"
             />
+            <UploadButton
+              onFileSelect={formValueHandler}
+              name="packetimage"
+              id="packetimage"
+            >
+              Edit
+            </UploadButton>
           </div>
-          <div className="flex flex-col gap-4">
-            <p htmlFor="price">Price (per day)</p>
-            <input
-              type="text"
-              name="price"
-              id="price"
-              className="rounded-md border w-4/5 p-1"
-            />
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <p htmlFor="phone">Description</p>
-            <textarea
-              type="text"
-              name="phone"
-              id="phone"
-              className="rounded-md border w-4/5 p-1 resize-none"
-              rows="8"
-            />
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-row justify-between w-4/5">
-              <p htmlFor="phone">Categories</p>
-              <button
-                className="flex flex-row font-bold items-center justify-end"
-                onClick={() => showModal("category")}
-              >
-                <FaPlus className="fill-emerald-600 mx-1" />
-                <p className="text-emerald-600">Add Categories</p>
-              </button>
+          <div className="flex flex-col w-1/2 gap-5 justify-center">
+            <div className="flex flex-col gap-4">
+              <p htmlFor="name">Packet Name</p>
+              <Input
+                type="text"
+                name="packetname"
+                id="packetname"
+                color="white"
+                value={packetname}
+                onChange={formValueHandler}
+              />
             </div>
-            <div className="flex flex-row gap-4 flex-wrap">
-              {packet.categories.map((category) => (
-                <span
-                  key={category.id}
-                  className="bg-primary text-white px-4 py-1 rounded-full font-semibold"
+            <div className="flex flex-col gap-4">
+              <p htmlFor="price">Price (per day)</p>
+              <Input
+                type="number"
+                name="packetprice"
+                id="packetprice"
+                color="white"
+                value={packetprice}
+                onChange={formValueHandler}
+              />
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <p htmlFor="phone">Description</p>
+              <TextArea
+                type="text"
+                name="packetdescription"
+                id="packetdescription"
+                color="white"
+                rows={12}
+                value={packetdescription}
+                onChange={formValueHandler}
+              />
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-row justify-between">
+                <p htmlFor="phone">Categories</p>
+                <button
+                  className="flex flex-row font-bold items-center justify-end"
+                  onClick={() => setCategoryModal(true)}
+                  type="button"
                 >
-                  {category.category}
-                </span>
-              ))}
+                  <FaPlus className="fill-primary" />
+                  <p className="text-primary">Add Categories</p>
+                </button>
+              </div>
+              <div className="flex flex-row gap-4 flex-wrap items-start min-h-[4rem]">
+                {categoryList?.map(
+                  (ctg, idx) =>
+                    category.includes(ctg.categoryid) && (
+                      <span
+                        key={ctg.categoryid === "" ? idx : ctg.categoryid}
+                        className="bg-primary text-white px-4 py-1 rounded-full font-semibold"
+                      >
+                        {ctg.categoryname}
+                      </span>
+                    )
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="flex flex-col gap-6">
-        <h4
-          className="text-xl font-bold text-primary cursor-pointer self-end mr-2"
-          onClick={() => showModal("menu")}
-        >
-          + Add Menu
-        </h4>
-        <ItemsCarousel
-          requestToChangeActive={(e) => setActiveItemIndex(e)}
-          activeItemIndex={activeItemIndex}
-          numberOfCards={3}
-          gutter={20}
-          leftChevron={<button>{"<"}</button>}
-          rightChevron={<button>{">"}</button>}
-          outsideChevron
-          chevronWidth={40}
-        >
-          {packet.menu.map((menu) => (
-            <MenuCard menu={menu} key={menu.id} />
-          ))}
-        </ItemsCarousel>
-      </div>
-      <div className="flex flex-row justify-end gap-6 pr-2">
-        <button className="px-8 py-3 rounded text-white font-semibold bg-primary self-start mt-2 hover:opacity-75">
-          Delete
-        </button>
-        <button className="px-8 py-3 rounded text-white font-semibold bg-primary self-start mt-2 hover:opacity-75">
-          Save
-        </button>
-      </div>
+
+        <MenuForm menu={menu} onUpdate={formValueHandler} type={"EDIT"} />
+        <div className="flex flex-row justify-end gap-6 mt-10">
+          {menu.packetid !== "" && (
+            <Button type="button" onClick={deletePacketHandler}>
+              Delete
+            </Button>
+          )}
+          <Button type="submit">Save</Button>
+        </div>
+      </form>
     </div>
   );
 }
