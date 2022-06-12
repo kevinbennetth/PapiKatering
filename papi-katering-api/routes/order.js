@@ -59,14 +59,14 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const {
-    packetid,
-    merchantid,
-    customerid,
-    addressid,
-    paymentid,
-    orderdaycount,
-    orderadditionalprice,
-    orderquantity,
+    packetID,
+    merchantID,
+    customerID,
+    addressID,
+    paymentID,
+    dayCount,
+    additionalPrice,
+    quantity,
   } = req.body;
 
   const queryString =
@@ -74,17 +74,18 @@ router.post("/", async (req, res) => {
 
   const orderDate = util.getCurrentDate();
   const orderStatus = 0;
+  console.log(orderDate);
 
   const values = [
-    packetid,
-    merchantid,
-    customerid,
-    addressid,
-    paymentid,
+    packetID,
+    merchantID,
+    customerID,
+    addressID,
+    paymentID,
     orderDate,
-    orderdaycount,
-    orderadditionalprice,
-    orderquantity,
+    dayCount,
+    additionalPrice,
+    quantity,
     orderStatus,
   ];
 

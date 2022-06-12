@@ -32,7 +32,7 @@ export default function PackageMenu() {
     <div className="profile-menu">
       <div className="flex flex-row border-b-2 mb-6">
         <div className="title basis-4/5 text-3xl">Packages</div>
-        <Link to="/packet" className="focus:outline-none">
+        <Link to="/packet">
           <button className="add basis-1/5 flex flex-row text-lg font-bold items-center justify-end">
             <FaPlus className="fill-emerald-600 mx-1" />
             <p className="text-emerald-600">Add Package</p>

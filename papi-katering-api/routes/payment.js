@@ -11,9 +11,9 @@ router.get("/", async (req, res)=> {
             SELECT
                 *
             FROM
-                payment
+                Payment
             WHERE
-                customerid = $1;
+                CustomerID = $1;
             `;
         
         const results = await pool.query(
@@ -34,10 +34,11 @@ router.get("/", async (req, res)=> {
 });
 
 // create new payment
-router.post("/", async (req, res) => {
-  try {
-    const body = req.body;
-    const query = `
+router.post("/", async (req, res)=> {
+    try {
+        const body = req.body;
+        const query = 
+        `
         INSERT INTO Payment (PaymentID, CustomerID, PaymentName, PaymentNumber)
         VALUES 
         ($1, $2, $3, $4)
@@ -61,9 +62,10 @@ router.post("/", async (req, res) => {
 });
 
 // get payment based on id
-router.get("/:id", async (req, res) => {
-  try {
-    const query = `
+router.get("/:id", async (req, res)=> {
+    try {
+        const query = 
+            `
             SELECT
                 *
             FROM
@@ -121,9 +123,10 @@ router.put("/:id", async (req, res)=> {
 });
 
 // delete payment based on id
-router.delete("/:id", async (req, res) => {
-  try {
-    const query = `
+router.delete("/:id", async (req, res)=> {
+    try {
+        const query =
+        `
         DELETE FROM Payment
         WHERE
             PaymentID = $1;

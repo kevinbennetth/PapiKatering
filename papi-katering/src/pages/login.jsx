@@ -1,145 +1,63 @@
-import axios from "axios";
-import { useContext, useReducer, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Alert from "../components/UI/alert/Alert";
-import Button from "../components/UI/button/Button";
-import Input from "../components/UI/input/Input";
-import { APIContext, UserContext } from "../context/context";
-
-const loginInfoReducer = (state, data) => {
-  return { ...state, ...data };
-};
+import { Link } from "react-router-dom";
 
 const LoginPage = () => {
-  const { onUserLogin } = useContext(UserContext);
-  const { API_URL } = useContext(APIContext);
-  const [error, setError] = useState(null);
-  const [loginInfoState, dispatchLoginInfo] = useReducer(loginInfoReducer, {
-    email: "",
-    password: "",
-  });
-
-  const formValueHandler = (name, value) => {
-    dispatchLoginInfo({ [name]: value });
-  };
-
-  const navigate = useNavigate();
-
-  const { email, password } = loginInfoState;
-
-  const validateFormFields = () => {
-    const submissionError = {
-      header: "",
-      detail: "",
-    };
-
-    const { email, password } = loginInfoState;
-
-    if (email.trim().length === 0 || !email.trim().includes("@")) {
-      submissionError.header = "Invalid Email";
-      submissionError.detail = "Email Can't be Empty and must contain an '@' !";
-    } else if (password.trim().length === 0) {
-      submissionError.header = "Invalid Password";
-      submissionError.detail = "Password Can't be Empty !";
-    }
-    return submissionError;
-  };
-
-  const loginHandler = async (e) => {
-    e.preventDefault();
-
-    const submissionError = validateFormFields();
-
-    const { email, password } = loginInfoState;
-
-    if (submissionError.header !== "" && submissionError.detail !== "") {
-      setError(submissionError);
-    } else {
-      const URL = `${API_URL}user/login`;
-      const body = {
-        Email: email.toLowerCase(),
-        Password: password,
-      };
-      try {
-        const loginResponse = await axios.post(URL, body);
-        const data = loginResponse.data.data.returned;
-        
-        if (loginResponse.data.status === "success") {
-          onUserLogin(data.customerID, data.merchantID)
-          navigate("/home");
-        } else {
-          submissionError.header = "Wrong Credentials";
-          submissionError.detail = "Either your email or password is wrong";
-          setError(submissionError);
-        }
-      } catch (error) {
-        submissionError.header = "Server Error";
-        submissionError.detail = "Something went wrong with the server";
-        setError(submissionError);
-      }
-    }
-  };
-
   return (
-    <>
-      {error && (
-        <Alert
-          onFinishError={setError}
-          header={error.header}
-          detail={error.detail}
-        />
-      )}
-      <div className="min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
-        <img
-          src="https://images2.alphacoders.com/100/1003810.jpg"
-          alt=""
-          className="w-3/12 object-cover object-left"
-        />
-        <div className="col-span-8 ml-64 my-auto w-4/12 flex flex-col gap-8">
+    <div className=" min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
+      <img
+        src="https://images2.alphacoders.com/100/1003810.jpg"
+        alt=""
+        className="w-3/12 object-cover object-left"
+      />
+      <div className="right-login col-span-8 m-auto w-[500px]">
+        <div className="login-container w-full">
           <h1 className="text-3xl font-bold">Login to PAPIKATERING</h1>
 
-          <form className="w-full" onSubmit={loginHandler}>
-            <div className="my-8">
-              <p className="text-lg font-bold my-3">Email Address</p>
-              <Input
+          <form action="" method="get" className="my-16">
+            <div className="email-container container my-8 w-full">
+              <p className="text-lg font-bold">Email Address</p>
+              <input
                 type="text"
                 name="email"
                 id="email"
-                color="gray"
-                value={email}
-                onChange={formValueHandler}
+                className="bg-gray-200 rounded-md w-full p-1"
               />
             </div>
 
-            <div className="my-8">
-              <div className="flex flex-row justify-between items-center">
-                <p className="text-lg font-bold my-3">Password</p>
-                <Link to="" className="text-emerald-600 focus:outline-none">
+            <div className="password-container container my-8">
+              <div className="password-labels flex justify-between">
+                <p className="text-lg font-bold">Password</p>
+                <Link to="" className="text-emerald-600">
                   Forgot Password?
                 </Link>
               </div>
-              <Input
+
+              <input
                 type="password"
                 name="password"
                 id="password"
-                color="gray"
-                value={password}
-                onChange={formValueHandler}
+                className="bg-gray-200 rounded-md w-full p-1"
               />
             </div>
-            <Button type="submit">LOGIN</Button>
           </form>
 
-          <div className="font-bold">
+          <button
+            className="block px-10 py-2 mt-12 mb-4 bg-emerald-600 hover:bg-emerald-700
+                            text-white font-bold
+                            rounded-md"
+          >
+            Login
+          </button>
+
+          <div className="not-registered font-bold">
             Not Registered Yet?
-            <Link to={"/register"} className="text-primary focus:outline-none">
+            <Link to="/register" className="text-emerald-600">
               {" "}
               Create an Account
             </Link>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
