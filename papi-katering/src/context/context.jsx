@@ -8,8 +8,11 @@ const CartContext = createContext({ cart: {}, onUpdateCart: () => {} });
 
 const UserContext = createContext({
   customerID: "",
+  customerName: "",
+  customerImage: "",
   merchantID: "",
   onUserLogin: () => {},
+  onUserUpdate: () => {},
 });
 
 const cartReducer = (state, data) => {
@@ -30,7 +33,12 @@ export const ContextProvider = (props) => {
     orderquantity: "",
   });
 
-  const [user, setUser] = useState({ customerID: "", merchantID: "" });
+  const [user, setUser] = useState({
+    customerID: "",
+    customerName: "",
+    customerImage: "",
+    merchantID: "",
+  });
   const [selectPacket, setSelectPacket] = useState("");
 
   const updateCartHandler = (value) => {
@@ -41,8 +49,21 @@ export const ContextProvider = (props) => {
     setSelectPacket(value);
   };
 
-  const setLoggedUserHandler = (customerID, merchantID) => {
-    setUser({ customerID, merchantID });
+  const setLoggedUserHandler = (
+    customerID,
+    customerName,
+    customerImage,
+    merchantID
+  ) => {
+    setUser(() => {
+      return { customerID, customerName, customerImage, merchantID };
+    });
+  };
+
+  const userUpdateHandler = (customerName, customerImage) => {
+    setUser((prevUser) => {
+      return { ...prevUser, customerName, customerImage };
+    });
   };
 
   return (
@@ -52,7 +73,10 @@ export const ContextProvider = (props) => {
           value={{
             customerID: user.customerID,
             merchantID: user.merchantID,
+            customerName: user.customerName,
+            customerImage: user.customerImage,
             onUserLogin: setLoggedUserHandler,
+            onUserUpdate: userUpdateHandler,
           }}
         >
           <PacketContext.Provider

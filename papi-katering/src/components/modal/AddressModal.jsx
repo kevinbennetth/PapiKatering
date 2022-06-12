@@ -1,6 +1,6 @@
-import BaseModal from "./BaseModal";
 import { useState, useEffect } from "react";
 import API from "../../apis/API";
+import BaseModal from "../UI/modal/BaseModal";
 
 const AddressModal = (props) => {
 
@@ -54,7 +54,7 @@ const AddressModal = (props) => {
     }
 
     return (
-        <BaseModal show={props.show} hideModal={props.hideModal}>
+        <BaseModal show={props.show} onHideModal={props.hideModal}>
             <h3 className="text-lg font-bold">New Address</h3>
 
             <form action="" method="post" className="mt-4">

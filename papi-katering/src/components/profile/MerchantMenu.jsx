@@ -1,55 +1,66 @@
 import profileImg from "../../assets/profileImg.jpg";
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import API from "../../apis/API";
+import { useContext } from "react";
+import { UserContext } from "../../context/context";
+import {
+  selectImage,
+  uploadAndGetURL,
+} from "../UI/button/firebase/uploadUtilities";
+import UploadButton from "../UI/button/UploadButton";
 
 const MerchantMenu = (props) => {
-
   const customerID = props.custID;
+  const { merchantID } = useContext(UserContext);
   const [merchant, setMerchant] = useState(null);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
+  const [profileImage, setProfileImage] = useState("");
 
   const renderButtonText = (state) => {
-    if(state){
-      document.getElementById("submitBtn").innerHTML="Save";
+    if (state) {
+      document.getElementById("submitBtn").innerHTML = "Save";
+    } else {
+      document.getElementById("submitBtn").innerHTML = "Create Merchant";
     }
-    else{
-      document.getElementById("submitBtn").innerHTML="Create Merchant";
-    }
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await API.get(`/merchant/?CustomerID=${customerID}`);
+        const response = await API.get(`/merchant/${merchantID}`);
 
-        if(response.data.data.merchantData){
+        console.log(response);
+        if (response.data.data.merchantData) {
           setMerchant(response.data.data.merchantData);
           setName(response.data.data.merchantData.merchantname);
           setAddress(response.data.data.merchantData.merchantaddress);
           setPhone(response.data.data.merchantData.merchantphone);
+          setProfileImage(response.data.data.merchantData.merchantimage);
         }
-      } catch(error) {
+      } catch (error) {
         console.log(error);
       }
-    }
+    };
 
     renderButtonText(merchant);
 
-    fetchData();
+    if (merchantID !== "") {
+      fetchData();
+    }
   }, []);
 
   const validate = (name, address, phone) => {
-    if(name.length<1 || address.length<1){
+    if (name.length < 1 || address.length < 1) {
       return false;
     }
-    if(phone.length!=12){
+    if (phone.length != 12) {
       return false;
     }
 
     return true;
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,36 +68,42 @@ const MerchantMenu = (props) => {
     try {
       let response;
 
-      if(validate(name, address, phone)){
-        if(merchant){
+      if (validate(name, address, phone)) {
+        if (merchant) {
+          const image = await uploadAndGetURL(profileImage);
+
           response = await API.put(`/merchant/${merchant.merchantid}`, {
             MerchantName: name,
             MerchantAddress: address,
-            MerchantPhone: phone
+            MerchantPhone: phone,
+            MerchantImage: image,
           });
-  
-          if(response.data.status=="success"){
-            document.getElementById("status").innerHTML = "Successfully udpated merchant profile!";
+
+          if (response.data.status === "success") {
+            document.getElementById("status").innerHTML =
+              "Successfully udpated merchant profile!";
           }
-        }
-        else{
+        } else {
           response = await API.post(`/merchant`, {
             CustomerID: customerID,
             MerchantName: name,
             MerchantAddress: address,
-            MerchantPhone: phone
-          })
+            MerchantPhone: phone,
+          });
         }
-      }
-      else{
+      } else {
         document.getElementById("status").innerHTML = "Invalid inputs";
       }
 
       console.log(response);
-    } catch(error) {
+    } catch (error) {
       console.log(error);
     }
-  }
+  };
+
+  const imageChangeHandler = (name, value) => {
+    setProfileImage(value);
+  };
 
   return (
     <div className="profile-menu">
@@ -138,26 +155,34 @@ const MerchantMenu = (props) => {
           </div>
           <div className="right-side basis-1/3">
             <div className="right-container flex flex-col">
-              <img className="profile-img" src={profileImg} alt="" />
+              <img
+                className="profile-img aspect-square object-cover rounded-md"
+                src={selectImage(profileImage)}
+                alt=""
+              />
               <div className="button-container flex justify-center mt-4">
-                <button
-                  className="block px-10 py-2 bg-emerald-600 hover:bg-emerald-700
-                            text-white font-bold rounded-md"
+                <UploadButton
+                  name="customerimage"
+                  id="customerimage"
+                  onFileSelect={imageChangeHandler}
                 >
                   Edit
-                </button>
+                </UploadButton>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <button id="submitBtn" type="submit" 
-      className="block px-10 py-2 mt-12 mb-4 bg-emerald-600 hover:bg-emerald-700
-                text-white font-bold rounded-md" onClick={(e) => handleSubmit(e)}></button>
+      <button
+        id="submitBtn"
+        type="submit"
+        className="block px-10 py-2 mt-12 mb-4 bg-emerald-600 hover:bg-emerald-700
+                text-white font-bold rounded-md"
+        onClick={(e) => handleSubmit(e)}
+      ></button>
     </div>
   );
-}
-
+};
 
 export default MerchantMenu;

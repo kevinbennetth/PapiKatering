@@ -5,7 +5,7 @@ import UploadButton from "../button/UploadButton";
 import Dropdown from "../Dropdown";
 import Input from "../input/Input";
 import TextArea from "../input/TextArea";
-import NewBaseModal from "./NewBaseModal";
+import BaseModal from "./BaseModal";
 
 const defaultMenuImage =
   "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg";
@@ -146,7 +146,7 @@ export default function MenuModal(props) {
 
   return (
     <>
-      <NewBaseModal show={props.show} onHideModal={props.onHideModal}>
+      <BaseModal show={props.show} onHideModal={props.onHideModal}>
         {error && (
           <Alert
             onFinishError={setError}
@@ -228,7 +228,7 @@ export default function MenuModal(props) {
             Save
           </Button>
         </div>
-      </NewBaseModal>
+      </BaseModal>
     </>
   );
 }

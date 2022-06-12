@@ -13,6 +13,7 @@ import LandingPage from "./pages/LandingPage";
 import MerchantPage from "./pages/MerchantPage";
 import SearchPage from "./pages/AddPacket/SearchPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/quiz" element={<QuizPage />} />
           <Route path="/home" element={<Home />} />
           <Route path="/detail/:id" element={<DetailPage />} />

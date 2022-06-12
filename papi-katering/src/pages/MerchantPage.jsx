@@ -11,16 +11,16 @@ const MerchantPage = () => {
   const [packets, setPackets] = useState();
   const { API_URL } = useContext(APIContext);
 
-  const getMerchantData = async () => {
-    const URL = `${API_URL}merchant/${id}`;
-    try {
-      const responseMerchant = await axios.get(URL);
-      setMerchant(responseMerchant.data.data.merchantData);
-      setPackets(responseMerchant.data.data.packetData);
-    } catch (error) {}
-  };
-
   useEffect(() => {
+    const getMerchantData = async () => {
+      const URL = `${API_URL}merchant/${id}`;
+      try {
+        const responseMerchant = await axios.get(URL);
+        console.log(responseMerchant);
+        setMerchant(responseMerchant.data.data.merchantData);
+        setPackets(responseMerchant.data.data.packetData);
+      } catch (error) {}
+    };
     getMerchantData();
   }, []);
 

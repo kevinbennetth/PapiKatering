@@ -63,9 +63,9 @@ const LoginPage = () => {
       try {
         const loginResponse = await axios.post(URL, body);
         const data = loginResponse.data.data.returned;
-        
+
         if (loginResponse.data.status === "success") {
-          onUserLogin(data.customerID, data.merchantID)
+          onUserLogin(data.customerID, data.customerName, data.customerImage, data.merchantID);
           navigate("/home");
         } else {
           submissionError.header = "Wrong Credentials";
@@ -112,12 +112,7 @@ const LoginPage = () => {
             </div>
 
             <div className="my-8">
-              <div className="flex flex-row justify-between items-center">
-                <p className="text-lg font-bold my-3">Password</p>
-                <Link to="" className="text-emerald-600 focus:outline-none">
-                  Forgot Password?
-                </Link>
-              </div>
+              <p className="text-lg font-bold my-3">Password</p>
               <Input
                 type="password"
                 name="password"
@@ -131,9 +126,8 @@ const LoginPage = () => {
           </form>
 
           <div className="font-bold">
-            Not Registered Yet?
-            <Link to={"/register"} className="text-primary focus:outline-none">
-              {" "}
+            Not Registered Yet?{" "}
+            <Link to={"/register"} className="text-primary focus:outline-none hover:underline">
               Create an Account
             </Link>
           </div>

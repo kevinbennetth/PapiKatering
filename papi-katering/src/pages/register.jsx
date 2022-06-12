@@ -251,11 +251,11 @@ const RegisterPage = () => {
 
           <div className="have-account font-bold">
             Already have an account?
+            {" "}
             <Link
               to="/login"
-              className="text-emerald-600 hover:text-emerald-700"
+              className="text-primary focus:outline-none hover:underline"
             >
-              {" "}
               Login here
             </Link>
           </div>

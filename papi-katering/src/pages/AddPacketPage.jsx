@@ -10,7 +10,10 @@ import TextArea from "../components/UI/input/TextArea";
 import MenuForm from "./AddPacket/MenuForm";
 import { useNavigate, useParams } from "react-router-dom";
 import UploadButton from "../components/UI/button/UploadButton";
-import { uploadAndGetURL } from "../components/UI/button/firebase/uploadUtilities";
+import {
+  uploadAndGetURL,
+  selectImage,
+} from "../components/UI/button/firebase/uploadUtilities";
 import { useEffect } from "react";
 import LoadingBar from "react-top-loading-bar";
 
@@ -30,8 +33,6 @@ export default function AddPacketPage() {
   const { packetid, onSelectPacket } = useContext(PacketContext);
 
   const navigate = useNavigate();
-  const defaultImage =
-    "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg";
 
   const [categoryModal, setCategoryModal] = useState(false);
   const [error, setError] = useState(null);
@@ -76,7 +77,7 @@ export default function AddPacketPage() {
     e.preventDefault();
     const submissionError = validateFormFields();
 
-    const totalImageUpload = (packet.menu.length * 3) + 1;
+    const totalImageUpload = packet.menu.length * 3 + 1;
     let uploadCounter = 0;
 
     if (submissionError.header !== "" && submissionError.detail !== "") {
@@ -92,29 +93,19 @@ export default function AddPacketPage() {
           packet.packetimage = await uploadAndGetURL(packet.packetimage);
         }
         uploadCounter++;
-        setUploadPogress(uploadCounter / totalImageUpload * 100);
+        setUploadPogress((uploadCounter / totalImageUpload) * 100);
 
         for (let i = 0; i < packet.menu.length; i++) {
           let menu = packet.menu[i];
           for (let j = 0; j < menu.menuitems.length; j++) {
             const menuitem = menu.menuitems[j];
-            let newmenuimage = defaultImage;
-            if (
-              !(
-                typeof menuitem.menuimage === "string" ||
-                menuitem.menuimage instanceof String
-              )
-            ) {
-              newmenuimage = await uploadAndGetURL(menuitem.menuimage);
-            } else if (menuitem.menuimage !== "") {
-              newmenuimage = menuitem.menuimage;
-            }
+            let newmenuimage = selectImage(menuitem.menuimage, "PACKET");
             packet.menu[i].menuitems[j] = {
               ...packet.menu[i].menuitems[j],
               menuimage: newmenuimage,
             };
             uploadCounter++;
-            setUploadPogress(uploadCounter / totalImageUpload * 100);
+            setUploadPogress((uploadCounter / totalImageUpload) * 100);
           }
         }
         const body = { merchantid: parseInt(merchantID), ...packet };
@@ -191,7 +182,7 @@ export default function AddPacketPage() {
         onSave={formValueHandler}
       />
       <LoadingBar
-      height={8}
+        height={8}
         color="#fde047"
         progress={uploadPogress}
         onLoaderFinished={() => setUploadPogress(0)}
@@ -200,14 +191,7 @@ export default function AddPacketPage() {
         <div className="flex flex-row w-full gap-20">
           <div className="flex flex-col items-center justify-center gap-6 w-1/2">
             <img
-              src={
-                typeof packet.packetimage === "string" ||
-                packet.packetimage instanceof String
-                  ? packet.packetimage === ""
-                    ? defaultImage
-                    : packet.packetimage
-                  : URL.createObjectURL(packet.packetimage)
-              }
+              src={selectImage(packet.packetimage)}
               alt=""
               className="w-1/2 object-cover rounded-md aspect-square"
             />

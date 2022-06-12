@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Button from "../button/Button";
-import NewBaseModal from "./NewBaseModal";
+import BaseModal from "./BaseModal";
 
 export default function AddressSelectionModal(props) {
   const { selectedAddress, address } = props;
@@ -29,7 +29,7 @@ export default function AddressSelectionModal(props) {
   }, [selectedAddress]);
 
   return (
-    <NewBaseModal show={props.show} onHideModal={props.onHideModal}>
+    <BaseModal show={props.show} onHideModal={props.onHideModal}>
       <h4 className="text-2xl font-bold mb-8">Select Address</h4>
       {address?.map((addr) => (
         <div
@@ -52,6 +52,6 @@ export default function AddressSelectionModal(props) {
       <Button type="button" onClick={selectHandler}>
         Select
       </Button>
-    </NewBaseModal>
+    </BaseModal>
   );
 }

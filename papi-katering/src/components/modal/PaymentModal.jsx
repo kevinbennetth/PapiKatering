@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import BaseModal from "./BaseModal";
 import API from "../../apis/API";
+import BaseModal from "../UI/modal/BaseModal";
 
 const PaymentModal = (props) => {
 
@@ -58,7 +58,7 @@ const PaymentModal = (props) => {
     }
 
     return (
-        <BaseModal show={props.show} hideModal={props.hideModal}>
+        <BaseModal show={props.show} onHideModal={props.hideModal}>
             <h3 className="text-lg font-bold">New Payment Method</h3>
 
             <form action="" method="post" className="mt-4">

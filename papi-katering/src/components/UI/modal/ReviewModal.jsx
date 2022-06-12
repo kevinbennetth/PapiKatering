@@ -4,7 +4,7 @@ import { APIContext, UserContext } from "../../../context/context";
 import Button from "../button/Button";
 import Dropdown from "../Dropdown";
 import TextArea from "../input/TextArea";
-import NewBaseModal from "./NewBaseModal";
+import BaseModal from "./BaseModal";
 
 const dropdownValue = [
   { value: 1, show: 1 },
@@ -70,7 +70,7 @@ export default function ReviewModal(props) {
   }, [selectedReview]);
 
   return (
-    <NewBaseModal show={props.show} onHideModal={props.onHideModal}>
+    <BaseModal show={props.show} onHideModal={props.onHideModal}>
       <h3 className="text-xl font-bold mb-6">Add Review</h3>
       <div className="flex flex-col gap-4 mb-4">
         <label htmlFor="score">Review Score</label>
@@ -97,6 +97,6 @@ export default function ReviewModal(props) {
       <Button type="button" onClick={reviewSubmitHandler}>
         Save
       </Button>
-    </NewBaseModal>
+    </BaseModal>
   );
 }

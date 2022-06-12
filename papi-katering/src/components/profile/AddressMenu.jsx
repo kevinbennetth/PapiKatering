@@ -25,13 +25,10 @@ const AddressMenu = (props) => {
     }, [addresses]);
 
     const showModal = (modalType) => {
-        document.body.style.overflow = "hidden";
         setModal(modalType);
     };
     
     const hideModal = () => {
-        document.body.style.overflow = "visible";
-        document.body.style.paddingRight = "0";
         setModal(null);
     };
 

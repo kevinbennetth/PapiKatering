@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useContext } from "react";
 import { GoSearch } from "react-icons/go";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import logo from "../assets/LogoWhite.png";
+import { UserContext } from "../context/context";
 import Dropdown from "./UI/Dropdown";
 import Input from "./UI/input/Input";
 
@@ -19,7 +21,7 @@ const options = [
 export default function Header() {
   const [query, setQuery] = useState("");
   const [type, setType] = useState("Food");
-
+  const { customerImage } = useContext(UserContext);
   const navigate = useNavigate();
 
   const searchValueHandler = (name, value) => {
@@ -82,11 +84,7 @@ export default function Header() {
           CHECKOUT
         </Link>
         <Link to="/profile" className="visited:outline-none">
-          <img
-            src="https://static.zerochan.net/Ko.Elizabeth.full.2947878.jpg"
-            alt=""
-            className="w-12 rounded-full"
-          />
+          <img src={customerImage} alt="" className="w-12 rounded-full aspect-square object-cover" />
         </Link>
       </nav>
     </header>

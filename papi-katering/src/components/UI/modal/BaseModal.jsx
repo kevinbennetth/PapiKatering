@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 
 const rootModal = document.getElementById("modal-root");
 
-export default function NewBaseModal(props) {
+export default function BaseModal(props) {
   const { show } = props;
 
   const modalRef = useRef();
