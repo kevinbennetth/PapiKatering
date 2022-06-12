@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import { useState } from "react";
 
 import AddressMenu from "../components/profile/AddressMenu";
@@ -10,8 +11,11 @@ import PaymentsMenu from "../components/profile/PaymentsMenu";
 import ProfileMenu from "../components/profile/ProfileMenu";
 import ReviewsMenu from "../components/profile/ReviewsMenu";
 
-// get customerID from local Storage
-const customerID = 1;
+const ProfilePage = () => {
+
+    const [menu, setMenu] = useState("profile");
+    
+    const { customerID } = { customerID: 1 };
 
 const renderMenu = (menu) => {
     if(menu === "profile"){
@@ -43,9 +47,6 @@ const renderMenu = (menu) => {
     }
 }
 
-const ProfilePage = () => {
-
-    const [menu, setMenu] = useState("profile");
     
     const renderOption = (option) => {
         if(menu===option.toLowerCase()){
