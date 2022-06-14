@@ -8,10 +8,10 @@ const devConfig = {
   database: process.env.PGDATABASE,
   host: process.env.PGHOST,
   port: process.env.PGPORT,
-};
+};  
 
 const productionConfig = {
-  connectionString: parse(process.env.DATABASE_URL),
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false,
   },
