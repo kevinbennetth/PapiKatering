@@ -1,4 +1,3 @@
-import profileImg from "../../assets/profileImg.jpg";
 import { useState, useEffect } from "react";
 import API from "../../apis/API";
 import { useContext } from "react";
@@ -22,7 +21,7 @@ const MerchantMenu = (props) => {
   const [profileImage, setProfileImage] = useState("");
   const [buttonText, setButtonText] = useState("Create Merchant");
 
-  const [error, setError] = useState(null);
+const [error, setError] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
