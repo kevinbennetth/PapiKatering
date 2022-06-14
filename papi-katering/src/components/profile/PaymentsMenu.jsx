@@ -14,8 +14,8 @@ const PaymentsMenu = (props) => {
     try {
       const response = await API.get(`/payment?customerID=${custID}`);
       setPayments(response.data.data.payments);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 

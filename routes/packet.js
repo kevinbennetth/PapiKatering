@@ -106,7 +106,7 @@ router.get("/", async (req, res) => {
 
     res.json({ data: packets, page });
   } catch (error) {
-    console.log(error.message);
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -142,8 +142,8 @@ router.get("/home", async (req, res) => {
         packetData: packets,
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -259,7 +259,7 @@ router.get("/recommend/:id", async (req, res) => {
 
     res.status(200).json({ data: data });
   } catch (error) {
-    console.log(error);
+    res.status(400).json({ error: error.message });
   }
 });
 

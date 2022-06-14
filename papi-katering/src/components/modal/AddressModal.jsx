@@ -52,8 +52,8 @@ const AddressModal = (props) => {
         }
         props.hideModal();
       }
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 

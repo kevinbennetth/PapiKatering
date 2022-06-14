@@ -11,8 +11,8 @@ const OngoingOrdersMenu = (props) => {
             try {
                 const response = await API.get(`/order?customerID=${custID}&status=ongoing`);
                 setOrders(response.data);
-            } catch(err) {
-                console.log(err);
+            } catch(error) {
+                console.log(error);
             }
         };
         fetchOrders();

@@ -27,8 +27,8 @@ router.get("/:id", async (req, res) => {
         customerData: results.rows[0],
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -72,8 +72,6 @@ router.put("/:id", async (req, res) => {
         req.params.id,
       ];
 
-      console.log(values)
-
       results = await pool.query(query, values);
     }
 
@@ -83,8 +81,8 @@ router.put("/:id", async (req, res) => {
         customerData: results.rows[0],
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -124,8 +122,8 @@ router.post("/register", async (req, res) => {
       status: "Successfully registered !",
       CustomerID: customerID,
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 
@@ -168,8 +166,8 @@ router.post("/login", async (req, res) => {
         },
       });
     }
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 

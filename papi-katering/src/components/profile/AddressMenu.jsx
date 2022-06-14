@@ -14,8 +14,8 @@ const AddressMenu = (props) => {
     try {
       const response = await API.get(`/address?customerID=${custID}`);
       setAddresses(response.data);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 

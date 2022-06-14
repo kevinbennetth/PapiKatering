@@ -11,8 +11,8 @@ const OrdersHistoryMenu = (props) => {
             try {
                 const response = await API.get(`/order?customerID=${custID}&status=finished`);
                 setOrders(response.data);
-            } catch(err) {
-                console.log(err);
+            } catch(error) {
+                console.log(error);
             }
         };
         fetchOrders();

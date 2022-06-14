@@ -12,8 +12,8 @@ const ReviewsMenu = (props) => {
             try {
                 const response = await API.get(`/review?type=user&customerID=${custID}`);
                 setReviews(response.data);
-            } catch(err) {
-                console.log(err);
+            } catch(error) {
+                console.log(error);
             }
         }
         fetchReviews();

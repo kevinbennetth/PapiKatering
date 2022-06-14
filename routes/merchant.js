@@ -91,37 +91,39 @@ router.get("/home", async (req, res) => {
         merchantData: merchants,
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 
 // create new merchant
 router.post("/", async (req, res) => {
-    try {
-        const body = req.body;
-        const query = 
-        `
+  try {
+    const body = req.body;
+    const query = `
         INSERT INTO Merchant (CustomerID, MerchantImage, MerchantName, MerchantAddress, MerchantPhone)
         VALUES
         ($1, $2, $3, $4, $5)
         RETURNING *;
         `;
 
-        const results = await pool.query(
-            query,
-            [body.CustomerID, body.MerchantImage, body.MerchantName, body.MerchantAddress, body.MerchantPhone]
-        );
+    const results = await pool.query(query, [
+      body.CustomerID,
+      body.MerchantImage,
+      body.MerchantName,
+      body.MerchantAddress,
+      body.MerchantPhone,
+    ]);
 
-        res.status(201).json({
-            status: "success",
-            data: {
-                merchantData: results.rows[0]
-            }
-        });
-    } catch (err) {
-        console.log(err);
-    }
+    res.status(201).json({
+      status: "success",
+      data: {
+        merchantData: results.rows[0],
+      },
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
 // update merchant's data
@@ -154,16 +156,15 @@ router.put("/:id", async (req, res) => {
         merchantData: results.rows[0],
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 
 // get a merchant's data
 router.get("/:id", async (req, res) => {
-    try {
-        const query =
-        `
+  try {
+    const query = `
         SELECT
             *
         FROM
@@ -210,7 +211,6 @@ router.get("/:id", async (req, res) => {
       ]);
       const packetRating = packetRatingResponse.rows[0];
 
-
       packet.packetratingcount = packetRating.packetratingcount;
       if (packetRating.packetratingcount === "0") {
         packet.packetratingaverage = "0.0";
@@ -250,8 +250,8 @@ router.get("/:id", async (req, res) => {
         packetData: packetResults.rows,
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 

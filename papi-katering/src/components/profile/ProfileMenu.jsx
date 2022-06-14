@@ -61,8 +61,8 @@ const ProfileMenu = (props) => {
         setEmail(customerResponse.customeremail);
         setPhone(customerResponse.customerphone);
         setProfileImage(customerResponse.customerimage);
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        console.log(error);
       }
     };
 
@@ -121,8 +121,8 @@ const ProfileMenu = (props) => {
           onUserUpdate(name, image);
         }
       }
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 
