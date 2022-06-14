@@ -1,5 +1,6 @@
 const { Pool } = require("pg");
 require("dotenv").config();
+const { parse } = require('pg-connection-string')
 
 const devConfig = {
   user: process.env.PGUSER,
@@ -7,12 +8,13 @@ const devConfig = {
   database: process.env.PGDATABASE,
   host: process.env.PGHOST,
   port: process.env.PGPORT,
-  ssl: true,
 };
 
 const productionConfig = {
-  connectionString: process.env.DATABASE_URL,
-  ssl: true,
+  connectionString: parse(process.env.DATABASE_URL),
+  ssl: {
+    rejectUnauthorized: false,
+  },
 };
 
 const pool = new Pool(
