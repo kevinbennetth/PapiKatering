@@ -67,7 +67,7 @@ export const ContextProvider = (props) => {
   };
 
   return (
-    <APIContext.Provider value={{ API_URL: "http://localhost:8080/" }}>
+    <APIContext.Provider value={{ API_URL: "/" }}>
       <CartContext.Provider value={{ cart, onUpdateCart: updateCartHandler }}>
         <UserContext.Provider
           value={{
