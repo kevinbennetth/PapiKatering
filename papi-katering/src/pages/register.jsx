@@ -216,7 +216,7 @@ const RegisterPage = () => {
                 value={gender}
                 options={[
                   { show: "--Choose Gender--", value: "default" },
-                  { show: "Male", value: "default" },
+                  { show: "Male", value: "Male" },
                   { show: "Female", value: "Female" },
                 ]}
                 onChange={formValueHandler}
