@@ -53,10 +53,13 @@ export default function MenuModal(props) {
   const [unavailableDays, setUnavailableDays] = useState([]);
 
   useEffect(() => {
-    
     if (menu !== null) {
       setMenuItems(menu.menuitems);
       setMenuDay(menu.menuday);
+      setUnavailableDays((prevUnavailableDays) =>{
+        prevUnavailableDays.splice(prevUnavailableDays.indexOf(menu.menuday), 1)
+        return prevUnavailableDays;
+    });
     } else {
       setMenuItems(emptyMenuItems);
       setMenuDay(0);
@@ -64,8 +67,7 @@ export default function MenuModal(props) {
   }, [menu]);
 
   useEffect(() => {
-    let unavailable = menuInfo.map(menuinf => menuinf.menuday)
-    console.log(unavailable)
+    let unavailable = menuInfo.map((menuinf) => menuinf.menuday);
     setUnavailableDays(unavailable);
   }, [menuInfo]);
 
@@ -108,7 +110,7 @@ export default function MenuModal(props) {
         menuday: menuDay,
         menuitems: menuItems,
       };
-      console.log(newMenu)
+      console.log(newMenu);
 
       if (menu === null) {
         props.onUpdate(newMenu, "ADD");
@@ -144,9 +146,14 @@ export default function MenuModal(props) {
     );
   };
 
+  const hideModal = () => {
+    props.onHideModal();
+    unavailableDays.push(menuDay);
+  };
+
   return (
     <>
-      <BaseModal show={props.show} onHideModal={props.onHideModal}>
+      <BaseModal show={props.show} onHideModal={hideModal}>
         {error && (
           <Alert
             onFinishError={setError}
@@ -160,7 +167,9 @@ export default function MenuModal(props) {
           id="menuday"
           color="white"
           value={menuDay}
-          options={dayDropdown.filter(day => !unavailableDays.includes(day.value))}
+          options={dayDropdown.filter(
+            (day) => !unavailableDays.includes(day.value)
+          )}
           onChange={formDayHandler}
         />
         {menuItems?.map((menuitem, idx) => (

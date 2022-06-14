@@ -210,7 +210,6 @@ router.get("/:id", async (req, res) => {
       ]);
       const packetRating = packetRatingResponse.rows[0];
 
-      console.log(packetRating);
 
       packet.packetratingcount = packetRating.packetratingcount;
       if (packetRating.packetratingcount === "0") {
@@ -218,7 +217,6 @@ router.get("/:id", async (req, res) => {
       } else {
         packet.packetratingaverage = packetRating.packetratingaverage;
       }
-      console.log(packet.packetratingcount);
 
       const packetSoldResponse = await pool.query(packetSoldQuery, [
         packet.packetid,

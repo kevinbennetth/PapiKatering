@@ -36,7 +36,7 @@ export default function AddPacketPage() {
 
   const [categoryModal, setCategoryModal] = useState(false);
   const [error, setError] = useState(null);
-  const [uploadPogress, setUploadPogress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [packet, dispatchPacket] = useReducer(packetReducer, {
     packetid: "",
     packetname: "",
@@ -93,7 +93,7 @@ export default function AddPacketPage() {
           packet.packetimage = await uploadAndGetURL(packet.packetimage);
         }
         uploadCounter++;
-        setUploadPogress((uploadCounter / totalImageUpload) * 100);
+        setUploadProgress((uploadCounter / totalImageUpload) * 100);
 
         for (let i = 0; i < packet.menu.length; i++) {
           let menu = packet.menu[i];
@@ -105,7 +105,7 @@ export default function AddPacketPage() {
               menuimage: newmenuimage,
             };
             uploadCounter++;
-            setUploadPogress((uploadCounter / totalImageUpload) * 100);
+            setUploadProgress((uploadCounter / totalImageUpload) * 100);
           }
         }
         const body = { merchantid: parseInt(merchantID), ...packet };
@@ -116,11 +116,12 @@ export default function AddPacketPage() {
         } else {
           const URL = `${API_URL}packet/${packetid}`;
           await axios.put(URL, body);
-          onSelectPacket("");
+
         }
-        console.log(body);
+        onSelectPacket("");
         navigate("/profile");
       } catch (error) {
+        onSelectPacket("")
         console.log(error);
       }
     }
@@ -130,6 +131,7 @@ export default function AddPacketPage() {
     const URL = `${API_URL}packet/${packetid}`;
     try {
       await axios.delete(URL);
+      onSelectPacket("");
       navigate("/profile");
     } catch (error) {
       console.log(error);
@@ -146,6 +148,8 @@ export default function AddPacketPage() {
   const hideModalHandler = () => {
     setCategoryModal(false);
   };
+
+  console.log(packet);
 
   useEffect(() => {
     const fetchPacket = async () => {
@@ -167,6 +171,11 @@ export default function AddPacketPage() {
 
   return (
     <div className="flex flex-col mx-auto my-24 w-11/12 gap-10">
+      <div
+        className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 ${
+          uploadProgress > 0 ? "block" : "hidden"
+        }`}
+      />
       {error && (
         <Alert
           onFinishError={setError}
@@ -184,8 +193,8 @@ export default function AddPacketPage() {
       <LoadingBar
         height={8}
         color="#fde047"
-        progress={uploadPogress}
-        onLoaderFinished={() => setUploadPogress(0)}
+        progress={uploadProgress}
+        onLoaderFinished={() => setUploadProgress(0)}
       />
       <form onSubmit={savePacketHandler} className="">
         <div className="flex flex-row w-full gap-20">
@@ -271,7 +280,7 @@ export default function AddPacketPage() {
 
         <MenuForm menu={menu} onUpdate={formValueHandler} type={"EDIT"} />
         <div className="flex flex-row justify-end gap-6 mt-10">
-          {menu.packetid !== "" && (
+          {packet && packet.packetid !== "" && (
             <Button type="button" onClick={deletePacketHandler}>
               Delete
             </Button>

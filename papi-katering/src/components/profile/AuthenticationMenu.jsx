@@ -1,38 +1,59 @@
 import { useState } from "react";
 import API from "../../apis/API";
+import Alert from "../UI/alert/Alert";
+import Button from "../UI/button/Button";
 
 const AuthenticationMenu = (props) => {
   const custID = props.custID;
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState(null);
+
+  const validate = () => {
+    const submissionError = { header: "", detail: "" };
+    if (password.trim().length === 0) {
+      submissionError.header = "Invalid Password";
+      submissionError.detail = "Password can't be empty !";
+    } else if (confirm !== password) {
+      submissionError.header = "Invalid Confirm Password";
+      submissionError.detail = "Confirm Password doesn't match the password";
+    }
+    console.log(submissionError);
+    return submissionError;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (confirm === password) {
+    const submissionError = validate();
+
+    if (submissionError.header !== "" && submissionError.detail !== "") {
+      setError(submissionError);
+    } else {
       try {
         const response = await API.put(`/user/${custID}`, {
           CustomerPassword: password,
         });
 
         if (response.data.status === "success") {
-          document.getElementById("status").innerHTML =
-            "Password has been updated!";
-          document.getElementById("status").className = "text-neutral-900";
           setPassword("");
           setConfirm("");
         }
       } catch (err) {
         console.log(err);
       }
-    } else {
-      document.getElementById("status").innerHTML = "Password did not match";
-      document.getElementById("status").className = "text-red-500";
     }
   };
 
   return (
     <div className="authentication-menu">
+      {error && (
+        <Alert
+          onFinishError={setError}
+          header={error.header}
+          detail={error.detail}
+        />
+      )}
       <div className="title text-3xl border-b-2">Authentication</div>
       <form action="" method="post" className="w-7/12 mt-4 mb-12">
         <div className="new-pass-container">
@@ -52,22 +73,16 @@ const AuthenticationMenu = (props) => {
             type="password"
             name="confirm-pass"
             id="confirm-pass"
-            className="rounded-md border w-full p-1"
+            className="rounded-md border w-full p-1 mb-8"
             onChange={(e) => setConfirm(e.target.value)}
           />
         </div>
 
         <p id="status"></p>
+        <Button type="submit" onClick={handleSubmit}>
+          Save
+        </Button>
       </form>
-
-      <button
-        type="submit"
-        className="block px-10 py-2 mt-12 mb-4 bg-emerald-600 hover:bg-emerald-700
-                text-white font-bold rounded-md"
-        onClick={handleSubmit}
-      >
-        Save
-      </button>
     </div>
   );
 };

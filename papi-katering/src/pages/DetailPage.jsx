@@ -103,8 +103,6 @@ export default function DetailPage() {
     addToCartHandler();
   };
 
-  console.log(packet)
-
   return (
     packet && (
       <div className="py-20 px-24 flex flex-col gap-10">
@@ -163,7 +161,7 @@ export default function DetailPage() {
                 }}
                 className="w-3/12 border-2 rounded text-xl text-center border-primary p-2 focus:outline-none"
               />
-              <Button onClick={addToCartHandler}>Subscribe</Button>
+              <Button onClick={addToCartHandler} disabled={merchantID === packet.merchant.merchantid}>Subscribe</Button>
             </div>
           </div>
         </div>

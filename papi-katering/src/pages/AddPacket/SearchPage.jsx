@@ -89,7 +89,6 @@ export default function SearchPage() {
         }&limit=${20}&page=${page}`;
         response = await axios.get(URL);
       }
-      console.log(response)
       setSearchData(response.data.data);
       setPageCount(response.data.page);
       setFetching(false);

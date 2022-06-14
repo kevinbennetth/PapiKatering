@@ -4,8 +4,9 @@ require("dotenv").config();
 // setup
 const express = require("express");
 const cors = require("cors");
-
+const path = require("path");
 const app = express();
+const port = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(express.json());
@@ -31,7 +32,6 @@ app.use("/preference", preferenceRouter);
 app.use("/review", reviewRouter);
 app.use("/category", categoryRouter);
 
-const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`server up, listening on port ${port}`);
 });

@@ -116,7 +116,7 @@ const ProfilePage = () => {
                   {renderOption("Package")}
                 </button>
               </li>
-              <li>Log out</li>
+              <li className="text-red-500">Log out</li>
             </ul>
           </div>
         </div>

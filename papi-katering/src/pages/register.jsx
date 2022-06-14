@@ -62,7 +62,7 @@ const RegisterPage = () => {
     if (name.trim().length === 0) {
       submissionError.header = "Invalid Name";
       submissionError.detail = "Name Can't be Empty !";
-    } else if (email.trim().length === 0 || !email.trim().includes("@")) {
+    } else if (email.trim().length === 0 || !email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) {
       submissionError.header = "Invalid Email";
       submissionError.detail = "Email Can't be Empty and must contain an '@' !";
     } else if (phone.trim().length < 11 || phone.trim().length > 13) {

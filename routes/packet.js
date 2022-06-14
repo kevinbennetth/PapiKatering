@@ -39,7 +39,7 @@ router.get("/", async (req, res) => {
     if (notInData.length > 0) {
       categoryCondition += " AND pc.categoryid NOT IN (";
       notInData.forEach((notindata, idx) => {
-        if (idx > 0) condition += ", ";
+        if (idx > 0) categoryCondition += ", ";
         categoryCondition += notindata;
       });
       categoryCondition += ")";
@@ -186,7 +186,7 @@ router.get("/recommend/:id", async (req, res) => {
       if (inData.length > 0) {
         categoryCondition += " pc.categoryid IN (";
         inData.forEach((indata, idx) => {
-          if (idx > 0) condition += ", ";
+          if (idx > 0) categoryCondition += ", ";
           categoryCondition += indata;
         });
         categoryCondition += ")";
@@ -197,19 +197,19 @@ router.get("/recommend/:id", async (req, res) => {
       }
 
       if (notInData.length > 0) {
-        condition += " categoryid NOT IN (";
+        categoryCondition += " categoryid NOT IN (";
         notInData.forEach((notindata, idx) => {
-          if (idx > 0) condition += ", ";
-          condition += notindata;
+          if (idx > 0) categoryCondition += ", ";
+          categoryCondition += notindata;
         });
-        condition += ")";
+        categoryCondition += ")";
       }
     }
-    if (inData.length > 0 && notInData.length > 0) {
-      condition += " AND";
+    if (inData.length > 0 || notInData.length > 0) {
+      categoryCondition += " AND";
     }
     if (preference.minPrice !== "") {
-      categoryCondition += ` AND p.packetprice > $1`;
+      categoryCondition += ` p.packetprice > $1`;
     }
 
     if (preference.maxPrice !== "") {
@@ -248,6 +248,7 @@ router.get("/recommend/:id", async (req, res) => {
     ORDER BY reviewaverage ASC
     LIMIT 8;
     `;
+
 
     const response = await pool.query(query, [
       preference.minprice,
@@ -554,7 +555,6 @@ router.put("/:id", async (req, res) => {
         toDeletePacketMenuIds = toDeletePacketMenuIds.filter(
           (menuid) => menuid != menu.menuid
         );
-        console.log(menu)
         const menuValues = [menu.menuday, menu.menuid];
         await pool.query(menuUpdateString, menuValues);
       } else {

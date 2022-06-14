@@ -95,7 +95,7 @@ router.put("/:id", async (req, res)=> {
         const query =
         `
         UPDATE Payment
-        SET 
+        SET
             PaymentName = $1,
             PaymentNumber = $2
         WHERE

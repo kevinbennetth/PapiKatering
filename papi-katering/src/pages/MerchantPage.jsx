@@ -16,7 +16,6 @@ const MerchantPage = () => {
       const URL = `${API_URL}merchant/${id}`;
       try {
         const responseMerchant = await axios.get(URL);
-        console.log(responseMerchant);
         setMerchant(responseMerchant.data.data.merchantData);
         setPackets(responseMerchant.data.data.packetData);
       } catch (error) {}

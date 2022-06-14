@@ -11,6 +11,7 @@ export default function MenuForm(props) {
 
   const hideModalHandler = () => {
     setMenuModal(false);
+    setSelectedMenu(null);
   };
 
   const deleteMenu = (id) => {

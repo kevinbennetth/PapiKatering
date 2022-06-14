@@ -8,6 +8,9 @@ import {
   uploadAndGetURL,
 } from "../UI/button/firebase/uploadUtilities";
 import UploadButton from "../UI/button/UploadButton";
+import Alert from "../UI/alert/Alert";
+import Button from "../UI/button/Button";
+import LoadingBar from "react-top-loading-bar";
 
 const MerchantMenu = (props) => {
   const customerID = props.custID;
@@ -17,60 +20,70 @@ const MerchantMenu = (props) => {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [profileImage, setProfileImage] = useState("");
+  const [buttonText, setButtonText] = useState("Create Merchant");
 
-  const renderButtonText = (state) => {
-    if (state) {
-      document.getElementById("submitBtn").innerHTML = "Save";
-    } else {
-      document.getElementById("submitBtn").innerHTML = "Create Merchant";
-    }
-  };
+  const [error, setError] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await API.get(`/merchant/${merchantID}`);
 
-        console.log(response);
         if (response.data.data.merchantData) {
           setMerchant(response.data.data.merchantData);
           setName(response.data.data.merchantData.merchantname);
           setAddress(response.data.data.merchantData.merchantaddress);
           setPhone(response.data.data.merchantData.merchantphone);
           setProfileImage(response.data.data.merchantData.merchantimage);
+          setButtonText("Save");
         }
       } catch (error) {
         console.log(error);
       }
     };
 
-    renderButtonText(merchant);
-
     if (merchantID !== "") {
       fetchData();
     }
   }, []);
 
-  const validate = (name, address, phone) => {
-    if (name.length < 1 || address.length < 1) {
-      return false;
+  const validate = () => {
+    const submissionError = { header: "", detail: "" };
+    const addressData = address.split(",");
+    if (name.trim().length === 0) {
+      submissionError.header = "Invalid Name";
+      submissionError.detail = "Name Can't be Empty !";
+    } else if (phone.trim().length < 11 || phone.trim().length > 13) {
+      submissionError.header = "Invalid Phone";
+      submissionError.detail = "Phone has to be between 11 - 13 digits !";
+    } else if (
+      address.trim().length === 0 ||
+      !address.includes(",") ||
+      addressData[address.split(",").length - 1].trim().length === 0
+    ) {
+      submissionError.header = "Invalid Address";
+      submissionError.detail =
+        "Address can't be empty and needs to specify a City (separated with a comma (,)) !";
     }
-    if (phone.length != 12) {
-      return false;
-    }
-
-    return true;
+    return submissionError;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setUploadProgress(20);
     try {
       let response;
 
-      if (validate(name, address, phone)) {
+      const submissionError = validate();
+      if (submissionError.header !== "" && submissionError.detail !== "") {
+        setError(submissionError);
+      } else {
         if (merchant) {
-          const image = await uploadAndGetURL(profileImage);
+          let image = profileImage;
+          if (!(typeof image === "string" || image instanceof String)) {
+            image = await uploadAndGetURL(profileImage);
+          }
 
           response = await API.put(`/merchant/${merchant.merchantid}`, {
             MerchantName: name,
@@ -78,11 +91,6 @@ const MerchantMenu = (props) => {
             MerchantPhone: phone,
             MerchantImage: image,
           });
-
-          if (response.data.status === "success") {
-            document.getElementById("status").innerHTML =
-              "Successfully udpated merchant profile!";
-          }
         } else {
           response = await API.post(`/merchant`, {
             CustomerID: customerID,
@@ -91,11 +99,8 @@ const MerchantMenu = (props) => {
             MerchantPhone: phone,
           });
         }
-      } else {
-        document.getElementById("status").innerHTML = "Invalid inputs";
+        setUploadProgress(100);
       }
-
-      console.log(response);
     } catch (error) {
       console.log(error);
     }
@@ -107,6 +112,24 @@ const MerchantMenu = (props) => {
 
   return (
     <div className="profile-menu">
+      {error && (
+        <Alert
+          onFinishError={setError}
+          header={error.header}
+          detail={error.detail}
+        />
+      )}
+      <LoadingBar
+        height={8}
+        color="#fde047"
+        progress={uploadProgress}
+        onLoaderFinished={() => setUploadProgress(0)}
+      />
+      <div
+        className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 ${
+          uploadProgress > 0 ? "block" : "hidden"
+        }`}
+      />
       <div className="title text-3xl border-b-2">Merchant</div>
       <div className="content container mt-4 mb-12">
         <div className="flex flex-row">
@@ -174,13 +197,9 @@ const MerchantMenu = (props) => {
         </div>
       </div>
 
-      <button
-        id="submitBtn"
-        type="submit"
-        className="block px-10 py-2 mt-12 mb-4 bg-emerald-600 hover:bg-emerald-700
-                text-white font-bold rounded-md"
-        onClick={(e) => handleSubmit(e)}
-      ></button>
+      <Button id="submitBtn" type="submit" onClick={(e) => handleSubmit(e)}>
+        {buttonText}
+      </Button>
     </div>
   );
 };

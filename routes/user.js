@@ -36,31 +36,46 @@ router.get("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const body = req.body;
-    const query = `
+    let results;
+    if (body.CustomerPassword) {
+      const query = `
         UPDATE Customer
         SET 
-            CustomerName = $1,
-            CustomerDOB = $2,
-            CustomerGender = $3,
-            CustomerEmail = $4,
-            CustomerPhone = $5,
-            CustomerImage = $6,
-            CustomerPassword = $7
+            CustomerPassword = $1
         WHERE
-            CustomerID = $8
+            CustomerID = $2
         RETURNING *;
-        `;
+      `;
+      results = await pool.query(query, [body.CustomerPassword, req.params.id]);
+    } else {
+      const query = `
+          UPDATE Customer
+          SET 
+              CustomerName = $1,
+              CustomerDOB = $2,
+              CustomerGender = $3,
+              CustomerEmail = $4,
+              CustomerPhone = $5,
+              CustomerImage = $6
+          WHERE
+              CustomerID = $7
+          RETURNING *;
+          `;
 
-    const results = await pool.query(query, [
-      body.CustomerName,
-      body.CustomerDOB,
-      body.CustomerGender,
-      body.CustomerEmail,
-      body.CustomerPhone,
-      body.CustomerImage,
-      body.CustomerPassword,
-      req.params.id,
-    ]);
+      const values = [
+        body.CustomerName,
+        body.CustomerDOB,
+        body.CustomerGender,
+        body.CustomerEmail,
+        body.CustomerPhone,
+        body.CustomerImage,
+        req.params.id,
+      ];
+
+      console.log(values)
+
+      results = await pool.query(query, values);
+    }
 
     res.status(200).json({
       status: "success",
@@ -78,9 +93,9 @@ router.post("/register", async (req, res) => {
   try {
     const body = req.body;
     const queryCustomer = `
-        INSERT INTO Customer (CustomerName, CustomerEmail, CustomerPhone, CustomerDOB, CustomerGender, CustomerPassword)
+        INSERT INTO Customer (CustomerName, CustomerImage, CustomerEmail, CustomerPhone, CustomerDOB, CustomerGender, CustomerPassword)
         VALUES 
-        ($1, $2, $3, $4, $5, $6)
+        ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *;
         `;
     const queryAddress = `
@@ -92,6 +107,7 @@ router.post("/register", async (req, res) => {
 
     const resultsCustomer = await pool.query(queryCustomer, [
       body.CustomerName,
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
       body.CustomerEmail,
       body.CustomerPhone,
       body.CustomerDOB,
@@ -120,6 +136,8 @@ router.post("/login", async (req, res) => {
     const query = `
         SELECT
             c.CustomerID,
+            c.customerimage,
+            c.customername,
             m.merchantid
         FROM
             Customer c LEFT JOIN merchant m ON c.customerid = m.customerid
@@ -128,18 +146,16 @@ router.post("/login", async (req, res) => {
             AND CustomerPassword = $2;
         `;
 
-
     const results = await pool.query(query, [body.Email, body.Password]);
 
     if (results.rowCount > 0) {
-      
-
-      console.log(results.rows)
       res.status(201).json({
         status: "success",
         data: {
           returned: {
             customerID: results.rows[0].customerid,
+            customerName: results.rows[0].customername,
+            customerImage: results.rows[0].customerimage,
             merchantID: results.rows[0].merchantid,
           },
         },

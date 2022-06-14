@@ -3,6 +3,14 @@ import { AiFillStar } from "react-icons/ai";
 
 function ItemCard({ image, name, place, rate, fee, type }) {
 
+  if(!fee) {
+    const placeData = place.split(",");
+    const placeDataLen = placeData.length;
+    if(placeDataLen > 0) {
+      place = placeData[placeDataLen - 1]
+    }
+  }
+
   return type !== "skeleton" ? (
     <div className="shadow-lg rounded-lg w-60 mx-2 my-4 cursor-pointer hover:scale-105 transition-transform">
       <img

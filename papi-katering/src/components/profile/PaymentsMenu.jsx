@@ -83,23 +83,19 @@ const PaymentsMenu = (props) => {
                 </div>
                 <p className="text-md mt-4">{payment.paymentnumber}</p>
               </div>
-              <div className="options flex flex-row mt-2">
-                <button
-                  className="mx-2 h-0"
+              <div className="flex flex-row">
+                <FaEdit
+                  className="fill-primary mx-1 w-5 h-5 hover:scale-110 transition-transform cursor-pointer"
                   onClick={(e) => {
                     handleEdit(e, payment);
                   }}
-                >
-                  <FaEdit className="fill-emerald-600" />
-                </button>
-                <button
-                  className="mx-2 h-0"
+                />
+                <FaTrashAlt
+                  className="fill-primary mx-1 w-5 h-5 hover:scale-105 transition-transform cursor-pointer"
                   onClick={(e) => {
                     handleDelete(e, payment.paymentid);
                   }}
-                >
-                  <FaTrashAlt className="fill-emerald-600" />
-                </button>
+                />
               </div>
             </div>
           ))}

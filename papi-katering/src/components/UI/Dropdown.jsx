@@ -23,7 +23,6 @@ export default function Dropdown(props) {
     <select
       name={props.name}
       id={props.id}
-      value={props.value}
       className={baseClass}
       onChange={valueChangeHandler}
     >
