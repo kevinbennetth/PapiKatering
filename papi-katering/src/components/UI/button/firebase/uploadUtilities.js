@@ -3,7 +3,6 @@ import { v4 } from "uuid";
 import { storage } from "./firebase";
 
 export const uploadAndGetURL = (selectedImage) => {
-  console.log(selectedImage)
   if (selectedImage !== null) {
     return new Promise(async (resolve, reject) => {
       try {

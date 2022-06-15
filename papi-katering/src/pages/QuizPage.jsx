@@ -14,7 +14,6 @@ const quizInfoReducer = (state, data) => {
 const QuizPage = () => {
   const navigate = useNavigate();
   const { customerID } = useContext(UserContext);
-  console.log(customerID);
 
   const { API_URL } = useContext(APIContext);
   const [update, setUpdate] = useState(null);
@@ -107,7 +106,6 @@ const QuizPage = () => {
 
   useEffect(() => {
     const getPreference = async () => {
-      console.log(customerID)
       const URL = `${API_URL}preference/${customerID}`;
       try {
         const responsePreference = await axios.get(URL);

@@ -153,7 +153,6 @@ export default function AddPacketPage() {
     setCategoryModal(false);
   };
 
-  console.log(packet);
 
   useEffect(() => {
     const fetchPacket = async () => {

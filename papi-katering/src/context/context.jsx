@@ -56,7 +56,6 @@ export const ContextProvider = (props) => {
     customerImage,
     merchantID
   ) => {
-    console.log(customerID, customerName, customerImage, merchantID)
     setUser(() => {
       return { customerID, customerName, customerImage, merchantID };
     });
@@ -75,7 +74,7 @@ export const ContextProvider = (props) => {
   }
 
   return (
-    <APIContext.Provider value={{ API_URL: "http://localhost:8080/" }}>
+    <APIContext.Provider value={{ API_URL: "https://papi-katering.herokuapp.com/" }}>
       <CartContext.Provider value={{ cart, onUpdateCart: updateCartHandler }}>
         <UserContext.Provider
           value={{

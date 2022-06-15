@@ -18,7 +18,6 @@ const AuthenticationMenu = (props) => {
       submissionError.header = "Invalid Confirm Password";
       submissionError.detail = "Confirm Password doesn't match the password";
     }
-    console.log(submissionError);
     return submissionError;
   };
 

@@ -126,8 +126,6 @@ const ProfileMenu = (props) => {
     }
   };
 
-  console.log(selectImage(profileImage, "PROFILE"));
-
   const imageChangeHandler = (name, value) => {
     setProfileImage(value);
   };

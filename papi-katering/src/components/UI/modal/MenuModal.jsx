@@ -110,8 +110,6 @@ export default function MenuModal(props) {
         menuday: menuDay,
         menuitems: menuItems,
       };
-      console.log(newMenu);
-
       if (menu === null) {
         props.onUpdate(newMenu, "ADD");
       } else {

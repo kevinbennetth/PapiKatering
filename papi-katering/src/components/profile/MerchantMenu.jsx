@@ -29,7 +29,6 @@ const MerchantMenu = (props) => {
       const response = await API.get(`/merchant/${merchantID}`);
 
       if (response.data.data.merchantData) {
-        console.log("TEST");
         setMerchant(response.data.data.merchantData);
         setName(response.data.data.merchantData.merchantname);
         setAddress(response.data.data.merchantData.merchantaddress);
@@ -98,7 +97,6 @@ const MerchantMenu = (props) => {
             MerchantAddress: address,
             MerchantPhone: phone,
           });
-          console.log(response.data.data.merchantData.merchantid)
           onMerchantCreate(response.data.data.merchantData.merchantid);
         }
         setUploadProgress(100);
