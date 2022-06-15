@@ -13,6 +13,7 @@ const UserContext = createContext({
   merchantID: "",
   onUserLogin: () => {},
   onUserUpdate: () => {},
+  onMerchantCreate: () => {}
 });
 
 const cartReducer = (state, data) => {
@@ -55,6 +56,7 @@ export const ContextProvider = (props) => {
     customerImage,
     merchantID
   ) => {
+    console.log(customerID, customerName, customerImage, merchantID)
     setUser(() => {
       return { customerID, customerName, customerImage, merchantID };
     });
@@ -66,8 +68,14 @@ export const ContextProvider = (props) => {
     });
   };
 
+  const merchantCreateHandler = (merchantID) => {
+    setUser((prevUser) => {
+      return {...prevUser, merchantID};
+    })
+  }
+
   return (
-    <APIContext.Provider value={{ API_URL: "https://papi-katering.herokuapp.com/" }}>
+    <APIContext.Provider value={{ API_URL: "http://localhost:8080/" }}>
       <CartContext.Provider value={{ cart, onUpdateCart: updateCartHandler }}>
         <UserContext.Provider
           value={{
@@ -77,6 +85,7 @@ export const ContextProvider = (props) => {
             customerImage: user.customerImage,
             onUserLogin: setLoggedUserHandler,
             onUserUpdate: userUpdateHandler,
+            onMerchantCreate: merchantCreateHandler
           }}
         >
           <PacketContext.Provider

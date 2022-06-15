@@ -62,7 +62,10 @@ const RegisterPage = () => {
     if (name.trim().length === 0) {
       submissionError.header = "Invalid Name";
       submissionError.detail = "Name Can't be Empty !";
-    } else if (email.trim().length === 0 || !email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) {
+    } else if (
+      email.trim().length === 0 ||
+      !email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
+    ) {
       submissionError.header = "Invalid Email";
       submissionError.detail = "Email Can't be Empty and must contain an '@' !";
     } else if (phone.trim().length < 11 || phone.trim().length > 13) {
@@ -114,10 +117,13 @@ const RegisterPage = () => {
       try {
         const registerResponse = await axios.post(URL, body);
 
-        const data = registerResponse.data;
-
-        onUserLogin(data.customerID, "");
-        navigate("/quiz");
+        if(registerResponse.data.status === "Success") {
+          const data = registerResponse.data;
+          onUserLogin(data.customerID, data.customerName, data.customerImage, "");
+          navigate("/quiz");
+        } else if(registerResponse.data.status === "Taken") {
+          setError({header: "Email Taken", detail: "There's already an account with that email !"});
+        }
       } catch (error) {
         console.log(error);
       }
@@ -250,8 +256,7 @@ const RegisterPage = () => {
           </form>
 
           <div className="have-account font-bold">
-            Already have an account?
-            {" "}
+            Already have an account?{" "}
             <Link
               to="/login"
               className="text-primary focus:outline-none hover:underline"

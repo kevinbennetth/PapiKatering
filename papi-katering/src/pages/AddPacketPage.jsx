@@ -27,6 +27,7 @@ const categoryList = [
 ];
 
 export default function AddPacketPage() {
+
   const { API_URL } = useContext(APIContext);
 
   const { merchantID } = useContext(UserContext);
@@ -34,6 +35,9 @@ export default function AddPacketPage() {
 
   const navigate = useNavigate();
 
+  if(merchantID === "") {
+    navigate("/profile");
+  }
   const [categoryModal, setCategoryModal] = useState(false);
   const [error, setError] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);

@@ -22,10 +22,6 @@ const preferenceRouter = require("./routes/preference");
 const reviewRouter = require("./routes/review");
 const categoryRouter = require("./routes/category");
 
-if(process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "client/build")));
-}
-
 app.use("/packet", packetRouter);
 app.use("/merchant", merchantRouter);
 app.use("/user", userRouter);
@@ -35,10 +31,6 @@ app.use("/address", addressRouter);
 app.use("/preference", preferenceRouter);
 app.use("/review", reviewRouter);
 app.use("/category", categoryRouter);
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client/build/index.html"));
-})
 
 app.listen(PORT, () => {
   console.log(`server up, listening on port ${PORT}`);

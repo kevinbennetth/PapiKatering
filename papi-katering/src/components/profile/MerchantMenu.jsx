@@ -13,7 +13,7 @@ import LoadingBar from "react-top-loading-bar";
 
 const MerchantMenu = (props) => {
   const customerID = props.custID;
-  const { merchantID } = useContext(UserContext);
+  const { merchantID, onMerchantCreate } = useContext(UserContext);
   const [merchant, setMerchant] = useState(null);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -21,31 +21,32 @@ const MerchantMenu = (props) => {
   const [profileImage, setProfileImage] = useState("");
   const [buttonText, setButtonText] = useState("Create Merchant");
 
-const [error, setError] = useState(null);
+  const [error, setError] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await API.get(`/merchant/${merchantID}`);
+  const fetchData = async () => {
+    try {
+      const response = await API.get(`/merchant/${merchantID}`);
 
-        if (response.data.data.merchantData) {
-          setMerchant(response.data.data.merchantData);
-          setName(response.data.data.merchantData.merchantname);
-          setAddress(response.data.data.merchantData.merchantaddress);
-          setPhone(response.data.data.merchantData.merchantphone);
-          setProfileImage(response.data.data.merchantData.merchantimage);
-          setButtonText("Save");
-        }
-      } catch (error) {
-        console.log(error);
+      if (response.data.data.merchantData) {
+        console.log("TEST");
+        setMerchant(response.data.data.merchantData);
+        setName(response.data.data.merchantData.merchantname);
+        setAddress(response.data.data.merchantData.merchantaddress);
+        setPhone(response.data.data.merchantData.merchantphone);
+        setProfileImage(response.data.data.merchantData.merchantimage);
+        setButtonText("Save");
       }
-    };
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  useEffect(() => {
     if (merchantID !== "") {
       fetchData();
     }
-  }, []);
+  }, [merchantID]);
 
   const validate = () => {
     const submissionError = { header: "", detail: "" };
@@ -70,7 +71,6 @@ const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setUploadProgress(20);
     try {
       let response;
 
@@ -78,12 +78,12 @@ const [error, setError] = useState(null);
       if (submissionError.header !== "" && submissionError.detail !== "") {
         setError(submissionError);
       } else {
+        setUploadProgress(20);
+        let image = profileImage;
+        if (!(typeof image === "string" || image instanceof String)) {
+          image = await uploadAndGetURL(profileImage);
+        }
         if (merchant) {
-          let image = profileImage;
-          if (!(typeof image === "string" || image instanceof String)) {
-            image = await uploadAndGetURL(profileImage);
-          }
-
           response = await API.put(`/merchant/${merchant.merchantid}`, {
             MerchantName: name,
             MerchantAddress: address,
@@ -94,9 +94,12 @@ const [error, setError] = useState(null);
           response = await API.post(`/merchant`, {
             CustomerID: customerID,
             MerchantName: name,
+            MerchantImage: image,
             MerchantAddress: address,
             MerchantPhone: phone,
           });
+          console.log(response.data.data.merchantData.merchantid)
+          onMerchantCreate(response.data.data.merchantData.merchantid);
         }
         setUploadProgress(100);
       }

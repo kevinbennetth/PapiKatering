@@ -1,3 +1,4 @@
+const e = require("express");
 const express = require("express");
 const pool = require("../db");
 const router = express.Router();
@@ -90,38 +91,54 @@ router.put("/:id", async (req, res) => {
 router.post("/register", async (req, res) => {
   try {
     const body = req.body;
-    const queryCustomer = `
+
+    const queryCheck = `
+      SELECT *
+      FROM customer
+      WHERE customeremail = $1;
+    `;
+
+    const checkReturn = await pool.query(queryCheck, [body.CustomerEmail]);
+
+    if (checkReturn.rowCount > 0) {
+      res.status(201).json({
+        status: "Taken",
+      });
+    } else {
+      const queryCustomer = `
         INSERT INTO Customer (CustomerName, CustomerImage, CustomerEmail, CustomerPhone, CustomerDOB, CustomerGender, CustomerPassword)
         VALUES 
         ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *;
         `;
-    const queryAddress = `
+      const queryAddress = `
         INSERT INTO Address (CustomerID, AddressName, AddressDetails)
         VALUES
         ($1, 'Unnamed Address', $2)
         RETURNING *;
         `;
 
-    const resultsCustomer = await pool.query(queryCustomer, [
-      body.CustomerName,
-      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-      body.CustomerEmail,
-      body.CustomerPhone,
-      body.CustomerDOB,
-      body.CustomerGender,
-      body.CustomerPassword,
-    ]);
-    const customerID = resultsCustomer.rows[0].customerid;
-    const resultsAddress = await pool.query(queryAddress, [
-      customerID,
-      body.CustomerAddress,
-    ]);
+      const resultsCustomer = await pool.query(queryCustomer, [
+        body.CustomerName,
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+        body.CustomerEmail,
+        body.CustomerPhone,
+        body.CustomerDOB,
+        body.CustomerGender,
+        body.CustomerPassword,
+      ]);
+      const resultsAddress = await pool.query(queryAddress, [
+        resultsCustomer.rows[0].customerid,
+        body.CustomerAddress,
+      ]);
 
-    res.status(201).json({
-      status: "Successfully registered !",
-      CustomerID: customerID,
-    });
+      res.status(201).json({
+        status: "Success",
+        customerID: resultsCustomer.rows[0].customerid,
+        customerName: resultsCustomer.rows[0].customername,
+        customerImage: resultsCustomer.rows[0].customerimage,
+      });
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
