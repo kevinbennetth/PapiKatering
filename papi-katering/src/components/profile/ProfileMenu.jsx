@@ -120,6 +120,11 @@ const ProfileMenu = (props) => {
         setUploadProgress(100);
         if (response.data.status === "success") {
           onUserUpdate(name, image);
+        }else if (response.data.status === "Taken") {
+          setError({
+            header: "Email Taken",
+            detail: "There's already an account with that email !",
+          });
         }
       }
     } catch (error) {

@@ -148,7 +148,7 @@ export default function DetailPage() {
           onUpdate={refetchData}
           onDelete={deleteReviewHandler}
           selectedReview={selectedReview}
-          onChangeProgress={setUploadProgress}
+          onChangeUpload={setUploadProgress}
         />
         <div className="flex flex-row gap-16 items-center">
           <div className="w-1/2">

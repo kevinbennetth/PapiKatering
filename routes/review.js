@@ -19,7 +19,8 @@ router.get("/", async (req, res) => {
             JOIN packet p on p.PacketID = r.PacketID
         WHERE
             r.CustomerID = $1,
-            p.PacketID = $2;
+            p.PacketID = $2
+        ORDER BY r.reviewdate DESC;
         `;
     values = [customerID, packetID];
   } else if (type === "user") {

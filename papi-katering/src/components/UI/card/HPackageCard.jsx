@@ -18,13 +18,15 @@ export default function HPackageCard(props) {
   };
 
   const deleteHandler = async () => {
+    props.onChangeUpload(20);
     const URL = `${API_URL}packet/${props.packet.packetid}`;
     try {
       await axios.delete(URL);
-    props.onUpdate();
-  } catch (error) {
+      props.onUpdate();
+    } catch (error) {
       console.log(error);
     }
+    props.onChangeUpload(100);
   };
 
   return (

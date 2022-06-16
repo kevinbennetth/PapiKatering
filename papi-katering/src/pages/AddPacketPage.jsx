@@ -88,6 +88,7 @@ export default function AddPacketPage() {
       setError(submissionError);
     } else {
       try {
+        setUploadProgress(5); 
         if (
           !(
             typeof packet.packetimage === "string" ||

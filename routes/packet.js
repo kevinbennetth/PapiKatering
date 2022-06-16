@@ -396,8 +396,7 @@ router.get("/:id", async (req, res) => {
       r.reviewdescription
     FROM review AS r JOIN customer AS c ON r.customerid = c.customerid
     WHERE r.packetid = $1
-    ORDER BY r.reviewdate DESC;
-
+    ORDER BY r.reviewdate, r.reviewid DESC;
   `;
 
   try {

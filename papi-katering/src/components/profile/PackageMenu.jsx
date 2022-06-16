@@ -3,11 +3,14 @@ import { useContext } from "react";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import LoadingBar from "react-top-loading-bar";
 import { APIContext, UserContext } from "../../context/context";
 import HPackageCard from "../UI/card/HPackageCard";
 
 export default function PackageMenu() {
   const [packets, setPackets] = useState();
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   const { merchantID } = useContext(UserContext);
   const { API_URL } = useContext(APIContext);
 
@@ -28,6 +31,17 @@ export default function PackageMenu() {
 
   return (
     <div className="profile-menu">
+      <LoadingBar
+        height={8}
+        color="#fde047"
+        progress={uploadProgress}
+        onLoaderFinished={() => setUploadProgress(0)}
+      />
+      <div
+        className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 z-50 ${
+          uploadProgress > 0 ? "block" : "hidden"
+        }`}
+      />
       <div className="flex flex-row border-b-2 mb-6">
         <div className="title basis-4/5 text-3xl">Packages</div>
         {merchantID !== "" && (
@@ -46,6 +60,7 @@ export default function PackageMenu() {
             type="EDIT"
             packet={packet}
             onUpdate={packetUpdateHandler}
+            onChangeUpload={setUploadProgress}
           />
         ))}
       </div>

@@ -23,7 +23,7 @@ export default function ReviewModal(props) {
   const [description, setDescription] = useState("");
 
   const reviewSubmitHandler = async () => {
-    props.onChangeProgress(20);
+    props.onChangeUpload(20);
     if (selectedReview) {
       const API = `${API_URL}review/${selectedReview.reviewid}`;
       const body = {
@@ -57,7 +57,7 @@ export default function ReviewModal(props) {
         console.log(error);
       }
     }
-    props.onChangeProgress(100);
+    props.onChangeUpload(100);
   };
 
   const deleteReviewHandler = async () => {
