@@ -61,11 +61,11 @@ export default function HPackageCard(props) {
       {props.type === "EDIT" && (
         <div className="flex flex-row absolute right-7 bottom-1/4">
           <FaEdit
-            className="fill-emerald-600 mx-1 w-5 h-5 hover:scale-110 transition-transform cursor-pointer"
+            className="fill-primary mx-1 w-5 h-5 hover:scale-110 transition-transform cursor-pointer"
             onClick={editHandler}
           />
           <FaTrashAlt
-            className="fill-emerald-600 mx-1 w-5 h-5 hover:scale-105 transition-transform cursor-pointer"
+            className="fill-primary mx-1 w-5 h-5 hover:scale-105 transition-transform cursor-pointer"
             onClick={deleteHandler}
           />
         </div>

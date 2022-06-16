@@ -71,6 +71,7 @@ const ProfileMenu = (props) => {
 
   const validate = () => {
     const submissionError = { header: "", detail: "" };
+    console.log(name);
     if (name.trim().length === 0) {
       submissionError.header = "Invalid Name";
       submissionError.detail = "Name Can't be Empty !";
@@ -79,7 +80,7 @@ const ProfileMenu = (props) => {
       !email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
     ) {
       submissionError.header = "Invalid Email";
-      submissionError.detail = "Email Can't be Empty and must contain an '@' !";
+      submissionError.detail = "Email can not be empty or have incorrect format !";
     } else if (phone.trim().length < 11 || phone.trim().length > 13) {
       submissionError.header = "Invalid Phone";
       submissionError.detail = "Phone has to be between 11 - 13 digits !";
@@ -98,12 +99,12 @@ const ProfileMenu = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setUploadProgress(20);
     const submissionError = validate();
     try {
       if (submissionError.header !== "" && submissionError.detail !== "") {
         setError(submissionError);
       } else {
+        setUploadProgress(20);
         let image = profileImage;
         if (!(typeof image === "string" || image instanceof String)) {
           image = await uploadAndGetURL(profileImage);
@@ -164,7 +165,7 @@ const ProfileMenu = (props) => {
                       type="text"
                       name="name"
                       id="name"
-                      defaultValue={customer.customername}
+                      value={name}
                       className="rounded-md border w-full p-1"
                       onChange={(e) => setName(e.target.value)}
                     />
@@ -176,7 +177,7 @@ const ProfileMenu = (props) => {
                       type="date"
                       name="dob"
                       id="dob"
-                      defaultValue={customer.customerdob}
+                      defaultValue={DOB}
                       className="rounded-md border w-full p-1"
                       onChange={(e) => setDOB(e.target.value)}
                     />
@@ -209,7 +210,7 @@ const ProfileMenu = (props) => {
                       type="text"
                       name="email"
                       id="email"
-                      defaultValue={customer.customeremail}
+                      value={email}
                       className="rounded-md border w-full p-1"
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -221,7 +222,7 @@ const ProfileMenu = (props) => {
                       type="text"
                       name="phone"
                       id="phone"
-                      defaultValue={customer.customerphone}
+                      value={phone}
                       className="rounded-md border w-full p-1"
                       onChange={(e) => setPhone(e.target.value)}
                     />

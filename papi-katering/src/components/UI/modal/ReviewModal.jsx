@@ -23,6 +23,7 @@ export default function ReviewModal(props) {
   const [description, setDescription] = useState("");
 
   const reviewSubmitHandler = async () => {
+    props.onChangeProgress(20);
     if (selectedReview) {
       const API = `${API_URL}review/${selectedReview.reviewid}`;
       const body = {
@@ -31,6 +32,8 @@ export default function ReviewModal(props) {
       };
       try {
         await axios.put(API, body);
+        setRating(5);
+        setDescription("");
         props.onUpdate();
         props.onHideModal();
       } catch (error) {
@@ -46,23 +49,31 @@ export default function ReviewModal(props) {
       };
       try {
         await axios.post(API, body);
+        setRating(5);
+        setDescription("");
         props.onUpdate();
         props.onHideModal();
       } catch (error) {
         console.log(error);
       }
     }
+    props.onChangeProgress(100);
   };
 
-  const deleteReviewHandler = async (reviewID) => {
-    const API = `${API_URL}review/${selectedReview.reviewid}`;
-    try {
-      await axios.delete(API);
-      props.onUpdate();
-      props.onHideModal();
-    } catch (error) {
-      console.log(error);
-    }
+  const deleteReviewHandler = async () => {
+    props.onDelete(selectedReview.reviewid);
+    setRating(5);
+    setDescription("");
+    // props.onChangeProgress(20);
+    // const API = `${API_URL}review/${selectedReview.reviewid}`;
+    // try {
+    //   await axios.delete(API);
+    //   props.onUpdate();
+    //   props.onHideModal();
+    // } catch (error) {
+    //   console.log(error);
+    // }
+    // props.onChangeProgress(100);
   };
 
   const formValueHandler = (name, value) => {
@@ -106,9 +117,11 @@ export default function ReviewModal(props) {
       </div>
 
       <div className="flex flex-row gap-4">
-        {selectedReview && <Button type="button" onClick={deleteReviewHandler}>
-          Delete
-        </Button>}
+        {selectedReview && (
+          <Button type="button" onClick={deleteReviewHandler}>
+            Delete
+          </Button>
+        )}
         <Button type="button" onClick={reviewSubmitHandler}>
           Save
         </Button>

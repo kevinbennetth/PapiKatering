@@ -69,7 +69,7 @@ const RegisterPage = () => {
       !email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
     ) {
       submissionError.header = "Invalid Email";
-      submissionError.detail = "Email Can't be Empty and must contain an '@' !";
+      submissionError.detail = "Email is not in the correct format !";
     } else if (phone.trim().length < 11 || phone.trim().length > 13) {
       submissionError.header = "Invalid Phone";
       submissionError.detail = "Phone has to be between 11 - 13 digits !";

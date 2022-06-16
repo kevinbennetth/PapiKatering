@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
 import API from "../../apis/API";
 import { UserContext } from "../../context/context";
 import OrderCard from "../UI/card/OrderCard";
@@ -22,7 +23,6 @@ const OngoingOrdersMenu = (props) => {
         response = await API.get(`/order?customerID=${custID}&status=ongoing`);
         setOrders(response.data);
       } else if (type === "Merchant") {
-        console.log(merchantID)
         if (merchantID !== "") {
           response = await API.get(
             `/order?merchantID=${merchantID}&status=ongoing`
@@ -42,6 +42,7 @@ const OngoingOrdersMenu = (props) => {
   }, [type]);
 
   const typeHandler = (_, value) => {
+    setOrders(() => []);
     setType(value);
   };
 
@@ -65,13 +66,18 @@ const OngoingOrdersMenu = (props) => {
       <div className="orders mt-8 flex flex-col gap-6">
         {orders &&
           orders.map((order) => (
-            <OrderCard
-              onUpdateOrder={updateHandler}
-              order={order}
-              type={type}
+            <Link
+              to={`/detail/${order.packetid}`}
               key={order.orderid}
-              status={"Edit"}
-            />
+              className="visited:outline-none"
+            >
+              <OrderCard
+                onUpdateOrder={updateHandler}
+                order={order}
+                type={type}
+                status={"Edit"}
+              />
+            </Link>
           ))}
       </div>
     </div>

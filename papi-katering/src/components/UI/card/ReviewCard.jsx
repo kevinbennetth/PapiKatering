@@ -34,7 +34,7 @@ export default function ReviewCard(props) {
   };
 
   return (
-    <div className="flex flex-row p-8 shadow-md gap-8 rounded-md">
+    <div className="flex flex-row p-8 shadow-md gap-8 rounded-md hover:scale-[101%] transition-transform">
       <img
         src={props.review.customerimage}
         className="w-16 h-16 rounded-full aspect-square object-cover"

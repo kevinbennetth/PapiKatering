@@ -43,7 +43,7 @@ const ProfilePage = () => {
 
   const renderOption = (option) => {
     if (menu === option.toLowerCase()) {
-      return <span className="font-bold text-emerald-600">{option}</span>;
+      return <span className="font-bold text-primary">{option}</span>;
     } else {
       return <span className="text-slate-400">{option}</span>;
     }

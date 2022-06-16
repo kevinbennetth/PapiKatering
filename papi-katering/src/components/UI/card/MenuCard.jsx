@@ -30,10 +30,10 @@ export default function MenuCard(props) {
         <h3 className="text-xl font-bold">{day[props.menu.menuday]}</h3>
         {props.type === "EDIT" && (
           <div className="flex flex-row gap-2 items-center">
-            <button type="button" onClick={editHandler}>
-              <FaEdit className="fill-primary w-6 h-6 " />
+            <button type="button" onClick={editHandler} className="hover:scale-105 transition-transform">
+              <FaEdit className="fill-primary w-6 h-6" />
             </button>
-            <button type="button" onClick={deleteHandler}>
+            <button type="button" onClick={deleteHandler} className="hover:scale-105 transition-transform">
               <FaTrashAlt className="fill-primary w-5 h-5" />
             </button>
           </div>

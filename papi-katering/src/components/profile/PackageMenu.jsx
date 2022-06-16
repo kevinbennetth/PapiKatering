@@ -32,9 +32,9 @@ export default function PackageMenu() {
         <div className="title basis-4/5 text-3xl">Packages</div>
         {merchantID !== "" && (
           <Link to="/addpacket" className="focus:outline-none">
-            <button className="add basis-1/5 flex flex-row text-lg font-bold items-center justify-end">
-              <FaPlus className="fill-emerald-600 mx-1" />
-              <p className="text-emerald-600">Add Package</p>
+            <button className="add basis-1/5 flex flex-row text-lg font-bold items-center justify-end hover:opacity-60">
+              <FaPlus className="fill-primary mx-1" />
+              <p className="text-primary">Add Package</p>
             </button>
           </Link>
         )}

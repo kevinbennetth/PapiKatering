@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
 import API from "../../apis/API";
 import { UserContext } from "../../context/context";
 import OrderCard from "../UI/card/OrderCard";
@@ -20,13 +21,13 @@ const OrdersHistoryMenu = (props) => {
       let response;
       if (type === "Customer") {
         response = await API.get(`/order?customerID=${custID}&status=finished`);
-        setOrders(response.data);
+        setOrders(() => response.data);
       } else if (type === "Merchant") {
         if (merchantID !== "") {
           response = await API.get(
             `/order?merchantID=${merchantID}&status=finished`
           );
-          setOrders(response.data);
+          setOrders(() => response.data);
         }
       }
     } catch (error) {
@@ -39,6 +40,7 @@ const OrdersHistoryMenu = (props) => {
   }, [type]);
 
   const typeHandler = (_, value) => {
+    setOrders(() => []);
     setType(value);
   };
 
@@ -48,7 +50,7 @@ const OrdersHistoryMenu = (props) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="title text-3xl border-b-2">Ongoing Subscription</div>
+      <div className="title text-3xl border-b-2">Order History</div>
       <div className="self-end">
         <Dropdown
           name="ordertype"
@@ -62,12 +64,18 @@ const OrdersHistoryMenu = (props) => {
       <div className="orders mt-8 flex flex-col gap-6">
         {orders &&
           orders.map((order) => (
-            <OrderCard
-              onUpdateOrder={updateHandler}
-              order={order}
-              type={type}
+            <Link
+              to={`/detail/${order.packetid}`}
               key={order.orderid}
-            />
+              className="visited:outline-none"
+            >
+              <OrderCard
+                onUpdateOrder={updateHandler}
+                order={order}
+                type={type}
+                key={order.orderid}
+              />
+            </Link>
           ))}
       </div>
     </div>

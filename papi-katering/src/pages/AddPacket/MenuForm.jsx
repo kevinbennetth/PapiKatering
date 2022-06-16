@@ -82,7 +82,7 @@ export default function MenuForm(props) {
       />
       <div className="flex flex-col gap-6">
         <h4
-          className="text-xl font-bold text-primary cursor-pointer self-end"
+          className="text-xl font-bold text-primary cursor-pointer self-end hover:text-opacity-60"
           onClick={addMenuModal}
         >
           + Add Menu

@@ -38,17 +38,14 @@ const PaymentModal = (props) => {
       if (submissionError.header !== "" && submissionError.detail !== "") {
         setError(submissionError);
       } else {
-        let response;
         props.onChangeUpload(20);
-        console.log(selectedPayment)
-        console.log(custID);
         if (selectedPayment) {
-          response = API.put(`/payment/${selectedPayment.paymentid}`, {
+          await API.put(`/payment/${selectedPayment.paymentid}`, {
             name,
             cardNumber: number,
           });
         } else {
-          response = API.post(`/payment`, {
+          await API.post(`/payment`, {
             customerID: custID,
             name,
             cardNumber: number,

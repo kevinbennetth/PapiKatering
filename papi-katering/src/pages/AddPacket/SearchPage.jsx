@@ -72,8 +72,7 @@ export default function SearchPage() {
     setQueryData((prevQueryData) => {
       return { ...prevQueryData, type };
     });
-    setSearchData([]);
-    fetchData();
+    setSearchData(() => []);
   };
 
   const fetchData = async () => {

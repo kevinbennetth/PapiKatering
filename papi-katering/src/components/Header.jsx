@@ -41,7 +41,7 @@ export default function Header() {
     <header className="bg-primary py-4 px-10 flex flex-row justify-between">
       <Link
         to="/home"
-        className="flex flex-row items-center gap-4 font-semibold text-white cursor-pointer focus:outline-none"
+        className="flex flex-row items-center  hover:opacity-80 gap-4 font-semibold text-white cursor-pointer focus:outline-none"
       >
         <img src={logo} alt="" className="w-12" />
         PAPI KATERING
@@ -66,7 +66,7 @@ export default function Header() {
           onChange={searchValueHandler}
         />
         <GoSearch
-          className="w-7 h-7 hover:opacity-60w cursor-pointer"
+          className="w-7 h-7 hover:opacity-60 cursor-pointer"
           onClick={submitHandler}
         />
       </form>
@@ -84,7 +84,7 @@ export default function Header() {
           CHECKOUT
         </Link>
         <Link to="/profile" className="visited:outline-none">
-          <img src={customerImage} alt="" className="w-12 rounded-full aspect-square object-cover" />
+          <img src={customerImage} alt="" className="w-12 rounded-full aspect-square object-cover  hover:opacity-80" />
         </Link>
       </nav>
     </header>

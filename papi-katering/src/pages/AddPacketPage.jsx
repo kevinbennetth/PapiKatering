@@ -267,7 +267,7 @@ export default function AddPacketPage() {
               <div className="flex flex-row justify-between">
                 <p htmlFor="phone">Categories</p>
                 <button
-                  className="flex flex-row font-bold items-center justify-end"
+                  className="flex flex-row font-bold items-center justify-end hover:opacity-60"
                   onClick={() => setCategoryModal(true)}
                   type="button"
                 >

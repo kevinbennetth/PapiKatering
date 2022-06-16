@@ -10,6 +10,7 @@ import Button from "../components/UI/button/Button";
 import { APIContext, CartContext, UserContext } from "../context/context";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import LoadingBar from "react-top-loading-bar";
 
 export default function DetailPage() {
   const { API_URL } = useContext(APIContext);
@@ -32,6 +33,7 @@ export default function DetailPage() {
     detail: "",
   });
   const [warningSelect, setWarningSelect] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const checkCanReview = (data) => {
     if (merchantID !== null) {
@@ -80,15 +82,19 @@ export default function DetailPage() {
   };
 
   const deleteReviewHandler = async (reviewID) => {
-    const API = `${API_URL}review/${id}`
+    const API = `${API_URL}review/${reviewID}`;
     try {
+      setUploadProgress(20);
       await axios.delete(API);
+      hideModalHandler();
       refetchData();
+      setSelectedReview(null);
+      setHasReview(false);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  } 
-
+    setUploadProgress(100);
+  };
 
   const addToCartHandler = () => {
     if (cart.packetid !== "" && warningSelect === 0) {
@@ -117,6 +123,17 @@ export default function DetailPage() {
   return (
     packet && (
       <div className="py-20 px-24 flex flex-col gap-10">
+        <LoadingBar
+          height={8}
+          color="#fde047"
+          progress={uploadProgress}
+          onLoaderFinished={() => setUploadProgress(0)}
+        />
+        <div
+          className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 z-50 ${
+            uploadProgress > 0 ? "block" : "hidden"
+          }`}
+        />
         <WarningModal
           show={modal === "WARNING"}
           onHideModal={hideModalHandler}
@@ -129,7 +146,9 @@ export default function DetailPage() {
           onHideModal={hideModalHandler}
           packetid={packet.packetid}
           onUpdate={refetchData}
+          onDelete={deleteReviewHandler}
           selectedReview={selectedReview}
+          onChangeProgress={setUploadProgress}
         />
         <div className="flex flex-row gap-16 items-center">
           <div className="w-1/2">
@@ -172,7 +191,12 @@ export default function DetailPage() {
                 }}
                 className="w-3/12 border-2 rounded text-xl text-center border-primary p-2 focus:outline-none"
               />
-              <Button onClick={addToCartHandler} disabled={merchantID === packet.merchant.merchantid}>Subscribe</Button>
+              <Button
+                onClick={addToCartHandler}
+                disabled={merchantID === packet.merchant.merchantid}
+              >
+                Subscribe
+              </Button>
             </div>
           </div>
         </div>
@@ -200,7 +224,7 @@ export default function DetailPage() {
         </ItemsCarousel>
         <div
           onClick={() => navigate(`/merchant/${packet.merchant.merchantid}`)}
-          className="rounded shadow-md flex flex-row items-center p-8 gap-10 cursor-pointer"
+          className="rounded shadow-md flex flex-row items-center p-8 gap-10 cursor-pointer hover:scale-[101%] transition-transform"
         >
           <img
             src={packet.merchant.merchantimage}
@@ -223,7 +247,7 @@ export default function DetailPage() {
             <div className="flex flex-row justify-between">
               <h4 className="text-2xl font-bold">Reviews</h4>
               <h4
-                className="text-xl font-bold text-primary cursor-pointer"
+                className="text-xl font-bold text-primary cursor-pointer hover:text-opacity-60"
                 onClick={() => setModal("REVIEW")}
               >
                 + Add Review

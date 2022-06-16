@@ -27,11 +27,10 @@ export default function OrderCard(props) {
       year: "numeric",
     });
   };
-  console.log(order)
 
   return (
     <div
-      className="grid grid-cols-12 bg-white p-8 rounded-md shadow-md"
+      className="grid grid-cols-12 bg-white p-8 rounded-md shadow-md hover:scale-[101%] transition-transform"
       key={order.orderid}
     >
       <div className="card-header flex flex-row justify-between col-span-12 items-center">

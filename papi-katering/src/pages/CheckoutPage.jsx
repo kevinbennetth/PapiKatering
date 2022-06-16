@@ -6,6 +6,7 @@ import AddressSelectionModal from "../components/UI/modal/AddressSelectionModal"
 import { APIContext, CartContext, UserContext } from "../context/context";
 import { useNavigate } from "react-router-dom";
 import Alert from "../components/UI/alert/Alert";
+import LoadingBar from "react-top-loading-bar";
 
 export default function CheckoutPage() {
   const { customerID } = useContext(UserContext);
@@ -23,6 +24,7 @@ export default function CheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useState({});
 
   const [fetch, setFetch] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState(null);
 
   const calculateTotal = () => {
@@ -45,40 +47,62 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (cart.packetid === "") {
-      navigate(-1);
+      setError({
+        header: "No Packet",
+        detail: "You haven't ordered a packet",
+      });
+      setTimeout(() => {
+        navigate(-1);
+      }, 2000);
+    } else {
+      const fetchData = async () => {
+        setFetch(true);
+        const paymentMethodURL = `${API_URL}payment?customerID=${parseInt(
+          customerID
+        )}`;
+        const addressURL = `${API_URL}address?customerID=${customerID}`;
+        const packetURL = `${API_URL}packet/${cart.packetid}?merchantData=true`;
+
+        try {
+          const responsePayment = await axios.get(paymentMethodURL);
+          const payment = responsePayment.data.data.payments.map((payment) => {
+            return { value: payment.paymentid, show: payment.paymentname };
+          });
+          if (cart.packetid !== "" && payment.length === 0) {
+            setError({
+              header: "No Payment",
+              detail: "You don't have a payment method yet !",
+            });
+            setTimeout(() => {
+              navigate(-1);
+            }, 2000);
+          }
+          setPaymentMethod(payment);
+          setSelectedPayment(payment[0].value);
+
+          const responseAddress = await axios.get(addressURL);
+          const addr = responseAddress.data;
+          setAddress(addr);
+          setSelectedAddress(addr[0]);
+
+          if (cart.packetid !== "" && addr.length === 0) {
+            setError({
+              header: "No Address",
+              detail: "You don't have an address yet !",
+            });
+            setTimeout(() => {
+              navigate(-1);
+            }, 2000);
+          }
+
+          const responsePacket = await axios.get(packetURL);
+          setCartItem(responsePacket.data);
+
+          setFetch(false);
+        } catch (error) {}
+      };
+      fetchData();
     }
-
-    const fetchData = async () => {
-      setFetch(true);
-      const paymentMethodURL = `${API_URL}payment?customerID=${parseInt(
-        customerID
-      )}`;
-      const addressURL = `${API_URL}address?customerID=${customerID}`;
-      const packetURL = `${API_URL}packet/${cart.packetid}?merchantData=true`;
-
-      try {
-        const responsePayment = await axios.get(paymentMethodURL);
-        const payment = responsePayment.data.data.payments.map((payment) => {
-          return { value: payment.paymentid, show: payment.paymentname };
-        });
-        if(cart.packetid !== "" && payment.length === 0) {
-          navigate(-1);
-        }
-        setPaymentMethod(payment);
-        setSelectedPayment(payment[0].value);
-
-        const responseAddress = await axios.get(addressURL);
-        const addr = responseAddress.data;
-        setAddress(addr);
-        setSelectedAddress(addr[0]);
-
-        const responsePacket = await axios.get(packetURL);
-        setCartItem(responsePacket.data);
-
-        setFetch(false);
-      } catch (error) {}
-    };
-    fetchData();
   }, []);
 
   const updateSelectedAddress = (selectedAddress) => {
@@ -104,6 +128,7 @@ export default function CheckoutPage() {
     };
 
     try {
+      setUploadProgress(20);
       const response = await axios.post(API, orderObject);
       onUpdateCart({
         packetid: "",
@@ -114,24 +139,44 @@ export default function CheckoutPage() {
       });
       setSelectedAddress({});
       setSelectedPayment({});
-      navigate("/home");
+      setUploadProgress(100);
+      setTimeout(() => {
+        navigate("/home");
+      }, 500);
     } catch (error) {
       console.log(error);
     }
   };
 
   return (
-    !fetch &&
-    cartItem && (
-      <>
-        <AddressSelectionModal
-          show={showModal}
-          onHideModal={hideModalHandler}
-          address={address}
-          selectedAddress={selectedAddress}
-          onUpdateAddress={updateSelectedAddress}
+    <>
+      {error && (
+        <Alert
+          onFinishError={setError}
+          header={error.header}
+          detail={error.detail}
         />
+      )}
+      {!fetch && cartItem && (
         <div className="flex flex-row px-12 py-20 gap-20 bg-gray-50 items-start">
+          <div
+            className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 z-50 ${
+              uploadProgress > 0 ? "block" : "hidden"
+            }`}
+          />
+          <LoadingBar
+            height={8}
+            color="#fde047"
+            progress={uploadProgress}
+            onLoaderFinished={() => setUploadProgress(0)}
+          />
+          <AddressSelectionModal
+            show={showModal}
+            onHideModal={hideModalHandler}
+            address={address}
+            selectedAddress={selectedAddress}
+            onUpdateAddress={updateSelectedAddress}
+          />
           <div className="flex flex-col gap-10 w-2/3">
             <h1 className="font-bold text-3xl">Checkout</h1>
             <div className="flex flex-col gap-3">
@@ -142,7 +187,7 @@ export default function CheckoutPage() {
                   onClick={changeAddressHandler}
                 >
                   <p className="font-semibold">Change Address</p>
-                  <FaEdit className="fill-emerald-600 mx-1 w-6 h-6" />
+                  <FaEdit className="fill-primary mx-1 w-6 h-6" />
                 </div>
               </div>
               <hr className="border-black" />
@@ -241,7 +286,7 @@ export default function CheckoutPage() {
             </button>
           </div>
         </div>
-      </>
-    )
+      )}
+    </>
   );
 }

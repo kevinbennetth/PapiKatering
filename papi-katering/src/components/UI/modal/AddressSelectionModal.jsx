@@ -31,7 +31,7 @@ export default function AddressSelectionModal(props) {
   return (
     <BaseModal show={props.show} onHideModal={props.onHideModal}>
       <h4 className="text-2xl font-bold mb-8">Select Address</h4>
-      {address?.map((addr) => (
+      {address && tempAddress.addressid && address?.map((addr) => (
         <div
           className={`mb-5 flex flex-col gap-4 p-6 shadow-lg rounded-md bg-white cursor-pointer transition-transform w-full text-left relative ${
             addr.addressid.toString() === tempAddress.addressid.toString()

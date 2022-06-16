@@ -46,7 +46,7 @@ const PaymentsMenu = (props) => {
   const handleDelete = async (e, paymentid) => {
     setUploadProgress(20);
     try {
-      const response = API.delete(`/payment/${paymentid}`);
+      const response = await API.delete(`/payment/${paymentid}`);
     } catch (error) {
       console.log(error);
     }
@@ -78,11 +78,11 @@ const PaymentsMenu = (props) => {
       <div className="flex flex-row border-b-2">
         <div className="title basis-4/5 text-3xl">Payments</div>
         <button
-          className="add basis-1/5 flex flex-row text-lg font-bold items-center justify-end"
+          className="add basis-1/5 flex flex-row text-lg font-bold items-center justify-end hover:opacity-60"
           onClick={(e) => handleAdd(e)}
         >
-          <FaPlus className="fill-emerald-600 mx-1" />
-          <p className="text-emerald-600">Add Payment</p>
+          <FaPlus className="fill-primary mx-1" />
+          <p className="text-primary">Add Payment</p>
         </button>
       </div>
 
@@ -90,7 +90,7 @@ const PaymentsMenu = (props) => {
         {payments &&
           payments.map((payment) => (
             <div
-              className="header flex flex-row justify-between bg-white my-4 py-4 px-8 rounded-md drop-shadow-md"
+              className="header flex flex-row justify-between bg-white my-4 py-4 px-8 rounded-md drop-shadow-md hover:scale-[101%] transition-transform"
               key={payment.paymentid}
             >
               <div className="payment w-4/5">

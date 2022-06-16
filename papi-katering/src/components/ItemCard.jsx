@@ -28,7 +28,7 @@ function ItemCard({ image, name, place, rate, fee, type }) {
               <p>{rate}</p>
             </div>
           </div>
-          <p>{fee}</p>
+          <p>{fee ? `Rp. ${fee}` : ""}</p>
         </div>
         <div></div>
       </div>

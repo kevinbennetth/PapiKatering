@@ -34,22 +34,23 @@ const AddressModal = (props) => {
     e.preventDefault();
     try {
       let submissionError = validate();
-      let response;
       if (submissionError.header !== "" && submissionError.detail !== "") {
         setError(submissionError);
       } else {
+        props.onChangeUpload(20);
         if (selectedAddress) {
-          response = await API.put(`/address/${selectedAddress.addressid}`, {
+          await API.put(`/address/${selectedAddress.addressid}`, {
             name,
             detail: details,
           });
         } else {
-          response = await API.post(`/address/`, {
+          await API.post(`/address/`, {
             customerID: custID,
             name,
             detail: details,
           });
         }
+        props.onChangeUpload(100);
         props.hideModal();
       }
     } catch (error) {

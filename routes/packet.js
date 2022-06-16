@@ -47,14 +47,14 @@ router.get("/", async (req, res) => {
   }
 
   if (minPrice !== "") {
-    categoryCondition += ` AND p.packetprice > ${valueCounter}`;
-    values.push(minPrice);
+    categoryCondition += ` AND p.packetprice >= $${valueCounter}`;
+    values.push(parseInt(minPrice));
     valueCounter++;
   }
 
   if (maxPrice !== "") {
-    categoryCondition += ` AND p.packetprice < ${valueCounter}`;
-    values.push(maxPrice);
+    categoryCondition += ` AND p.packetprice <= $${valueCounter}`;
+    values.push(parseInt(maxPrice));
     valueCounter++;
   }
 
@@ -63,6 +63,7 @@ router.get("/", async (req, res) => {
   const offset = (enteredPage - 1) * enteredLimit;
 
   const offsetString = `LIMIT $${valueCounter} OFFSET $${valueCounter + 1}`;
+  const tempValues = [...values];
   values.push(parseInt(enteredLimit));
   values.push(offset);
 
@@ -101,11 +102,13 @@ router.get("/", async (req, res) => {
     const results = await pool.query(query, values);
     let packets = processEmptyAverageReview(results.rows);
 
-    const rowCountResult = await pool.query(countQuery);
-    let page = parseInt(rowCountResult.rows[0].totalrowcount / limit) + 1;
 
+    const rowCountResult = await pool.query(countQuery, tempValues);
+    let page = parseInt(rowCountResult.rows[0].totalrowcount / limit) + 1;
+    
     res.json({ data: packets, page });
   } catch (error) {
+    console.log(error)
     res.status(400).json({ error: error.message });
   }
 });
@@ -209,11 +212,11 @@ router.get("/recommend/:id", async (req, res) => {
       categoryCondition += " AND";
     }
     if (preference.minPrice !== "") {
-      categoryCondition += ` p.packetprice > $1`;
+      categoryCondition += ` p.packetprice >= $1`;
     }
 
     if (preference.maxPrice !== "") {
-      categoryCondition += ` AND p.packetprice < $2`;
+      categoryCondition += ` AND p.packetprice <= $2`;
     }
 
     const query = `
