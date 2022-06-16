@@ -78,9 +78,9 @@ function Home() {
       <div className="flex flex-col gap-10 p-16">
         <div className="flex flex-row justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">PAPI'S RECOMMENDATION</h1>
-          <Button>
-            <Link to="/quiz">Retake Quiz</Link>
-          </Button>
+          <Link to="/quiz">
+            <Button>Retake Quiz</Button>
+          </Link>
         </div>
         <ItemsCarousel
           requestToChangeActive={(e) => setActiveItemIndex(e)}
@@ -102,7 +102,11 @@ function Home() {
         >
           {recommendedPacket.map((packet) => {
             return (
-              <Link to={`/detail/${packet.packetid}`} key={packet.packetid} className="focus:outline-none">
+              <Link
+                to={`/detail/${packet.packetid}`}
+                key={packet.packetid}
+                className="focus:outline-none"
+              >
                 <ItemCard
                   image={packet.packetimage}
                   name={packet.packetname}
@@ -159,7 +163,11 @@ function Home() {
         >
           {popularPacket.map((packet) => {
             return (
-              <Link to={`/detail/${[packet.packetid]}`} key={packet.packetid} className="focus:outline-none">
+              <Link
+                to={`/detail/${[packet.packetid]}`}
+                key={packet.packetid}
+                className="focus:outline-none"
+              >
                 <ItemCard
                   image={packet.packetimage}
                   name={packet.packetname}

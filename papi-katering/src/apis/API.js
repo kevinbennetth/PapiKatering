@@ -1,5 +1,8 @@
 import axios from "axios";
 
 export default axios.create({
-    baseURL: "https://papi-katering.herokuapp.com"
+    baseURL: "http://localhost:8080"
 });
+
+// http://localhost:8080/
+// https://papi-katering.herokuapp.com

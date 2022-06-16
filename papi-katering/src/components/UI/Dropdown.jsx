@@ -27,7 +27,7 @@ export default function Dropdown(props) {
       onChange={valueChangeHandler}
     >
       {props.options?.map((option, idx) => (
-        <option key={idx} value={option.value}>{option.show}</option>
+        <option key={idx} value={option.value} selected={option.value === props.value}>{option.show}</option>
       ))}
     </select>
   );

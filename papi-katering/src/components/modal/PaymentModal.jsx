@@ -46,7 +46,6 @@ const PaymentModal = (props) => {
           });
         } else {
           response = API.post(`/payment/`, {
-            paymentID: Math.floor(Math.random() * 1000000),
             customerID: custID,
             name,
             cardNumber: number,

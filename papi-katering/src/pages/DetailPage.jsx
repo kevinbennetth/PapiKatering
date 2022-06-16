@@ -79,6 +79,17 @@ export default function DetailPage() {
     setSelectedReview(...review);
   };
 
+  const deleteReviewHandler = async (reviewID) => {
+    const API = `${API_URL}review/${id}`
+    try {
+      await axios.delete(API);
+      refetchData();
+    } catch (error) {
+      console.log(error)
+    }
+  } 
+
+
   const addToCartHandler = () => {
     if (cart.packetid !== "" && warningSelect === 0) {
       setWarningMessage({
@@ -226,6 +237,7 @@ export default function DetailPage() {
                 review={review}
                 canEdit={customerID === review.customerid}
                 onEdit={editReviewHandler}
+                onDelete={deleteReviewHandler}
               />
             ))}
           </div>

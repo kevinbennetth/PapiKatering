@@ -3,7 +3,7 @@ import { AiFillStar } from "react-icons/ai";
 
 function ItemCard({ image, name, place, rate, fee, type }) {
 
-  if(!fee) {
+  if(!fee && type !== "skeleton") {
     const placeData = place.split(",");
     const placeDataLen = placeData.length;
     if(placeDataLen > 0) {

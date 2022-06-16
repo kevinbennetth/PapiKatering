@@ -11,7 +11,7 @@ export const uploadAndGetURL = (selectedImage) => {
         const URL = await getDownloadURL(imageRef);
         resolve(URL);
       } catch (error) {
-        reject(error)
+        reject(error);
       }
     });
   }
@@ -19,16 +19,17 @@ export const uploadAndGetURL = (selectedImage) => {
 };
 
 export const selectImage = (image, type) => {
-  let defaultImage = "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg";
+  let defaultImage =
+    "https://bouchonbendigo.com.au/wp-content/uploads/2022/03/istockphoto-1316145932-170667a.jpg";
 
-  if(type === "PROFILE") {
-    defaultImage = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
+  if (type === "PROFILE") {
+    defaultImage =
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
   }
 
-  return typeof image === "string" ||
-  image instanceof String
+  return typeof image === "string" || image instanceof String
     ? image === ""
       ? defaultImage
       : image
     : URL.createObjectURL(image);
-}
+};

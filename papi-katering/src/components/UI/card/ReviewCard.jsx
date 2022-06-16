@@ -28,11 +28,16 @@ export default function ReviewCard(props) {
     props.onEdit(reviewID);
   };
 
+  const deleteHandler = () => {
+    const reviewID = props.review.reviewid;
+    props.onDelete(reviewID);
+  };
+
   return (
     <div className="flex flex-row p-8 shadow-md gap-8 rounded-md">
       <img
         src={props.review.customerimage}
-        className="w-16 h-16 rounded-full object-cover"
+        className="w-16 h-16 rounded-full aspect-square object-cover"
         alt=""
       />
       <div className="flex flex-col w-full">
@@ -40,9 +45,14 @@ export default function ReviewCard(props) {
           <div className="flex flex-row gap-5 items-center">
             <h4 className="font-bold text-xl">{props.review.customername}</h4>
             {props.canEdit && (
-              <button type="button" onClick={editHandler}>
-                <FaEdit className="fill-primary w-6 h-6 " />
-              </button>
+              <div className="flex flex-row items-center">
+                <button type="button" onClick={editHandler}>
+                  <FaEdit className="fill-primary mx-1 w-5 h-5 hover:scale-105 transition-transform cursor-pointer" />
+                </button>
+                <button onClick={deleteHandler}>
+                  <FaTrashAlt className="fill-primary mx-1 w-5 h-5 hover:scale-105 transition-transform cursor-pointer" />
+                </button>
+              </div>
             )}
           </div>
           <div className="flex flex-row items-start gap-2">

@@ -54,6 +54,17 @@ export default function ReviewModal(props) {
     }
   };
 
+  const deleteReviewHandler = async (reviewID) => {
+    const API = `${API_URL}review/${selectedReview.reviewid}`;
+    try {
+      await axios.delete(API);
+      props.onUpdate();
+      props.onHideModal();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const formValueHandler = (name, value) => {
     if (name === "rating") {
       setRating(value);
@@ -94,9 +105,14 @@ export default function ReviewModal(props) {
         />
       </div>
 
-      <Button type="button" onClick={reviewSubmitHandler}>
-        Save
-      </Button>
+      <div className="flex flex-row gap-4">
+        {selectedReview && <Button type="button" onClick={deleteReviewHandler}>
+          Delete
+        </Button>}
+        <Button type="button" onClick={reviewSubmitHandler}>
+          Save
+        </Button>
+      </div>
     </BaseModal>
   );
 }

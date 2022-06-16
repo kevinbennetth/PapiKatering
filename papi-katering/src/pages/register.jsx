@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useContext, useReducer, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import LoadingBar from "react-top-loading-bar";
 import Alert from "../components/UI/alert/Alert";
 import Button from "../components/UI/button/Button";
 import Dropdown from "../components/UI/Dropdown";
@@ -16,6 +17,7 @@ const RegisterPage = () => {
   const { onUserLogin } = useContext(UserContext);
   const { API_URL } = useContext(APIContext);
   const [error, setError] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [registerInfoState, dispatchRegisterInfo] = useReducer(
     registerInfoReducer,
     {
@@ -104,6 +106,7 @@ const RegisterPage = () => {
     if (submissionError.header !== "" && submissionError.detail !== "") {
       setError(submissionError);
     } else {
+      setUploadProgress(20);
       const URL = `${API_URL}user/register`;
       const body = {
         CustomerName: name,
@@ -117,14 +120,27 @@ const RegisterPage = () => {
       try {
         const registerResponse = await axios.post(URL, body);
 
-        if(registerResponse.data.status === "Success") {
+        if (registerResponse.data.status === "Success") {
           const data = registerResponse.data;
-          onUserLogin(data.customerID, data.customerName, data.customerImage, "");
-          navigate("/quiz");
-        } else if(registerResponse.data.status === "Taken") {
-          setError({header: "Email Taken", detail: "There's already an account with that email !"});
+          onUserLogin(
+            data.customerID,
+            data.customerName,
+            data.customerImage,
+            ""
+          );
+          setUploadProgress(100);
+          setTimeout(() => {
+            navigate("/quiz");
+          }, 500);
+        } else if (registerResponse.data.status === "Taken") {
+          setUploadProgress(100);
+          setError({
+            header: "Email Taken",
+            detail: "There's already an account with that email !",
+          });
         }
       } catch (error) {
+        setUploadProgress(100);
         console.log(error);
       }
     }
@@ -144,6 +160,17 @@ const RegisterPage = () => {
         />
       )}
       <div className="min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
+        <div
+          className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 z-50 ${
+            uploadProgress > 0 ? "block" : "hidden"
+          }`}
+        />
+        <LoadingBar
+          height={8}
+          color="#fde047"
+          progress={uploadProgress}
+          onLoaderFinished={() => setUploadProgress(0)}
+        />
         <img
           src="https://images2.alphacoders.com/100/1003810.jpg"
           alt=""

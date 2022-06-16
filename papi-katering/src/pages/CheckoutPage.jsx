@@ -45,10 +45,6 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (cart.packetid === "") {
-      setError({
-        header: "Checkout Available",
-        detail: "Please Subscribe to a Catering First !",
-      });
       navigate(-1);
     }
 
@@ -65,6 +61,9 @@ export default function CheckoutPage() {
         const payment = responsePayment.data.data.payments.map((payment) => {
           return { value: payment.paymentid, show: payment.paymentname };
         });
+        if(cart.packetid !== "" && payment.length === 0) {
+          navigate(-1);
+        }
         setPaymentMethod(payment);
         setSelectedPayment(payment[0].value);
 

@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import AddressMenu from "../components/profile/AddressMenu";
 import AuthenticationMenu from "../components/profile/AuthenticationMenu";
@@ -14,9 +15,9 @@ import { UserContext } from "../context/context";
 
 const ProfilePage = () => {
   const [menu, setMenu] = useState("profile");
+  const navigate = useNavigate();
 
   const { customerID, customerName, customerImage } = useContext(UserContext);
-
 
   const renderMenu = (menu) => {
     if (menu === "profile") {
@@ -48,6 +49,11 @@ const ProfilePage = () => {
     }
   };
 
+  const logoutHandler = () => {
+    
+    navigate("/");
+  }
+
   return (
     <div className="profile container mx-auto my-8 min-h-[1028px] w-2/3">
       <div className="profile-header flex flex-row items-center">
@@ -56,7 +62,9 @@ const ProfilePage = () => {
           alt=""
           className="profile-img-round aspect-square rounded-full w-24 object-cover"
         />
-        <div className="profile-name text-2xl font-bold mx-8 ">{customerName}</div>
+        <div className="profile-name text-2xl font-bold mx-8 ">
+          {customerName}
+        </div>
       </div>
 
       <div className="menus flex flex-row my-4">
@@ -116,7 +124,9 @@ const ProfilePage = () => {
                   {renderOption("Package")}
                 </button>
               </li>
-              <li className="text-red-500">Log out</li>
+              <li className="text-red-500 font-bold">
+                <button onClick={logoutHandler}>Log out</button>
+              </li>
             </ul>
           </div>
         </div>

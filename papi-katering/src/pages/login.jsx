@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useContext, useReducer, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import LoadingBar from "react-top-loading-bar";
 import Alert from "../components/UI/alert/Alert";
 import Button from "../components/UI/button/Button";
 import Input from "../components/UI/input/Input";
@@ -14,6 +15,7 @@ const LoginPage = () => {
   const { onUserLogin } = useContext(UserContext);
   const { API_URL } = useContext(APIContext);
   const [error, setError] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [loginInfoState, dispatchLoginInfo] = useReducer(loginInfoReducer, {
     email: "",
     password: "",
@@ -60,19 +62,30 @@ const LoginPage = () => {
         Email: email.toLowerCase(),
         Password: password,
       };
+      setUploadProgress(20);
       try {
         const loginResponse = await axios.post(URL, body);
         const data = loginResponse.data.data.returned;
 
         if (loginResponse.data.status === "success") {
-          onUserLogin(data.customerID, data.customerName, data.customerImage, data.merchantID);
-          navigate("/home");
+          onUserLogin(
+            data.customerID,
+            data.customerName,
+            data.customerImage,
+            data.merchantID
+          );
+          setUploadProgress(100);
+          setTimeout(() => {
+            navigate("/home");
+          }, 500);
         } else {
+          setUploadProgress(100);
           submissionError.header = "Wrong Credentials";
           submissionError.detail = "Either your email or password is wrong";
           setError(submissionError);
         }
       } catch (error) {
+        setUploadProgress(100);
         submissionError.header = "Server Error";
         submissionError.detail = "Something went wrong with the server";
         setError(submissionError);
@@ -90,6 +103,17 @@ const LoginPage = () => {
         />
       )}
       <div className="min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
+        <div
+          className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 z-50 ${
+            uploadProgress > 0 ? "block" : "hidden"
+          }`}
+        />
+        <LoadingBar
+          height={8}
+          color="#fde047"
+          progress={uploadProgress}
+          onLoaderFinished={() => setUploadProgress(0)}
+        />
         <img
           src="https://images2.alphacoders.com/100/1003810.jpg"
           alt=""
@@ -127,7 +151,10 @@ const LoginPage = () => {
 
           <div className="font-bold">
             Not Registered Yet?{" "}
-            <Link to={"/register"} className="text-primary focus:outline-none hover:underline">
+            <Link
+              to={"/register"}
+              className="text-primary focus:outline-none hover:underline"
+            >
               Create an Account
             </Link>
           </div>

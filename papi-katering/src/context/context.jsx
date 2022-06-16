@@ -74,7 +74,7 @@ export const ContextProvider = (props) => {
   }
 
   return (
-    <APIContext.Provider value={{ API_URL: "https://papi-katering.herokuapp.com/" }}>
+    <APIContext.Provider value={{ API_URL: "http://localhost:8080/" }}>
       <CartContext.Provider value={{ cart, onUpdateCart: updateCartHandler }}>
         <UserContext.Provider
           value={{

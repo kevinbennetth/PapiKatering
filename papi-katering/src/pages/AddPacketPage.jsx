@@ -96,6 +96,7 @@ export default function AddPacketPage() {
         ) {
           packet.packetimage = await uploadAndGetURL(packet.packetimage);
         }
+        packet.packetimage = selectImage(packet.packetimage, "PACKET");
         uploadCounter++;
         setUploadProgress((uploadCounter / totalImageUpload) * 100);
 
@@ -103,7 +104,17 @@ export default function AddPacketPage() {
           let menu = packet.menu[i];
           for (let j = 0; j < menu.menuitems.length; j++) {
             const menuitem = menu.menuitems[j];
-            let newmenuimage = selectImage(menuitem.menuimage, "PACKET");
+            let newmenuimage = menuitem.menuimage;
+            if (
+              !(
+                typeof menuitem.menuimage === "string" ||
+                menuitem.menuimage instanceof String
+              )
+            ) {
+              newmenuimage = await uploadAndGetURL(menuitem.menuimage);
+            }
+            newmenuimage = selectImage(newmenuimage, "PACKET");
+
             packet.menu[i].menuitems[j] = {
               ...packet.menu[i].menuitems[j],
               menuimage: newmenuimage,
@@ -175,7 +186,7 @@ export default function AddPacketPage() {
   return (
     <div className="flex flex-col mx-auto my-24 w-11/12 gap-10">
       <div
-        className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 ${
+        className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 z-50 ${
           uploadProgress > 0 ? "block" : "hidden"
         }`}
       />
