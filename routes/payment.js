@@ -34,14 +34,13 @@ router.post("/", async (req, res) => {
   try {
     const body = req.body;
     const query = `
-        INSERT INTO Payment (PaymentID, CustomerID, PaymentName, PaymentNumber)
+        INSERT INTO Payment (CustomerID, PaymentName, PaymentNumber)
         VALUES 
-        ($1, $2, $3, $4)
+        ($1, $2, $3)
         RETURNING *;
         `;
 
     const results = await pool.query(query, [
-      body.paymentID,
       body.customerID,
       body.name,
       body.cardNumber,

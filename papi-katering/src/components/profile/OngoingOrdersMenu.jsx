@@ -22,11 +22,14 @@ const OngoingOrdersMenu = (props) => {
         response = await API.get(`/order?customerID=${custID}&status=ongoing`);
         setOrders(response.data);
       } else if (type === "Merchant") {
+        console.log(merchantID)
         if (merchantID !== "") {
           response = await API.get(
             `/order?merchantID=${merchantID}&status=ongoing`
           );
           setOrders(response.data);
+        } else {
+          setOrders([]);
         }
       }
     } catch (error) {

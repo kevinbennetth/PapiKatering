@@ -18,8 +18,7 @@ router.get("/", async (req, res) => {
 
   if (req.query.customerID) {
     const customerID = req.query.customerID;
-    queryString =
-      `
+    queryString = `
       SELECT
         *
       FROM
@@ -28,24 +27,25 @@ router.get("/", async (req, res) => {
         JOIN Merchant m on m.MerchantID = o.MerchantID
       WHERE
         o.CustomerID = $1
-        AND o.OrderStatus = $2;
+        AND o.OrderStatus = $2
+      ORDER BY o.orderdate;
       `;
-    
+
     values = [customerID, statusID];
   } else if (req.query.merchantID) {
     const merchantID = req.query.merchantID;
-    queryString =
-    `
+    queryString = `
     SELECT
       *
     FROM
       Orders o
       JOIN Packet p on p.PacketID = o.PacketID
-      JOIN Merchant m on m.MerchantID = o.MerchantID
+      JOIN Customer c on o.customerid = c.customerid
     WHERE
       o.MerchantID = $1
-      AND o.OrderStatus = $2;
-    `
+      AND o.OrderStatus = $2
+    ORDER BY o.orderdate;
+    `;
     values = [merchantID, statusID];
   }
 
@@ -91,6 +91,24 @@ router.post("/", async (req, res) => {
   try {
     await pool.query(queryString, values);
     res.status(200).json({ message: "Successfully added new order" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.query;
+
+  const query = `
+    UPDATE orders
+    SET orderstatus = $1
+    WHERE orderid=$2;
+  `;
+  const values = [parseInt(status), parseInt(id)];
+  try {
+    await pool.query(query, values);
+    res.status(200).json({ message: "success" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

@@ -39,18 +39,22 @@ const PaymentModal = (props) => {
         setError(submissionError);
       } else {
         let response;
+        props.onChangeUpload(20);
+        console.log(selectedPayment)
+        console.log(custID);
         if (selectedPayment) {
           response = API.put(`/payment/${selectedPayment.paymentid}`, {
             name,
             cardNumber: number,
           });
         } else {
-          response = API.post(`/payment/`, {
+          response = API.post(`/payment`, {
             customerID: custID,
             name,
             cardNumber: number,
           });
         }
+        props.onChangeUpload(100);
         props.hideModal();
       }
     } catch (error) {

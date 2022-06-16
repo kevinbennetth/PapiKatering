@@ -1,4 +1,5 @@
 import { useState } from "react";
+import LoadingBar from "react-top-loading-bar";
 import API from "../../apis/API";
 import Alert from "../UI/alert/Alert";
 import Button from "../UI/button/Button";
@@ -8,6 +9,7 @@ const AuthenticationMenu = (props) => {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const validate = () => {
     const submissionError = { header: "", detail: "" };
@@ -29,16 +31,19 @@ const AuthenticationMenu = (props) => {
     if (submissionError.header !== "" && submissionError.detail !== "") {
       setError(submissionError);
     } else {
+      setUploadProgress(20);
       try {
         const response = await API.put(`/user/${custID}`, {
           CustomerPassword: password,
         });
 
+        setUploadProgress(100)
         if (response.data.status === "success") {
           setPassword("");
           setConfirm("");
         }
       } catch (error) {
+        setUploadProgress(100)
         console.log(error);
       }
     }
@@ -53,6 +58,17 @@ const AuthenticationMenu = (props) => {
           detail={error.detail}
         />
       )}
+      <LoadingBar
+        height={8}
+        color="#fde047"
+        progress={uploadProgress}
+        onLoaderFinished={() => setUploadProgress(0)}
+      />
+      <div
+        className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 z-50 ${
+          uploadProgress > 0 ? "block" : "hidden"
+        }`}
+      />
       <div className="title text-3xl border-b-2">Authentication</div>
       <form action="" method="post" className="w-7/12 mt-4 mb-12">
         <div className="new-pass-container">
@@ -61,6 +77,7 @@ const AuthenticationMenu = (props) => {
             type="password"
             name="pass"
             id="pass"
+            value={password}
             className="rounded-md border w-full p-1"
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -72,6 +89,7 @@ const AuthenticationMenu = (props) => {
             type="password"
             name="confirm-pass"
             id="confirm-pass"
+            value={confirm}
             className="rounded-md border w-full p-1 mb-8"
             onChange={(e) => setConfirm(e.target.value)}
           />

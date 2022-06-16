@@ -2,11 +2,13 @@ import { FaPlus, FaEdit, FaTrashAlt } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import API from "../../apis/API";
 import PaymentModal from "../modal/PaymentModal";
+import LoadingBar from "react-top-loading-bar";
 
 const PaymentsMenu = (props) => {
   const custID = props.custID;
   const [payments, setPayments] = useState(null);
   const [modal, setModal] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [selectedPayment, setSelectedPayment] = useState(null);
 
@@ -42,11 +44,13 @@ const PaymentsMenu = (props) => {
   };
 
   const handleDelete = async (e, paymentid) => {
+    setUploadProgress(20);
     try {
       const response = API.delete(`/payment/${paymentid}`);
     } catch (error) {
       console.log(error);
     }
+    setUploadProgress(100);
     hideModal();
   };
 
@@ -57,6 +61,18 @@ const PaymentsMenu = (props) => {
         hideModal={hideModal}
         custID={custID}
         payment={selectedPayment}
+        onChangeUpload={setUploadProgress}
+      />
+      <LoadingBar
+        height={8}
+        color="#fde047"
+        progress={uploadProgress}
+        onLoaderFinished={() => setUploadProgress(0)}
+      />
+      <div
+        className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 z-50 ${
+          uploadProgress > 0 ? "block" : "hidden"
+        }`}
       />
 
       <div className="flex flex-row border-b-2">

@@ -147,7 +147,7 @@ const ProfileMenu = (props) => {
           onLoaderFinished={() => setUploadProgress(0)}
         />
         <div
-          className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 ${
+          className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 z-50 ${
             uploadProgress > 0 ? "block" : "hidden"
           }`}
         />

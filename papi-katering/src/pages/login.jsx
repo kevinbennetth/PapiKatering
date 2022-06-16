@@ -72,7 +72,7 @@ const LoginPage = () => {
             data.customerID,
             data.customerName,
             data.customerImage,
-            data.merchantID
+            data.merchantID === null ? "" : data.merchantID
           );
           setUploadProgress(100);
           setTimeout(() => {

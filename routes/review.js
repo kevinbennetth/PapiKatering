@@ -4,13 +4,13 @@ const router = express.Router();
 const util = require("../utils/utility");
 
 router.get("/", async (req, res) => {
-  const { type, packetID, customerID } = req.body;
+  const { type, packetID, customerID } = req.query;
 
-    let queryString = "";
-    let values = [];
+  let queryString = "";
+  let values = [];
 
-    if(type === "packet") {
-        queryString = `
+  if (type === "packet") {
+    queryString = `
         SELECT
             *
         FROM
@@ -20,10 +20,10 @@ router.get("/", async (req, res) => {
         WHERE
             r.CustomerID = $1,
             p.PacketID = $2;
-        `
-        values = [customerID, packetID];
-    } else if (type === "user") {
-        queryString = `
+        `;
+    values = [customerID, packetID];
+  } else if (type === "user") {
+    queryString = `
         SELECT
             *
         FROM
@@ -33,18 +33,17 @@ router.get("/", async (req, res) => {
             JOIN merchant m on m.merchantID = p.merchantID
         WHERE
             r.CustomerID = $1;
-        `
-        values = [customerID];
-    }
+        `;
+    values = [customerID];
+  }
 
-    try {
-        const resReview = await pool.query(queryString, values);
-        res.status(200).json(resReview.rows);
-        
-    } catch (error) {
-        res.status(400).json({ error: error.message })
-    }
-})
+  try {
+    const resReview = await pool.query(queryString, values);
+    res.status(200).json(resReview.rows);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
 router.post("/", async (req, res) => {
   const { customerid, packetid, rating, description } = req.body;
@@ -93,6 +92,20 @@ router.put("/:id", async (req, res) => {
     } else {
       res.status(400).json({ error: `There's no review with ID ${id}` });
     }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+  const queryString = `
+    DELETE FROM review
+    WHERE reviewid=$1;
+  `;
+  try {
+    await pool.query(queryString, [id]);
+    res.status(200).json({ message: "Successful" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
