@@ -32,7 +32,6 @@ export default function DetailPage() {
     header: "",
     detail: "",
   });
-  const [warningSelect, setWarningSelect] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const checkCanReview = (data) => {
@@ -97,27 +96,32 @@ export default function DetailPage() {
   };
 
   const addToCartHandler = () => {
-    if (cart.packetid !== "" && warningSelect === 0) {
+    if (cart.packetid !== "") {
       setWarningMessage({
         header: "Cart is Already Filled",
         detail: "Are you sure you want to delete your previous cart item ?",
       });
       setModal("WARNING");
     } else {
-      const newCartItem = {
-        packetid: packet.packetid,
-        customerid: customerID,
-        merchantid: packet.merchant.merchantid,
-        orderquantity: parseInt(orderCount),
-      };
-      onUpdateCart(newCartItem);
-      navigate("/checkout");
+      setCart();
     }
   };
 
+  const setCart = () => {
+    const newCartItem = {
+      packetid: packet.packetid,
+      customerid: customerID,
+      merchantid: packet.merchant.merchantid,
+      orderquantity: parseInt(orderCount),
+    };
+    onUpdateCart(newCartItem);
+    navigate("/checkout");
+  };
+
   const selectHandler = (value) => {
-    setWarningSelect(() => value);
-    addToCartHandler();
+    if (value === 1) {
+      setCart();
+    }
   };
 
   return (

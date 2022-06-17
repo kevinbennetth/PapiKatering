@@ -61,7 +61,7 @@ function Home() {
               beef, chicken, sushi, seafood, and salads!
             </p>
             <Link
-              to="/merchant/1"
+              to="/merchant/8"
               className="focus:outline-none py-4 flex flex-row items-center gap-4 bg-primary text-xl text-white font-semibold px-16 rounded-full self-center mt-5 hover:opacity-75"
             >
               <p>Visit Merchant Page</p>
