@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
+import LoadingBar from "react-top-loading-bar";
 import API from "../../apis/API";
 import { UserContext } from "../../context/context";
 import OrderCard from "../UI/card/OrderCard";
@@ -15,6 +16,7 @@ const OngoingOrdersMenu = (props) => {
   const { merchantID } = useContext(UserContext);
   const [orders, setOrders] = useState("");
   const [type, setType] = useState("Customer");
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const fetchOrders = async () => {
     try {
@@ -52,6 +54,8 @@ const OngoingOrdersMenu = (props) => {
 
   return (
     <div className="flex flex-col gap-4">
+      
+      
       <div className="title text-3xl border-b-2">Ongoing Subscription</div>
       <div className="self-end">
         <Dropdown
@@ -66,18 +70,14 @@ const OngoingOrdersMenu = (props) => {
       <div className="orders mt-8 flex flex-col gap-6">
         {orders &&
           orders.map((order) => (
-            <Link
-              to={`/detail/${order.packetid}`}
+            <OrderCard
+              onUpdateOrder={updateHandler}
+              order={order}
               key={order.orderid}
-              className="visited:outline-none"
-            >
-              <OrderCard
-                onUpdateOrder={updateHandler}
-                order={order}
-                type={type}
-                status={"Edit"}
-              />
-            </Link>
+              type={type}
+              status={"Edit"}
+              onChangeUpload={setUploadProgress}
+            />
           ))}
       </div>
     </div>

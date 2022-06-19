@@ -1,4 +1,3 @@
-const e = require("express");
 const express = require("express");
 const pool = require("../db");
 const router = express.Router();
@@ -49,7 +48,19 @@ router.put("/:id", async (req, res) => {
       `;
       results = await pool.query(query, [body.CustomerPassword, req.params.id]);
     } else {
-      const query = `
+      const queryCheck = `
+        SELECT *
+        FROM customer
+        WHERE customeremail = $1
+    `;
+
+      const checkReturn = await pool.query(queryCheck, [body.CustomerEmail]);
+      if (checkReturn.rowCount > 0 && checkReturn.rows[0].customeremail !== body.CustomerEmail) {
+        res.status(201).json({
+          status: "Taken",
+        });
+      } else {
+        const query = `
           UPDATE Customer
           SET 
               CustomerName = $1,
@@ -63,25 +74,26 @@ router.put("/:id", async (req, res) => {
           RETURNING *;
           `;
 
-      const values = [
-        body.CustomerName,
-        body.CustomerDOB,
-        body.CustomerGender,
-        body.CustomerEmail,
-        body.CustomerPhone,
-        body.CustomerImage,
-        req.params.id,
-      ];
+        const values = [
+          body.CustomerName,
+          body.CustomerDOB,
+          body.CustomerGender,
+          body.CustomerEmail,
+          body.CustomerPhone,
+          body.CustomerImage,
+          req.params.id,
+        ];
 
-      results = await pool.query(query, values);
+        results = await pool.query(query, values);
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          customerData: results.rows[0],
+        },
+      });
     }
-
-    res.status(200).json({
-      status: "success",
-      data: {
-        customerData: results.rows[0],
-      },
-    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

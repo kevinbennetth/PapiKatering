@@ -13,6 +13,7 @@ export default function Button(props) {
       className={baseClass}
       type={props.type}
       onClick={props.onClick}
+      title={props.title}
     >
       {props.children}
     </button>

@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
       WHERE
         o.CustomerID = $1
         AND o.OrderStatus = $2
-      ORDER BY o.orderdate;
+      ORDER BY o.orderdate DESC;
       `;
 
     values = [customerID, statusID];
@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
     WHERE
       o.MerchantID = $1
       AND o.OrderStatus = $2
-    ORDER BY o.orderdate;
+    ORDER BY o.orderdate DESC;
     `;
     values = [merchantID, statusID];
   }
@@ -65,6 +65,7 @@ router.post("/", async (req, res) => {
     addressid,
     paymentid,
     orderdaycount,
+    orderdate,
     orderadditionalprice,
     orderquantity,
   } = req.body;
@@ -72,7 +73,6 @@ router.post("/", async (req, res) => {
   const queryString =
     "INSERT INTO orders (packetid, merchantid, customerid, addressid, paymentid, orderdate, orderdaycount, orderadditionalprice, orderquantity, orderstatus) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);";
 
-  const orderDate = util.getCurrentDate();
   const orderStatus = 0;
 
   const values = [
@@ -81,7 +81,7 @@ router.post("/", async (req, res) => {
     customerid,
     addressid,
     paymentid,
-    orderDate,
+    orderdate,
     orderdaycount,
     orderadditionalprice,
     orderquantity,

@@ -7,6 +7,13 @@ import { APIContext, CartContext, UserContext } from "../context/context";
 import { useNavigate } from "react-router-dom";
 import Alert from "../components/UI/alert/Alert";
 import LoadingBar from "react-top-loading-bar";
+import Input from "../components/UI/input/Input";
+
+const transformDate = (date) => {
+  let month = (date.getMonth() + 1).toString();
+  month = month.length == 1 ? 0 + month : month;
+  return `${date.getFullYear()}-${month}-${date.getDate()}`;
+};
 
 export default function CheckoutPage() {
   const { customerID } = useContext(UserContext);
@@ -19,6 +26,11 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState();
   const [cartItem, setCartItem] = useState();
   const [dayCount, setDayCount] = useState(1);
+  const [startDate, setStartDate] = useState(() => {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 2);
+    return transformDate(startDate);
+  });
 
   const [selectedPayment, setSelectedPayment] = useState({});
   const [selectedAddress, setSelectedAddress] = useState({});
@@ -114,38 +126,75 @@ export default function CheckoutPage() {
     setSelectedPayment(parseInt(value));
   };
 
-  const submitHandler = async () => {
-    const API = `${API_URL}order`;
-    const orderObject = {
-      packetid: cartItem.packetid,
-      merchantid: cartItem.merchant.merchantid,
-      customerid: customerID,
-      addressid: selectedAddress.addressid,
-      paymentid: selectedPayment,
-      orderdaycount: parseInt(dayCount),
-      orderadditionalprice: 20000,
-      orderquantity: cart.orderquantity,
+  const validateForm = () => {
+    const submissionError = {
+      header: "",
+      detail: "",
     };
 
-    try {
-      setUploadProgress(20);
-      const response = await axios.post(API, orderObject);
-      onUpdateCart({
-        packetid: "",
-        merchantid: "",
-        customerid: "",
-        orderdaycount: "",
-        orderquantity: "",
-      });
-      setSelectedAddress({});
-      setSelectedPayment({});
-      setUploadProgress(100);
-      setTimeout(() => {
-        navigate("/home");
-      }, 500);
-    } catch (error) {
-      console.log(error);
+    const twoDays = 1000 * 60 * 60 * 24 * 2;
+
+    const twoDaysDate = new Date();
+    twoDaysDate.setDate(twoDaysDate.getDate() + 3);
+    twoDaysDate.setHours(7, 0, 0, 0);
+
+    if (
+      startDate.trim().length === 0 ||
+      !(twoDaysDate.getTime() - new Date(startDate).getTime() < twoDays)
+    ) {
+      submissionError.header = "Invalid Start Date";
+      submissionError.detail =
+        "Start date has to be filled and at least 2 days from now !";
+    } else if (dayCount < 1) {
+      submissionError.header = "Invalid Day Count";
+      submissionError.detail = "The order has to be at least 1 day !";
     }
+
+    return submissionError;
+  };
+
+  const submitHandler = async () => {
+    const API = `${API_URL}order`;
+    const submissionError = validateForm();
+    if (submissionError.header !== "" && submissionError.detail !== "") {
+      setError(submissionError);
+    } else {
+      const orderObject = {
+        packetid: cartItem.packetid,
+        merchantid: cartItem.merchant.merchantid,
+        customerid: customerID,
+        addressid: selectedAddress.addressid,
+        paymentid: selectedPayment,
+        orderdaycount: parseInt(dayCount),
+        orderdate: startDate,
+        orderadditionalprice: 20000,
+        orderquantity: cart.orderquantity,
+      };
+
+      try {
+        setUploadProgress(20);
+        const response = await axios.post(API, orderObject);
+        onUpdateCart({
+          packetid: "",
+          merchantid: "",
+          customerid: "",
+          orderdaycount: "",
+          orderquantity: "",
+        });
+        setSelectedAddress({});
+        setSelectedPayment({});
+        setUploadProgress(100);
+        setTimeout(() => {
+          navigate("/home");
+        }, 500);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const startDateValueHandler = (_, value) => {
+    setStartDate(value);
   };
 
   return (
@@ -220,6 +269,17 @@ export default function CheckoutPage() {
                     <h4 className="font-bold text-2xl">
                       {cartItem.packetname}
                     </h4>
+                    <div className="flex items-center w-1/2">
+                      <h4 className="w-1/2">Start Date: </h4>
+                      <Input
+                        type="date"
+                        name="startdate"
+                        id="startdate"
+                        className="border-2 rounded-md"
+                        value={startDate}
+                        onChange={startDateValueHandler}
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-col gap-2 w-1/6">
                     <h4 className="font-bold text-2xl w-full text-right">
@@ -229,7 +289,7 @@ export default function CheckoutPage() {
                       <p className="text-xl text-right w-1/2">Days</p>
                       <input
                         type="number"
-                        min={0}
+                        min={1}
                         value={dayCount}
                         onChange={(e) => {
                           setDayCount(e.target.value);

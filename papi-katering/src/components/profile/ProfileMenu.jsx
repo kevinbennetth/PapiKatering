@@ -113,7 +113,7 @@ const ProfileMenu = (props) => {
           CustomerName: name,
           CustomerDOB: DOB,
           CustomerGender: gender,
-          CustomerEmail: email,
+          CustomerEmail: email.toLowerCase(),
           CustomerPhone: phone,
           CustomerImage: image,
         });

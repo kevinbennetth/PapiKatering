@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useContext, useEffect, useReducer, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import LoadingBar from "react-top-loading-bar";
 import Alert from "../components/UI/alert/Alert";
 import Button from "../components/UI/button/Button";
 import Input from "../components/UI/input/Input";
@@ -18,6 +19,7 @@ const QuizPage = () => {
   const { API_URL } = useContext(APIContext);
   const [update, setUpdate] = useState(null);
   const [fetch, setFetch] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const halalList = [
     { text: "Only Halal", value: 1 },
@@ -57,7 +59,10 @@ const QuizPage = () => {
       submissionError.header = "Invalid Minimum Price";
       submissionError.detail =
         "Please Insert a Valid Number that is more than 0 !";
-    } else if (!parseInt(maxPrice) > 0 && parseInt(maxPrice) <= parseInt(minPrice)) {
+    } else if (
+      !parseInt(maxPrice) > 0 &&
+      parseInt(maxPrice) <= parseInt(minPrice)
+    ) {
       submissionError.header = "Invalid Maximum Price";
       submissionError.detail =
         "Please Insert a Valid Number that is more than the Minimum Price !";
@@ -77,6 +82,7 @@ const QuizPage = () => {
     } else {
       let URL = `${API_URL}preference`;
 
+      setUploadProgress(20);
       const body = {
         CustomerID: customerID,
         Halal: parseInt(halal),
@@ -94,11 +100,12 @@ const QuizPage = () => {
       } catch (error) {
         console.log(error);
       }
+      setUploadProgress(100);
     }
   };
 
   const formValueHandler = (name, value) => {
-    if((name === "minPrice" || name === "maxPrice") && !(value > 0)) {
+    if ((name === "minPrice" || name === "maxPrice") && !(value > 0)) {
       value = "";
     }
     dispatchQuizInfo({ [name]: value });
@@ -139,6 +146,17 @@ const QuizPage = () => {
           />
         )}
         <div className="min-h-full absolute w-full bg-white top-0 flex flex-row z-10">
+          <LoadingBar
+            height={8}
+            color="#fde047"
+            progress={uploadProgress}
+            onLoaderFinished={() => setUploadProgress(0)}
+          />
+          <div
+            className={`fixed w-screen h-screen bg-black bg-opacity-20 top-0 left-0 z-50 ${
+              uploadProgress > 0 ? "block" : "hidden"
+            }`}
+          />
           <img
             src="https://images2.alphacoders.com/100/1003810.jpg"
             alt=""
@@ -166,7 +184,9 @@ const QuizPage = () => {
                         <Radio
                           name="halal"
                           value={halalItem.value}
-                          checked={halalItem.value.toString() === halal.toString()}
+                          checked={
+                            halalItem.value.toString() === halal.toString()
+                          }
                           onChange={formValueHandler}
                         />
                         <p className="text-lg">{halalItem.text}</p>
@@ -184,7 +204,8 @@ const QuizPage = () => {
                           name="vegetarian"
                           value={vegetarianItem.value}
                           checked={
-                            vegetarianItem.value.toString() === vegetarian.toString()
+                            vegetarianItem.value.toString() ===
+                            vegetarian.toString()
                           }
                           onChange={formValueHandler}
                         />

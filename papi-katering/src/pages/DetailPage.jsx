@@ -198,6 +198,7 @@ export default function DetailPage() {
               <Button
                 onClick={addToCartHandler}
                 disabled={merchantID === packet.merchant.merchantid}
+                title={merchantID === packet.merchant.merchantid ? "Can't order your own packet" : ""}
               >
                 Subscribe
               </Button>

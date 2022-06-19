@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useEffect } from "react";
 import { useContext } from "react";
 import { GoSearch } from "react-icons/go";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -22,6 +23,7 @@ export default function Header() {
   const [query, setQuery] = useState("");
   const [type, setType] = useState("Food");
   const { customerImage } = useContext(UserContext);
+  const { customerID } = useContext(UserContext);
   const navigate = useNavigate();
 
   const searchValueHandler = (name, value) => {
@@ -37,6 +39,12 @@ export default function Header() {
     navigate(`/search?q=${query}&type=${type}`);
   };
 
+  useEffect(() => {
+    if(customerID === "") {
+      navigate("/login");
+    }
+  }, [])
+  
   return (
     <header className="bg-primary py-4 px-10 flex flex-row justify-between">
       <Link

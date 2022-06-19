@@ -64,18 +64,12 @@ const OrdersHistoryMenu = (props) => {
       <div className="orders mt-8 flex flex-col gap-6">
         {orders &&
           orders.map((order) => (
-            <Link
-              to={`/detail/${order.packetid}`}
+            <OrderCard
+              onUpdateOrder={updateHandler}
+              order={order}
+              type={type}
               key={order.orderid}
-              className="visited:outline-none"
-            >
-              <OrderCard
-                onUpdateOrder={updateHandler}
-                order={order}
-                type={type}
-                key={order.orderid}
-              />
-            </Link>
+            />
           ))}
       </div>
     </div>
